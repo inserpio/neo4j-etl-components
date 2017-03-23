@@ -8,13 +8,18 @@ public enum SqlDataType
 {
     BIT( Neo4jDataType.Byte ),
     INT( Neo4jDataType.Int ),
+    INT_UNSIGNED( Neo4jDataType.Int ),
     TINYINT( Neo4jDataType.Byte ),
+    TINYINT_UNSIGNED( Neo4jDataType.Byte ),
     SMALLINT( Neo4jDataType.Short ),
+    SMALLINT_UNSIGNED( Neo4jDataType.Short ),
     BIGINT( Neo4jDataType.Long ),
+    BIGINT_UNSIGNED( Neo4jDataType.Short ),
     FLOAT( Neo4jDataType.Float ),
     DOUBLE( Neo4jDataType.Double ),
     DECIMAL( Neo4jDataType.Float ),
     MEDIUMINT( Neo4jDataType.Int ),
+    MEDIUMINT_UNSIGNED( Neo4jDataType.Int ),
 
     CHAR( Neo4jDataType.String ),
     VARCHAR( Neo4jDataType.String ),
@@ -44,7 +49,7 @@ public enum SqlDataType
     {
         try
         {
-            return SqlDataType.valueOf( dataType.toUpperCase() );
+            return SqlDataType.valueOf( dataType.replaceAll(" ", "_").toUpperCase() );
         }
         catch ( NullPointerException e )
         {

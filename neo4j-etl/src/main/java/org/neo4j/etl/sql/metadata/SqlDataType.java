@@ -14,7 +14,7 @@ public enum SqlDataType
     SMALLINT( Neo4jDataType.Short ),
     SMALLINT_UNSIGNED( Neo4jDataType.Short ),
     BIGINT( Neo4jDataType.Long ),
-    BIGINT_UNSIGNED( Neo4jDataType.Short ),
+    BIGINT_UNSIGNED( Neo4jDataType.Long ),
     FLOAT( Neo4jDataType.Float ),
     DOUBLE( Neo4jDataType.Double ),
     DECIMAL( Neo4jDataType.Float ),

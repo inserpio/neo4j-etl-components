@@ -1,3 +1,7 @@
+image:https://travis-ci.org/neo4j-contrib/neo4j-etl-components.svg[alt="Travis CI Status", link="https://travis-ci.org/neo4j-contrib/neo4j-etl-components"]
+image:https://img.shields.io/github/release/neo4j-contrib/neo4j-etl-components.svg[alt="Github release status"]
+image:https://img.shields.io/github/contributors/neo4j-contrib/neo4j-etl-components.svg[alt="contributor stats"]
+
 = Neo4j ETL Components
 
 Data import from relational databases to Neo4j.

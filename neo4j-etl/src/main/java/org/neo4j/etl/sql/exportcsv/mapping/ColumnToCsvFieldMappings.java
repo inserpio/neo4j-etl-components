@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.apache.commons.lang3.StringUtils;
 
+import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 import org.neo4j.etl.neo4j.importcsv.fields.CsvField;
 import org.neo4j.etl.sql.metadata.Column;
 import org.neo4j.etl.sql.metadata.TableName;
@@ -26,7 +27,7 @@ public class ColumnToCsvFieldMappings
         {
             mappings.add( ColumnToCsvFieldMapping.fromJson( jsonNode ) );
         }
-        return new ColumnToCsvFieldMappings( mappings );
+        return new ColumnToCsvFieldMappings( mappings, Formatting.DEFAULT );
     }
 
     public static Builder builder()
@@ -35,11 +36,13 @@ public class ColumnToCsvFieldMappings
     }
 
     private final Collection<ColumnToCsvFieldMapping> mappings;
+    private final Formatting formatting;
 
-    ColumnToCsvFieldMappings( Collection<ColumnToCsvFieldMapping> mappings )
+    ColumnToCsvFieldMappings( Collection<ColumnToCsvFieldMapping> mappings, Formatting formatting )
     {
         this.mappings = Collections.unmodifiableCollection(
                 Preconditions.requireNonEmptyCollection( mappings, "Mappings" ) );
+        this.formatting = Preconditions.requireNonNull( formatting, "Formatting" );
     }
 
     public Collection<CsvField> fields()
@@ -66,7 +69,7 @@ public class ColumnToCsvFieldMappings
                 .map( Column::table )
                 .distinct()
                 .map( TableName::fullName )
-                .map( name -> "`" + StringUtils.join( name.split( "\\." ), "`.`" ) + "`" )
+                .map( name -> formatting.sqlQuotes().forTable().value() + StringUtils.join( name.split( "\\." ), formatting.sqlQuotes().forTable().value() + "." + formatting.sqlQuotes().forTable().value() ) + formatting.sqlQuotes().forTable().value())
                 .collect( Collectors.toCollection( LinkedHashSet::new ) );
     }
 
@@ -85,6 +88,8 @@ public class ColumnToCsvFieldMappings
     public interface Builder
     {
         Builder add( ColumnToCsvFieldMapping columnToCsvFieldMapping );
+
+        Builder withFormatting(Formatting formatting );
 
         ColumnToCsvFieldMappings build();
     }

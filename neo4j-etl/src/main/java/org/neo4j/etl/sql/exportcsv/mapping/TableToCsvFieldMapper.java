@@ -1,7 +1,6 @@
 package org.neo4j.etl.sql.exportcsv.mapping;
 
 import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
-import org.neo4j.etl.neo4j.importcsv.config.formatting.QuoteChar;
 import org.neo4j.etl.neo4j.importcsv.fields.CsvField;
 import org.neo4j.etl.neo4j.importcsv.fields.IdSpace;
 import org.neo4j.etl.sql.exportcsv.io.TinyIntResolver;
@@ -26,7 +25,7 @@ class TableToCsvFieldMapper implements DatabaseObjectToCsvFieldMapper<Table>
     @Override
     public ColumnToCsvFieldMappings createMappings( Table table )
     {
-        ColumnToCsvFieldMappings.Builder builder = ColumnToCsvFieldMappings.builder();
+        ColumnToCsvFieldMappings.Builder builder = ColumnToCsvFieldMappings.builder().withFormatting( formatting );
 
         for ( Column column : table.columns() )
         {
@@ -44,7 +43,7 @@ class TableToCsvFieldMapper implements DatabaseObjectToCsvFieldMapper<Table>
 
         SimpleColumn label = new SimpleColumn(
                 table.name(),
-                QuoteChar.DOUBLE_QUOTES.enquote( formatting.labelFormatter().format( table.name().simpleName() ) ),
+                formatting.sqlQuotes().forConstant().enquote( formatting.labelFormatter().format( table.name().simpleName() ) ),
                 "_NODE_LABEL_",
                 ColumnRole.Literal,
                 SqlDataType.LABEL_DATA_TYPE, ColumnValueSelectionStrategy.SelectColumnValue );

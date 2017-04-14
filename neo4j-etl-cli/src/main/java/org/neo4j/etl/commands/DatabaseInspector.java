@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 import org.neo4j.etl.sql.DatabaseClient;
 import org.neo4j.etl.sql.metadata.Join;
 import org.neo4j.etl.sql.metadata.JoinTable;
@@ -11,6 +12,7 @@ import org.neo4j.etl.sql.metadata.Table;
 import org.neo4j.etl.sql.metadata.TableInfo;
 import org.neo4j.etl.sql.metadata.TableInfoAssembler;
 import org.neo4j.etl.sql.metadata.TableName;
+import org.neo4j.etl.util.ArrayUtils;
 
 public class DatabaseInspector
 {
@@ -20,9 +22,13 @@ public class DatabaseInspector
 
     public DatabaseInspector( DatabaseClient databaseClient, List<String> tablesToExclude )
     {
+        this(databaseClient, Formatting.DEFAULT, tablesToExclude);
+    }
+
+    public DatabaseInspector(DatabaseClient databaseClient, Formatting formatting, List<String> tablesToExclude) {
         this.databaseClient = databaseClient;
         this.tablesToExclude = tablesToExclude;
-        this.tableInfoAssembler = new TableInfoAssembler( databaseClient, tablesToExclude );
+        this.tableInfoAssembler = new TableInfoAssembler( databaseClient, formatting, tablesToExclude );
     }
 
     public SchemaExport buildSchemaExport() throws Exception
@@ -33,7 +39,7 @@ public class DatabaseInspector
 
         for ( TableName tableName : databaseClient.tableNames() )
         {
-            if( !tablesToExclude.contains( tableName.simpleName() ) )
+            if ( !ArrayUtils.containsIgnoreCase( tablesToExclude, tableName.simpleName() ) )
             {
                 buildSchema( tableName, tables, joins, joinTables );
             }

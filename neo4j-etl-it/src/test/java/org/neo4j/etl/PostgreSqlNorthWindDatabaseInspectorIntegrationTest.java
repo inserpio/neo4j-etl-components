@@ -1,48 +1,46 @@
 package org.neo4j.etl;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import org.neo4j.etl.mysql.MySqlClient;
 import org.neo4j.etl.neo4j.Neo4j;
 import org.neo4j.etl.provisioning.Neo4jFixture;
 import org.neo4j.etl.provisioning.Server;
 import org.neo4j.etl.provisioning.ServerFixture;
-import org.neo4j.etl.provisioning.scripts.MySqlScripts;
+import org.neo4j.etl.provisioning.scripts.PostgreSqlScripts;
+import org.neo4j.etl.rdbms.RdbmsClient;
 import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.ResourceRule;
 import org.neo4j.etl.util.TemporaryDirectory;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-
 import static org.neo4j.etl.neo4j.Neo4j.NEO4J_VERSION;
 import static org.neo4j.etl.neo4j.Neo4j.NEO_TX_URI;
 import static org.neo4j.etl.provisioning.platforms.TestType.INTEGRATION;
 
-public class NorthWindDatabaseInspectorIntegrationTest
+public class PostgreSqlNorthWindDatabaseInspectorIntegrationTest
 {
     @ClassRule
     public static final ResourceRule<Path> tempDirectory =
             new ResourceRule<>( TemporaryDirectory.temporaryDirectory() );
 
     @ClassRule
-    public static final ResourceRule<Server> mySqlServer = new ResourceRule<>(
+    public static final ResourceRule<Server> postgreSqlServer = new ResourceRule<>(
             ServerFixture.server(
-                    "mysql-etl-test-nw",
-                    DatabaseType.MySQL.defaultPort(),
-                    MySqlScripts.startupScript(),
+                    "postgresql-etl-test-nw",
+                    5433,
+                    PostgreSqlScripts.startupScript(),
                     tempDirectory.get(), INTEGRATION ) );
 
     @ClassRule
@@ -52,20 +50,16 @@ public class NorthWindDatabaseInspectorIntegrationTest
     @BeforeClass
     public static void setUp() throws Exception
     {
-        try
-        {
-//            LogManager.getLogManager().readConfiguration(
-//                    NeoIntegrationCli.class.getResourceAsStream( "/debug-logging.properties" ) );
-            MySqlClient client = new MySqlClient( mySqlServer.get().ipAddress() );
-            client.execute( MySqlScripts.northwindScript().value() );
-            exportFromMySqlToNeo4j( "northwind" );
-            neo4j.get().start();
-        }
-        catch ( IOException e )
-        {
-            System.err.println( "Error in loading configuration" );
-            e.printStackTrace( System.err );
-        }
+        RdbmsClient client = new RdbmsClient(
+                DatabaseType.PostgreSQL,
+                postgreSqlServer.get().ipAddress(),
+                5433,
+                "northwind",
+                RdbmsClient.Parameters.DBUser.value(),
+                RdbmsClient.Parameters.DBPassword.value() );
+        //client.execute( PostgreSqlScripts.northwindScript().value() );
+        exportFromPostreSqlToNeo4j( "northwind" );
+        neo4j.get().start();
     }
 
     @AfterClass
@@ -75,7 +69,7 @@ public class NorthWindDatabaseInspectorIntegrationTest
     }
 
     @Test
-    public void shouldExportFromMySqlAndImportIntoGraph() throws Exception
+    public void shouldExportFromPostgreSqlAndImportIntoGraph() throws Exception
     {
         assertFalse( neo4j.get().containsImportErrorLog( Neo4j.DEFAULT_DATABASE ) );
 
@@ -107,7 +101,7 @@ public class NorthWindDatabaseInspectorIntegrationTest
         assertThat( lastNames, hasItems( "Fuller", "Buchanan" ) );
     }
 
-    private static void exportFromMySqlToNeo4j( String database ) throws IOException
+    private static void exportFromPostreSqlToNeo4j( String database ) throws IOException
     {
         Path importToolOptions = tempDirectory.get().resolve( "import-tool-options.json" );
         ObjectMapper objectMapper = new ObjectMapper();
@@ -116,11 +110,12 @@ public class NorthWindDatabaseInspectorIntegrationTest
         objectMapper.writeValue( importToolOptions.toFile(), options );
 
         NeoIntegrationCli.executeMainReturnSysOut(
-                new String[]{"mysql",
+                new String[]{"postgresql",
                         "export",
-                        "--host", mySqlServer.get().ipAddress(),
-                        "--user", MySqlClient.Parameters.DBUser.value(),
-                        "--password", MySqlClient.Parameters.DBPassword.value(),
+                        "--host", postgreSqlServer.get().ipAddress(),
+                        "--port", "5433",
+                        "--user", RdbmsClient.Parameters.DBUser.value(),
+                        "--password", RdbmsClient.Parameters.DBPassword.value(),
                         "--database", database,
                         "--import-tool", neo4j.get().binDirectory().toString(),
                         "--options-file", importToolOptions.toString(),

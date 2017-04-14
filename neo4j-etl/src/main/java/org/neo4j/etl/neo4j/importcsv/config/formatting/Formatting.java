@@ -1,5 +1,6 @@
 package org.neo4j.etl.neo4j.importcsv.config.formatting;
 
+import org.neo4j.etl.sql.exportcsv.formatting.SqlQuotes;
 import org.neo4j.etl.util.Preconditions;
 
 public class Formatting
@@ -19,6 +20,7 @@ public class Formatting
     private final Formatter labelFormatter;
     private final Formatter relationshipFormatter;
     private final Formatter propertyFormatter;
+    private final SqlQuotes sqlQuotes;
 
     Formatting( FormattingConfigBuilder builder )
     {
@@ -30,6 +32,7 @@ public class Formatting
                 "RelationshipFormatter" );
         this.propertyFormatter = Preconditions.requireNonNull( builder.propertyFormatter,
                 "PropertyFormatter" );
+        this.sqlQuotes = Preconditions.requireNonNull( builder.sqlQuotes, "SqlQuotes" );
     }
 
     public Delimiter delimiter()
@@ -62,6 +65,11 @@ public class Formatting
         return propertyFormatter;
     }
 
+    public SqlQuotes sqlQuotes()
+    {
+        return sqlQuotes;
+    }
+
     public interface Builder
     {
         Builder delimiter( Delimiter delimiter );
@@ -75,6 +83,8 @@ public class Formatting
         Builder relationshipFormatter( Formatter relationshipFormatter );
 
         Builder propertyFormatter( Formatter propertyFormatter );
+
+        Builder sqlQuotes( SqlQuotes sqlQuotes );
 
         Formatting build();
     }

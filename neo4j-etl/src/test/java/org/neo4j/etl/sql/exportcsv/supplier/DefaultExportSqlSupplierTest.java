@@ -1,9 +1,10 @@
-package org.neo4j.etl.sql.exportcsv.mysql;
+package org.neo4j.etl.sql.exportcsv.supplier;
 
 import java.util.Arrays;
 
 import org.junit.Test;
 
+import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 import org.neo4j.etl.neo4j.importcsv.fields.CsvField;
 import org.neo4j.etl.neo4j.importcsv.fields.IdSpace;
 import org.neo4j.etl.neo4j.importcsv.fields.Neo4jDataType;
@@ -17,7 +18,7 @@ import org.neo4j.etl.sql.metadata.TableName;
 
 import static org.junit.Assert.assertEquals;
 
-public class MySqlExportSqlSupplierTest
+public class DefaultExportSqlSupplierTest
 {
     private ColumnUtil columnUtil = new ColumnUtil();
 
@@ -37,9 +38,10 @@ public class MySqlExportSqlSupplierTest
                 .add( new ColumnToCsvFieldMapping( column1, id ) )
                 .add( new ColumnToCsvFieldMapping( column2, CsvField.data( "username", Neo4jDataType.String ) ) )
                 .add( new ColumnToCsvFieldMapping( column3, CsvField.data( "age", Neo4jDataType.String ) ) )
+                .withFormatting(Formatting.DEFAULT )
                 .build();
 
-        MySqlExportSqlSupplier sqlSupplier = new MySqlExportSqlSupplier();
+        DefaultExportSqlSupplier sqlSupplier = new DefaultExportSqlSupplier();
 
         // when
         String sql = sqlSupplier.sql( mappings );
@@ -66,11 +68,11 @@ public class MySqlExportSqlSupplierTest
         CompositeColumn from = new CompositeColumn(
                 forTable, Arrays.asList( firstName, lastName ), ColumnRole.PrimaryKey );
         ColumnToCsvFieldMappings mappings = ColumnToCsvFieldMappings.builder()
-                .add(
-                        new ColumnToCsvFieldMapping( from, CsvField.id() ) )
+                .add( new ColumnToCsvFieldMapping( from, CsvField.id() ) )
+                .withFormatting(Formatting.DEFAULT )
                 .build();
 
-        MySqlExportSqlSupplier sqlSupplier = new MySqlExportSqlSupplier();
+        DefaultExportSqlSupplier sqlSupplier = new DefaultExportSqlSupplier();
 
         // when
         String sql = sqlSupplier.sql( mappings );

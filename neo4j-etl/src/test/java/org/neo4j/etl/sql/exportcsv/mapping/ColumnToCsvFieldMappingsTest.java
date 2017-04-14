@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.junit.Test;
 
+import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 import org.neo4j.etl.neo4j.importcsv.fields.CsvField;
 import org.neo4j.etl.neo4j.importcsv.fields.Neo4jDataType;
 import org.neo4j.etl.sql.exportcsv.ColumnUtil;
@@ -40,6 +41,7 @@ public class ColumnToCsvFieldMappingsTest
                 .add( new ColumnToCsvFieldMapping( column1, idField ) )
                 .add( new ColumnToCsvFieldMapping( column2, usernameField ) )
                 .add( new ColumnToCsvFieldMapping( column3, ageField ) )
+                .withFormatting(Formatting.DEFAULT )
                 .build();
 
         // when
@@ -65,6 +67,7 @@ public class ColumnToCsvFieldMappingsTest
                 .add( new ColumnToCsvFieldMapping( column1, CsvField.id() ) )
                 .add( new ColumnToCsvFieldMapping( column2, CsvField.data( "username", Neo4jDataType.String ) ) )
                 .add( new ColumnToCsvFieldMapping( column3, CsvField.data( "age", Neo4jDataType.String ) ) )
+                .withFormatting(Formatting.DEFAULT )
                 .build();
 
         // when
@@ -90,6 +93,7 @@ public class ColumnToCsvFieldMappingsTest
         ColumnToCsvFieldMappings mappings = ColumnToCsvFieldMappings.builder()
                 .add( new ColumnToCsvFieldMapping( column1, CsvField.id() ) )
                 .add( new ColumnToCsvFieldMapping( column2, CsvField.data( "age", Neo4jDataType.String ) ) )
+                .withFormatting(Formatting.DEFAULT )
                 .build();
 
         // when
@@ -121,6 +125,7 @@ public class ColumnToCsvFieldMappingsTest
                 .add( new ColumnToCsvFieldMapping( column1, CsvField.id() ) )
                 .add( new ColumnToCsvFieldMapping( column2, CsvField.data( "username", Neo4jDataType.String ) ) )
                 .add( new ColumnToCsvFieldMapping( column3, CsvField.data( "id", Neo4jDataType.String ) ) )
+                .withFormatting(Formatting.DEFAULT )
                 .build();
 
         // when

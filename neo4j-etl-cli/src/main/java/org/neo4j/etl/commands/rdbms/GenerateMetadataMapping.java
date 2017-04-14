@@ -1,4 +1,4 @@
-package org.neo4j.etl.commands.mysql;
+package org.neo4j.etl.commands.rdbms;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -95,7 +95,7 @@ public class GenerateMetadataMapping implements Callable<MetadataMappings>
             filterOptions.invertTables( databaseClient.tableNames() );
         }
 
-        SchemaExport schemaExport = new DatabaseInspector( databaseClient, filterOptions.tablesToExclude() )
+        SchemaExport schemaExport = new DatabaseInspector( databaseClient, formatting, filterOptions.tablesToExclude() )
                 .buildSchemaExport();
         MetadataMappings metadataMappings = schemaExport
                 .generateMetadataMappings( formatting, sqlSupplier, relationshipNameResolver, tinyIntResolver );

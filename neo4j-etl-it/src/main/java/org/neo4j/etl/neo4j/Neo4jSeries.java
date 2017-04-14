@@ -14,6 +14,7 @@ public class Neo4jSeries
     public static final Neo4jSeries v2_3_x = new Neo4jSeries( 2, 3 );
     public static final Neo4jSeries v3_x_x = new Neo4jSeries( 3 );
     public static final Neo4jSeries v3_0_x = new Neo4jSeries( 3, 0 );
+    public static final Neo4jSeries v3_1_x = new Neo4jSeries( 3, 1 );
 
     private final int major;
     private final Optional<Integer> minor;

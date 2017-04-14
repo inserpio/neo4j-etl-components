@@ -1,26 +1,37 @@
-package org.neo4j.etl.mysql;
+package org.neo4j.etl.rdbms;
 
 import org.neo4j.etl.sql.ConnectionConfig;
 import org.neo4j.etl.sql.DatabaseClient;
 import org.neo4j.etl.sql.DatabaseType;
 
-public class MySqlClient
+public class RdbmsClient
 {
-    public MySqlClient( String host )
+    private DatabaseType databaseType;
+    private final String host;
+    private final int port;
+    private final String database;
+    private final String user;
+    private final String password;
+
+
+    public RdbmsClient( DatabaseType databaseType, String host )
     {
-        this( host, Parameters.DBUser.value(), Parameters.DBPassword.value() );
+        this( databaseType, host, databaseType.defaultPort(), Parameters.DBName.value(), Parameters.DBUser.value(), Parameters.DBPassword.value() );
     }
 
-    public MySqlClient( String host, String user, String password )
+    public RdbmsClient( DatabaseType databaseType, String host, int port, String database, String user, String password )
     {
+        this.databaseType = databaseType;
         this.host = host;
+        this.port = port;
+        this.database = database;
         this.user = user;
         this.password = password;
     }
 
     public enum Parameters
     {
-        DBRootUser( "root" ), DBRootPassword( "xsjhdcfhsd" ), DBUser( "neo4j" ), DBPassword( "neo4j" );
+        DBName( "" ), DBUser( "neo4j" ), DBPassword( "neo4j" );
 
         private final String value;
 
@@ -35,16 +46,13 @@ public class MySqlClient
         }
     }
 
-    private final String host;
-    private final String user;
-    private final String password;
-
     public void execute( String sql ) throws Exception
     {
         DatabaseClient client = new DatabaseClient(
-                ConnectionConfig.forDatabase( DatabaseType.MySQL )
+                ConnectionConfig.forDatabase( this.databaseType )
                         .host( host )
-                        .port( DatabaseType.MySQL.defaultPort() )
+                        .port( port )
+                        .database( database )
                         .username( user )
                         .password( password )
                         .build() );

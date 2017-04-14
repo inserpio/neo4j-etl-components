@@ -1,10 +1,10 @@
-package org.neo4j.etl.commands.mysql;
+package org.neo4j.etl.commands.rdbms;
 
 import java.nio.file.Path;
 
-public interface ExportFromMySqlEvents
+public interface ExportFromRdbmsEvents
 {
-    ExportFromMySqlEvents EMPTY = new ExportFromMySqlEvents()
+    ExportFromRdbmsEvents EMPTY = new ExportFromRdbmsEvents()
     {
         @Override
         public void onExportingToCsv( Path csvDirectory )

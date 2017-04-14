@@ -58,7 +58,12 @@ public class Neo4jVersion
     public static final Neo4jVersion v3_0_1 = new Neo4jVersion( 3, 0, 1 );
     public static final Neo4jVersion v3_0_0_M03 = new Neo4jVersion( 3, 0, 0, Optional.of( "M03" ) );
     public static final Neo4jVersion v3_0_0_M04 = new Neo4jVersion( 3, 0, 0, Optional.of( "M04" ) );
-    public static Neo4jVersion v3_0_3 = new Neo4jVersion( 3, 0, 3 );
+    public static final Neo4jVersion v3_0_3 = new Neo4jVersion( 3, 0, 3 );
+
+    public static final Neo4jVersion v3_1_0 = new Neo4jVersion( 3, 1, 0 );
+    public static final Neo4jVersion v3_1_1 = new Neo4jVersion( 3, 1, 1 );
+    public static final Neo4jVersion v3_1_2 = new Neo4jVersion( 3, 1, 2 );
+    public static final Neo4jVersion v3_1_3 = new Neo4jVersion( 3, 1, 3 );
 
     final int major;
     final int minor;

@@ -1,5 +1,7 @@
 package org.neo4j.etl.neo4j.importcsv.config.formatting;
 
+import org.neo4j.etl.sql.exportcsv.formatting.SqlQuotes;
+
 class FormattingConfigBuilder implements Formatting.Builder
 {
     Delimiter delimiter = Delimiter.COMMA;
@@ -8,6 +10,7 @@ class FormattingConfigBuilder implements Formatting.Builder
     Formatter labelFormatter = new DefaultLabelFormatter();
     Formatter relationshipFormatter = new DefaultRelationshipFormatter();
     Formatter propertyFormatter = new DefaultPropertyFormatter();
+    SqlQuotes sqlQuotes = SqlQuotes.DEFAULT;
 
     @Override
     public Formatting.Builder delimiter( Delimiter delimiter )
@@ -48,6 +51,13 @@ class FormattingConfigBuilder implements Formatting.Builder
     public Formatting.Builder propertyFormatter( Formatter propertyFormatter )
     {
         this.propertyFormatter = propertyFormatter;
+        return this;
+    }
+
+    @Override
+    public Formatting.Builder sqlQuotes( SqlQuotes sqlQuotes )
+    {
+        this.sqlQuotes = sqlQuotes;
         return this;
     }
 

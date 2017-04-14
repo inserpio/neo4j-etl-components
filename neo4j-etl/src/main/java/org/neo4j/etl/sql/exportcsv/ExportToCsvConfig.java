@@ -43,10 +43,10 @@ public class ExportToCsvConfig
     {
         interface SetDestination
         {
-            SetMySqlConnectionConfig destination( Path directory );
+            SetRDBMSConnectionConfig destination(Path directory );
         }
 
-        interface SetMySqlConnectionConfig
+        interface SetRDBMSConnectionConfig
         {
             SetFormatting connectionConfig( ConnectionConfig config );
         }

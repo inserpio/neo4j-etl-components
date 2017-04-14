@@ -2,6 +2,7 @@ package org.neo4j.etl.util;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 
@@ -29,4 +30,15 @@ public class ArrayUtils
         return results.toArray( a );
     }
 
+    public static boolean containsIgnoreCase(List<String> list, String value)
+    {
+        for ( String string : list )
+        {
+            if ( string.equalsIgnoreCase( value ) )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

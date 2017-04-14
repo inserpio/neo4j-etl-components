@@ -1,19 +1,19 @@
-package org.neo4j.etl.cli.mysql;
+package org.neo4j.etl.cli.rdbms;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.neo4j.etl.commands.mysql.ExportFromMySqlEvents;
+import org.neo4j.etl.commands.rdbms.ExportFromRdbmsEvents;
 import org.neo4j.etl.util.CliRunner;
 
 import static java.lang.String.format;
 
-public class ExportMySqlEventHandler implements ExportFromMySqlEvents
+public class ExportRdbmsEventHandler implements ExportFromRdbmsEvents
 {
     @Override
     public void onExportingToCsv( Path csvDirectory )
     {
-        CliRunner.print( "Exporting from MySQL to CSV..." );
+        CliRunner.print( "Exporting from RDBMS to CSV..." );
         CliRunner.print( format( "CSV directory: %s", csvDirectory ) );
     }
 

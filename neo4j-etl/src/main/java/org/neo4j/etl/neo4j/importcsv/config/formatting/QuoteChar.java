@@ -20,6 +20,7 @@ public class QuoteChar
     public static final QuoteChar DOUBLE_QUOTES = new QuoteChar( "\"", OperatingSystem.isWindows() ? "\\\"" : "\"" );
     public static final QuoteChar SINGLE_QUOTES = new QuoteChar( "'", "'" );
     public static final QuoteChar TICK_QUOTES = new QuoteChar( "`", "`" );
+    public static final QuoteChar NO_QUOTES = new QuoteChar( "", "" );
 
     private static final Pattern ESCAPE_CHAR_PATTERN = Pattern.compile( "\\\\" );
     private static final String ESCAPE_CHAR_REPLACEMENT = "\\\\";

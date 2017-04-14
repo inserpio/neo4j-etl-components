@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 public class SqlDataTypeTest
 {
     @Test
-    public void parseShouldUpperCaseDataTypesToMapToMySqlDataType() throws Exception
+    public void parseShouldUpperCaseDataTypesToMapToRdbmsDataType() throws Exception
     {
         // given
         SqlDataType anInt = SqlDataType.parse( "int" );

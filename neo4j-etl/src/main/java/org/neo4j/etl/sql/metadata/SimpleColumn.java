@@ -8,6 +8,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 import org.neo4j.etl.neo4j.importcsv.fields.CsvField;
 import org.neo4j.etl.sql.RowAccessor;
 import org.neo4j.etl.sql.exportcsv.io.TinyIntResolver;
@@ -36,6 +37,7 @@ public class SimpleColumn implements Column
     private final ColumnRole role;
     private final SqlDataType dataType;
     private final ColumnValueSelectionStrategy columnValueSelectionStrategy;
+    private final Formatting formatting;
 
     public SimpleColumn( TableName table,
                          String name,
@@ -43,7 +45,17 @@ public class SimpleColumn implements Column
                          SqlDataType dataType,
                          ColumnValueSelectionStrategy columnValueSelectionStrategy )
     {
-        this( table, name, name, role, dataType, columnValueSelectionStrategy );
+        this( table, name, name, role, dataType, columnValueSelectionStrategy, Formatting.DEFAULT );
+    }
+
+    public SimpleColumn( TableName table,
+                         String name,
+                         ColumnRole role,
+                         SqlDataType dataType,
+                         ColumnValueSelectionStrategy columnValueSelectionStrategy,
+                         Formatting formatting )
+    {
+        this( table, name, name, role, dataType, columnValueSelectionStrategy, formatting );
     }
 
     public SimpleColumn( TableName table,
@@ -51,7 +63,17 @@ public class SimpleColumn implements Column
                          String alias,
                          ColumnRole role,
                          SqlDataType dataType,
-                         ColumnValueSelectionStrategy columnValueSelectionStrategy )
+                         ColumnValueSelectionStrategy columnValueSelectionStrategy ) {
+        this(table, name, alias, role, dataType, columnValueSelectionStrategy, Formatting.DEFAULT );
+    }
+
+    public SimpleColumn( TableName table,
+                         String name,
+                         String alias,
+                         ColumnRole role,
+                         SqlDataType dataType,
+                         ColumnValueSelectionStrategy columnValueSelectionStrategy,
+                         Formatting formatting )
     {
         this.table = Preconditions.requireNonNull( table, "Table" );
         this.name = Preconditions.requireNonNullString( name, "Name" );
@@ -60,6 +82,7 @@ public class SimpleColumn implements Column
         this.dataType = Preconditions.requireNonNull( dataType, "DataType" );
         this.columnValueSelectionStrategy =
                 Preconditions.requireNonNull( columnValueSelectionStrategy, "ColumnValueSelectionStrategy" );
+        this.formatting = Preconditions.requireNonNull( formatting, "Formatting" );
     }
 
     @Override
@@ -128,14 +151,15 @@ public class SimpleColumn implements Column
     @Override
     public String aliasedColumn()
     {
-        if ( role == ColumnRole.Literal )
+        String sqlQuote = formatting.sqlQuotes().forColumn().value();
+
+        if (role == ColumnRole.Literal)
         {
-            return format( "%s AS `%s`", name(), alias );
+            return format("%s AS " + sqlQuote + "%s" + sqlQuote, name(), alias);
         }
-        else
-        {
-            String nameWithTicks = StringUtils.join( name().split( "\\." ), "`.`" );
-            return format( "`%s` AS `%s`", nameWithTicks, alias );
+        else {
+            String nameWithTicks = StringUtils.join(name().split("\\."), sqlQuote + "." + sqlQuote);
+            return format(sqlQuote + "%s" + sqlQuote + " AS " + sqlQuote + "%s" + sqlQuote, nameWithTicks, alias);
         }
     }
 

@@ -1,4 +1,4 @@
-package org.neo4j.etl.commands.mysql;
+package org.neo4j.etl.commands.rdbms;
 
 import java.util.concurrent.Callable;
 
@@ -14,23 +14,23 @@ import org.neo4j.etl.sql.exportcsv.ExportToCsvConfig;
 import org.neo4j.etl.sql.exportcsv.io.TinyIntResolver;
 import org.neo4j.etl.sql.exportcsv.mapping.MetadataMappings;
 
-public class ExportFromMySql implements Callable<Void>
+public class ExportFromRdbms implements Callable<Void>
 {
 
-    private final ExportFromMySqlEvents events;
+    private final ExportFromRdbmsEvents events;
     private final MetadataMappings metadataMappings;
     private final ConnectionConfig connectionConfig;
     private final Formatting formatting;
     private final Environment environment;
     private TinyIntResolver tinyIntResolver;
 
-    public ExportFromMySql( MetadataMappings metadataMappings,
-                            ConnectionConfig connectionConfig,
-                            Formatting formatting,
-                            Environment environment,
-                            TinyIntResolver tinyIntResolver )
+    public ExportFromRdbms(MetadataMappings metadataMappings,
+                           ConnectionConfig connectionConfig,
+                           Formatting formatting,
+                           Environment environment,
+                           TinyIntResolver tinyIntResolver )
     {
-        this( ExportFromMySqlEvents.EMPTY,
+        this( ExportFromRdbmsEvents.EMPTY,
                 metadataMappings,
                 connectionConfig,
                 formatting,
@@ -38,12 +38,12 @@ public class ExportFromMySql implements Callable<Void>
                 tinyIntResolver );
     }
 
-    public ExportFromMySql( ExportFromMySqlEvents events,
-                            MetadataMappings metadataMappings,
-                            ConnectionConfig connectionConfig,
-                            Formatting formatting,
-                            Environment environment,
-                            TinyIntResolver tinyIntResolver )
+    public ExportFromRdbms(ExportFromRdbmsEvents events,
+                           MetadataMappings metadataMappings,
+                           ConnectionConfig connectionConfig,
+                           Formatting formatting,
+                           Environment environment,
+                           TinyIntResolver tinyIntResolver )
     {
         this.events = events;
         this.metadataMappings = metadataMappings;

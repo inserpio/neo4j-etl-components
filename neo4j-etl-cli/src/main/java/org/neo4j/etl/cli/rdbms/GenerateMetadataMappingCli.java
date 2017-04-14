@@ -1,4 +1,4 @@
-package org.neo4j.etl.cli.mysql;
+package org.neo4j.etl.cli.rdbms;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,7 +16,8 @@ import com.github.rvesse.airline.annotations.Option;
 import com.github.rvesse.airline.annotations.OptionType;
 import com.github.rvesse.airline.annotations.restrictions.Required;
 
-import org.neo4j.etl.commands.mysql.GenerateMetadataMapping;
+import com.github.rvesse.airline.model.CommandGroupMetadata;
+import org.neo4j.etl.commands.rdbms.GenerateMetadataMapping;
 import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 import org.neo4j.etl.neo4j.importcsv.config.formatting.ImportToolOptions;
 import org.neo4j.etl.sql.ConnectionConfig;
@@ -24,44 +25,49 @@ import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.sql.exportcsv.io.TinyIntResolver;
 import org.neo4j.etl.sql.exportcsv.mapping.FilterOptions;
 import org.neo4j.etl.sql.exportcsv.mapping.MetadataMappings;
-import org.neo4j.etl.sql.exportcsv.mysql.MySqlExportSqlSupplier;
+import org.neo4j.etl.sql.exportcsv.supplier.DefaultExportSqlSupplier;
 import org.neo4j.etl.util.CliRunner;
 import org.neo4j.etl.util.Loggers;
 
-@Command(name = "generate-metadata-mapping", description = "Create MySQL to Neo4j metadata mapping Json.")
+import javax.inject.Inject;
+
+@Command(name = "generate-metadata-mapping", description = "Create RDBMS to Neo4j metadata mapping Json.")
 public class GenerateMetadataMappingCli implements Runnable
 {
+    @Inject
+    private CommandGroupMetadata commandGroupMetadata;
+
     @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"-h", "--host"},
-            description = "Host to use for connection to MySQL.",
+            description = "Host to use for connection to RDBMS.",
             title = "name")
     private String host = "localhost";
 
     @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"-p", "--port"},
-            description = "Port number to use for connection to MySQL.",
+            description = "Port number to use for connection to RDBMS.",
             title = "#")
     private int port = 3306;
 
     @Required
     @Option(type = OptionType.COMMAND,
             name = {"-u", "--user"},
-            description = "User for login to MySQL.",
+            description = "User for login to RDBMS.",
             title = "name")
     private String user;
 
     @Option(type = OptionType.COMMAND,
             name = {"--password"},
-            description = "Password for login to MySQL.",
+            description = "Password for login to RDBMS.",
             title = "name")
     private String password;
 
     @Required
     @Option(type = OptionType.COMMAND,
             name = {"-d", "--database"},
-            description = "MySQL database.",
+            description = "RDBMS database.",
             title = "name")
     private String database;
 
@@ -126,7 +132,9 @@ public class GenerateMetadataMappingCli implements Runnable
     {
         try
         {
-            ConnectionConfig connectionConfig = ConnectionConfig.forDatabase( DatabaseType.MySQL )
+            DatabaseType databaseType = DatabaseType.fromString( this.commandGroupMetadata.getName() );
+
+            ConnectionConfig connectionConfig = ConnectionConfig.forDatabase( databaseType )
                     .host( host )
                     .port( port )
                     .database( database )
@@ -140,6 +148,7 @@ public class GenerateMetadataMappingCli implements Runnable
             Formatting formatting = Formatting.builder()
                     .delimiter( importToolOptions.getDelimiter( this.delimiter ) )
                     .quote( importToolOptions.getQuoteCharacter( this.quote ) )
+                    .sqlQuotes( databaseType.sqlQuotes() )
                     .build();
 
             final FilterOptions filterOptions = new FilterOptions( tinyIntAs, relationshipNameFrom, exclusionMode,
@@ -149,7 +158,7 @@ public class GenerateMetadataMappingCli implements Runnable
                     System.out,
                     connectionConfig,
                     formatting,
-                    new MySqlExportSqlSupplier(),
+                    new DefaultExportSqlSupplier(),
                     filterOptions, new TinyIntResolver( filterOptions.tinyIntAs() ) ).call();
         }
         catch ( Exception e )

@@ -8,14 +8,14 @@ import org.neo4j.etl.sql.ConnectionConfig;
 class ExportToCsvConfigBuilder implements ExportToCsvConfig.Builder,
         ExportToCsvConfig.Builder.SetDestination,
         ExportToCsvConfig.Builder.SetFormatting,
-        ExportToCsvConfig.Builder.SetMySqlConnectionConfig
+        ExportToCsvConfig.Builder.SetRDBMSConnectionConfig
 {
     Path destination;
     ConnectionConfig connectionConfig;
     Formatting formatting;
 
     @Override
-    public ExportToCsvConfig.Builder.SetMySqlConnectionConfig destination( Path directory )
+    public SetRDBMSConnectionConfig destination(Path directory )
     {
         this.destination = directory;
         return this;

@@ -57,7 +57,7 @@ public class ServerFixture
             public Server create() throws Exception
             {
                 String platform = _platform.orElse(
-                        systemPropertyOrEnvironmentVariable( "PLATFORM" ).orElse( "vagrant" ).toLowerCase() );
+                        systemPropertyOrEnvironmentVariable( "PLATFORM" ).orElse( "local" ).toLowerCase() );
                 Optional<String> ec2Key = systemPropertyOrEnvironmentVariable( "EC2_SSH_KEY" );
                 Optional<String> vagrantBoxUri = systemPropertyOrEnvironmentVariable( "VAGRANT_BOX_URI" );
 

@@ -10,8 +10,9 @@ import com.github.rvesse.airline.Cli;
 import com.github.rvesse.airline.builder.CliBuilder;
 import com.github.rvesse.airline.help.Help;
 
-import org.neo4j.etl.cli.mysql.GenerateMetadataMappingCli;
-import org.neo4j.etl.cli.mysql.ExportFromMySqlCli;
+import org.neo4j.etl.cli.rdbms.ExportFromRdbmsCli;
+import org.neo4j.etl.cli.rdbms.GenerateMetadataMappingCli;
+import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.CliRunner;
 
 public class NeoIntegrationCli
@@ -73,12 +74,15 @@ public class NeoIntegrationCli
                 .withDefaultCommand( Help.class )
                 .withCommand( Help.class );
 
-        builder.withGroup( "mysql" )
-                .withDescription( "MySQL export tools." )
-                .withDefaultCommand( Help.class )
-                .withCommand( ExportFromMySqlCli.class )
-                .withCommand( GenerateMetadataMappingCli.class )
-                .withCommand( Help.class );
+        for (DatabaseType databaseType : DatabaseType.values())
+        {
+            builder.withGroup(databaseType.name().toLowerCase())
+                    .withDescription(databaseType.name() + " export tools.")
+                    .withDefaultCommand(Help.class)
+                    .withCommand(ExportFromRdbmsCli.class)
+                    .withCommand(GenerateMetadataMappingCli.class)
+                    .withCommand(Help.class);
+        }
 
         return builder.build();
     }

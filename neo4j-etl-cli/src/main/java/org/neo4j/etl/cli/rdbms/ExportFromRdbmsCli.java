@@ -1,4 +1,4 @@
-package org.neo4j.etl.cli.mysql;
+package org.neo4j.etl.cli.rdbms;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,10 +12,11 @@ import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
 import com.github.rvesse.airline.annotations.OptionType;
 import com.github.rvesse.airline.annotations.restrictions.Required;
+import com.github.rvesse.airline.model.CommandGroupMetadata;
 import org.apache.commons.lang3.StringUtils;
 
-import org.neo4j.etl.commands.mysql.ExportFromMySql;
-import org.neo4j.etl.commands.mysql.GenerateMetadataMapping;
+import org.neo4j.etl.commands.rdbms.ExportFromRdbms;
+import org.neo4j.etl.commands.rdbms.GenerateMetadataMapping;
 import org.neo4j.etl.environment.CsvDirectorySupplier;
 import org.neo4j.etl.environment.DestinationDirectorySupplier;
 import org.neo4j.etl.environment.Environment;
@@ -28,43 +29,48 @@ import org.neo4j.etl.sql.exportcsv.io.TinyIntResolver;
 import org.neo4j.etl.sql.exportcsv.mapping.FilterOptions;
 import org.neo4j.etl.sql.exportcsv.mapping.MetadataMappings;
 import org.neo4j.etl.sql.exportcsv.mapping.TinyIntAs;
-import org.neo4j.etl.sql.exportcsv.mysql.MySqlExportSqlSupplier;
+import org.neo4j.etl.sql.exportcsv.supplier.DefaultExportSqlSupplier;
 import org.neo4j.etl.util.CliRunner;
 
-@Command(name = "export", description = "Export from MySQL.")
-public class ExportFromMySqlCli implements Runnable
+import javax.inject.Inject;
+
+@Command(name = "export", description = "Export from RDBMS.")
+public class ExportFromRdbmsCli implements Runnable
 {
+    @Inject
+    private CommandGroupMetadata commandGroupMetadata;
+
     @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"-h", "--host"},
-            description = "Host to use for connection to MySQL.",
+            description = "Host to use for connection to RDBMS.",
             title = "hostname")
     private String host = "localhost";
 
     @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"-p", "--port"},
-            description = "Port number to use for connection to MySQL.",
+            description = "Port number to use for connection to RDBMS.",
             title = "port #")
     private int port = 3306;
 
     @Required
     @Option(type = OptionType.COMMAND,
             name = {"-u", "--user"},
-            description = "User for login to MySQL.",
+            description = "User for login to RDBMS.",
             title = "username")
     private String user;
 
     @Option(type = OptionType.COMMAND,
             name = {"--password"},
-            description = "Password for login to MySQL.",
+            description = "Password for login to RDBMS.",
             title = "password")
     private String password;
 
     @Required
     @Option(type = OptionType.COMMAND,
             name = {"-d", "--database"},
-            description = "MySQL database.",
+            description = "RDBMS database.",
             title = "name")
     private String database;
 
@@ -163,7 +169,9 @@ public class ExportFromMySqlCli implements Runnable
     {
         try
         {
-            ConnectionConfig connectionConfig = ConnectionConfig.forDatabase( DatabaseType.MySQL )
+            DatabaseType databaseType = DatabaseType.fromString(this.commandGroupMetadata.getName());
+
+            ConnectionConfig connectionConfig = ConnectionConfig.forDatabase( databaseType )
                     .host( host )
                     .port( port )
                     .database( database )
@@ -182,13 +190,14 @@ public class ExportFromMySqlCli implements Runnable
             Formatting formatting = Formatting.builder()
                     .delimiter( importToolOptions.getDelimiter( delimiter ) )
                     .quote( importToolOptions.getQuoteCharacter( quote ) )
+                    .sqlQuotes( databaseType.sqlQuotes() )
                     .build();
 
             TinyIntResolver tinyIntResolver = new TinyIntResolver( TinyIntAs.parse( tinyIntAs ) );
             MetadataMappings metadataMappings = createMetadataMappings( connectionConfig, formatting, tinyIntResolver );
 
-            new ExportFromMySql(
-                    new ExportMySqlEventHandler(),
+            new ExportFromRdbms(
+                    new ExportRdbmsEventHandler(),
                     metadataMappings,
                     connectionConfig,
                     formatting,
@@ -219,7 +228,7 @@ public class ExportFromMySqlCli implements Runnable
                     emptyOutputStream(),
                     connectionConfig,
                     formatting,
-                    new MySqlExportSqlSupplier(),
+                    new DefaultExportSqlSupplier(),
                     filterOptions,
                     tinyIntResolver );
         }

@@ -4,18 +4,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.LogManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.neo4j.etl.mysql.MySqlClient;
+import org.neo4j.etl.rdbms.RdbmsClient;
 import org.neo4j.etl.neo4j.Neo4j;
 import org.neo4j.etl.provisioning.Neo4jFixture;
 import org.neo4j.etl.provisioning.Server;
@@ -25,13 +22,16 @@ import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.ResourceRule;
 import org.neo4j.etl.util.TemporaryDirectory;
 
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 
 import static org.neo4j.etl.neo4j.Neo4j.NEO4J_VERSION;
 import static org.neo4j.etl.neo4j.Neo4j.NEO_TX_URI;
 import static org.neo4j.etl.provisioning.platforms.TestType.INTEGRATION;
 
-public class BigPerformanceTest
+public class MySqlNorthWindDatabaseInspectorIntegrationTest
 {
     @ClassRule
     public static final ResourceRule<Path> tempDirectory =
@@ -40,11 +40,10 @@ public class BigPerformanceTest
     @ClassRule
     public static final ResourceRule<Server> mySqlServer = new ResourceRule<>(
             ServerFixture.server(
-                    "mysql-etl-test-bperf",
+                    "mysql-etl-test-nw",
                     DatabaseType.MySQL.defaultPort(),
-                    MySqlScripts.bigPerformanceStartupScript(),
-                    tempDirectory.get(),
-                    INTEGRATION ) );
+                    MySqlScripts.startupScript(),
+                    tempDirectory.get(), INTEGRATION ) );
 
     @ClassRule
     public static final ResourceRule<Neo4j> neo4j = new ResourceRule<>(
@@ -55,14 +54,12 @@ public class BigPerformanceTest
     {
         try
         {
-            LogManager.getLogManager().readConfiguration(
-                    NeoIntegrationCli.class.getResourceAsStream( "/debug-logging.properties" ) );
-//            ServerFixture.executeImportOfDatabase( tempDirectory.get(),
-//                    "northwind.sql",
-//                    MySqlClient.Parameters.DBUser.value(),
-//                    MySqlClient.Parameters.DBPassword.value(),
-//                    mySqlServer.get().ipAddress() );
-
+//            LogManager.getLogManager().readConfiguration(
+//                    NeoIntegrationCli.class.getResourceAsStream( "/debug-logging.properties" ) );
+            RdbmsClient client = new RdbmsClient( DatabaseType.MySQL, mySqlServer.get().ipAddress() );
+            client.execute( MySqlScripts.northwindScript().value() );
+            exportFromMySqlToNeo4j( "northwind" );
+            neo4j.get().start();
         }
         catch ( IOException e )
         {
@@ -80,10 +77,6 @@ public class BigPerformanceTest
     @Test
     public void shouldExportFromMySqlAndImportIntoGraph() throws Exception
     {
-        exportFromMySqlToNeo4j( "northwind" );
-        neo4j.get().start();
-
-        // then
         assertFalse( neo4j.get().containsImportErrorLog( Neo4j.DEFAULT_DATABASE ) );
 
         String customersJson = neo4j.get().executeHttp( NEO_TX_URI, "MATCH (c:Customer) RETURN c" );
@@ -92,9 +85,26 @@ public class BigPerformanceTest
                         "WHERE (c:Customer)<-[:CUSTOMER]-(o:Order) RETURN DISTINCT c" );
         List<String> customers = JsonPath.read( customersJson, "$.results[*].data[*].row[0]" );
         List<String> customersWithOrders = JsonPath.read( customersWithOrdersJson, "$.results[*].data[*].row[0]" );
-        MatcherAssert.assertThat( customers.size(), CoreMatchers.is( 93 ) );
-        MatcherAssert.assertThat( customersWithOrders.size(), CoreMatchers.is( 89 ) );
+        assertThat( customers.size(), is( 93 ) );
+        assertThat( customersWithOrders.size(), is( 89 ) );
 
+        String newOrdersJson = neo4j.get().executeHttp( NEO_TX_URI,
+                "MATCH (c)--(o) " +
+                        "WHERE (c:Customer)--(o:Order{shipCity:'Lyon'}) RETURN DISTINCT c" );
+        List<String> customersWithOrdersToLyon = JsonPath.read( newOrdersJson, "$.results[*].data[*].row[0]" );
+
+        assertThat( customersWithOrdersToLyon.size(), is( 1 ) );
+
+        String territoriesWithEmployeesResponse = neo4j.get().executeHttp( NEO_TX_URI,
+                "MATCH (e:Employee)-->(t:Territory) RETURN e,t;" );
+        List<String> territories = JsonPath.read( territoriesWithEmployeesResponse, "$.results[*].data[*].row[1]" );
+
+        assertThat( territories.size(), is( 49 ) );
+
+        String managers = neo4j.get().executeHttp( NEO_TX_URI,
+                "MATCH (e:Employee)--(r:Employee) WHERE NOT (e:Employee)-->(r:Employee) RETURN e;" );
+        List<String> lastNames = JsonPath.read( managers, "$.results[*].data[*].row[0].lastName" );
+        assertThat( lastNames, hasItems( "Fuller", "Buchanan" ) );
     }
 
     private static void exportFromMySqlToNeo4j( String database ) throws IOException
@@ -102,8 +112,6 @@ public class BigPerformanceTest
         Path importToolOptions = tempDirectory.get().resolve( "import-tool-options.json" );
         ObjectMapper objectMapper = new ObjectMapper();
         HashMap<Object, Object> options = new HashMap<>();
-        options.put( "delimiter", "\t" );
-        options.put( "quote", "`" );
         options.put( "multiline-fields", "true" );
         objectMapper.writeValue( importToolOptions.toFile(), options );
 
@@ -111,13 +119,15 @@ public class BigPerformanceTest
                 new String[]{"mysql",
                         "export",
                         "--host", mySqlServer.get().ipAddress(),
-                        "--user", MySqlClient.Parameters.DBUser.value(),
-                        "--password", MySqlClient.Parameters.DBPassword.value(),
+                        "--user", RdbmsClient.Parameters.DBUser.value(),
+                        "--password", RdbmsClient.Parameters.DBPassword.value(),
                         "--database", database,
                         "--import-tool", neo4j.get().binDirectory().toString(),
                         "--options-file", importToolOptions.toString(),
                         "--csv-directory", tempDirectory.get().toString(),
                         "--destination", neo4j.get().databasesDirectory().resolve( Neo4j.DEFAULT_DATABASE ).toString(),
+                        "--delimiter", "\t",
+                        "--quote", "`",
                         "--force"} );
     }
 }

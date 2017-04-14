@@ -10,8 +10,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 import org.neo4j.etl.sql.DatabaseClient;
 import org.neo4j.etl.sql.QueryResults;
+import org.neo4j.etl.util.ArrayUtils;
 
 import static java.lang.String.format;
 
@@ -19,12 +21,18 @@ public class TableInfoAssembler
 {
     static final String SYNTHETIC_PRIMARY_KEY_NAME = "_ROW_INDEX_";
 
-    private final List<String> tablesToExclude;
     private final DatabaseClient databaseClient;
+    private final List<String> tablesToExclude;
+    private final Formatting formatting;
 
     public TableInfoAssembler( DatabaseClient databaseClient, List<String> tablesToExclude )
     {
+        this(databaseClient, Formatting.DEFAULT, tablesToExclude);
+    }
+
+    public TableInfoAssembler(DatabaseClient databaseClient, Formatting formatting, List<String> tablesToExclude) {
         this.databaseClient = databaseClient;
+        this.formatting = formatting;
         this.tablesToExclude = tablesToExclude;
     }
 
@@ -56,7 +64,8 @@ public class TableInfoAssembler
                             e.getKey(),
                             ColumnRole.Data,
                             SqlDataType.parse( e.getValue() ),
-                            ColumnValueSelectionStrategy.SelectColumnValue ) )
+                            ColumnValueSelectionStrategy.SelectColumnValue,
+                            formatting))
                     .filter( c -> !c.sqlDataType().skipImport() )
                     .collect( Collectors.toMap( Column::name, c -> c ) );
         }
@@ -80,7 +89,7 @@ public class TableInfoAssembler
 
                 foreignKeyGroup.forEach( fkRow ->
                 {
-                    if( !tablesToExclude.contains( fkRow.get( "PKTABLE_NAME" ) ) )
+                    if ( !ArrayUtils.containsIgnoreCase( tablesToExclude, fkRow.get( "PKTABLE_NAME" ) ) )
                     {
                         Column sourceColumn = columns.get( table.fullyQualifiedColumnName( fkRow.get( "FKCOLUMN_NAME" ) ) );
 

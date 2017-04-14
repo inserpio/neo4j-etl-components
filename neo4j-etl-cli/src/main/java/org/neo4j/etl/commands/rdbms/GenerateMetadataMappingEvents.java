@@ -1,4 +1,4 @@
-package org.neo4j.etl.commands.mysql;
+package org.neo4j.etl.commands.rdbms;
 
 public interface GenerateMetadataMappingEvents
 {

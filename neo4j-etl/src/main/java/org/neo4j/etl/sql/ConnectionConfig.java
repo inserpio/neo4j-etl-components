@@ -51,6 +51,11 @@ public class ConnectionConfig
         return databaseType.statementFactory();
     }
 
+    boolean hasSchemas()
+    {
+        return databaseType.hasSchemas();
+    }
+
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     public boolean equals( Object o )
     {

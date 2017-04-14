@@ -16,7 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.neo4j.etl.mysql.MySqlClient;
+import org.neo4j.etl.rdbms.RdbmsClient;
 import org.neo4j.etl.neo4j.Neo4j;
 import org.neo4j.etl.provisioning.Neo4jFixture;
 import org.neo4j.etl.provisioning.Server;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertThat;
 import static org.neo4j.etl.neo4j.Neo4j.NEO4J_VERSION;
 import static org.neo4j.etl.provisioning.platforms.TestType.INTEGRATION;
 
-public class ExportFromMySqlIntegrationTest
+public class MySqlExportIntegrationTest
 {
     @ClassRule
     public static final ResourceRule<Path> tempDirectory =
@@ -60,7 +60,7 @@ public class ExportFromMySqlIntegrationTest
     @BeforeClass
     public static void setUp() throws Exception
     {
-        MySqlClient client = new MySqlClient( mySqlServer.get().ipAddress() );
+        RdbmsClient client = new RdbmsClient( DatabaseType.MySQL, mySqlServer.get().ipAddress() );
         client.execute( MySqlScripts.setupDatabaseScript().value() );
         exportFromMySqlToNeo4j();
         neo4j.get().start();
@@ -248,8 +248,8 @@ public class ExportFromMySqlIntegrationTest
 
         args.addAll( Arrays.asList( "mysql", "export",
                 "--host", mySqlServer.get().ipAddress(),
-                "--user", MySqlClient.Parameters.DBUser.value(),
-                "--password", MySqlClient.Parameters.DBPassword.value(),
+                "--user", RdbmsClient.Parameters.DBUser.value(),
+                "--password", RdbmsClient.Parameters.DBPassword.value(),
                 "--database", "javabase",
                 "--import-tool", neo4j.get().binDirectory().toString(),
                 "--options-file", importToolOptions.toString(),

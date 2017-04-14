@@ -8,12 +8,14 @@ import java.util.logging.LogManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.neo4j.etl.mysql.MySqlClient;
+import org.neo4j.etl.rdbms.RdbmsClient;
 import org.neo4j.etl.neo4j.Neo4j;
 import org.neo4j.etl.provisioning.Neo4jFixture;
 import org.neo4j.etl.provisioning.Server;
@@ -23,15 +25,13 @@ import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.ResourceRule;
 import org.neo4j.etl.util.TemporaryDirectory;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 
 import static org.neo4j.etl.neo4j.Neo4j.NEO4J_VERSION;
 import static org.neo4j.etl.neo4j.Neo4j.NEO_TX_URI;
-import static org.neo4j.etl.provisioning.platforms.TestType.PERFORMANCE;
+import static org.neo4j.etl.provisioning.platforms.TestType.INTEGRATION;
 
-public class MusicBrainzPerformanceTest
+public class MySqlBigPerformanceTest
 {
     @ClassRule
     public static final ResourceRule<Path> tempDirectory =
@@ -40,11 +40,11 @@ public class MusicBrainzPerformanceTest
     @ClassRule
     public static final ResourceRule<Server> mySqlServer = new ResourceRule<>(
             ServerFixture.server(
-                    "mysql-etl-test-mbrainz",
+                    "mysql-etl-test-bperf",
                     DatabaseType.MySQL.defaultPort(),
-                    MySqlScripts.musicBrainzPerformanceStartupScript(),
+                    MySqlScripts.bigPerformanceStartupScript(),
                     tempDirectory.get(),
-                    PERFORMANCE ) );
+                    INTEGRATION ) );
 
     @ClassRule
     public static final ResourceRule<Neo4j> neo4j = new ResourceRule<>(
@@ -56,12 +56,13 @@ public class MusicBrainzPerformanceTest
         try
         {
             LogManager.getLogManager().readConfiguration(
-                    NeoIntegrationCli.class.getResourceAsStream( "/minimal-logging.properties" ) );
+                    NeoIntegrationCli.class.getResourceAsStream( "/debug-logging.properties" ) );
 //            ServerFixture.executeImportOfDatabase( tempDirectory.get(),
-//                    "ngsdb.sql",
-//                    MySqlClient.Parameters.DBUser.value(),
-//                    MySqlClient.Parameters.DBPassword.value(),
-//                    mySqlServer.get().ipAddress() );
+//                    "northwind.sql",
+//                    RdbmsClient.Parameters.DBUser.value(),
+//                    RdbmsClient.Parameters.DBPassword.value(),
+//                    postgreSqlServer.get().ipAddress() );
+
         }
         catch ( IOException e )
         {
@@ -79,18 +80,21 @@ public class MusicBrainzPerformanceTest
     @Test
     public void shouldExportFromMySqlAndImportIntoGraph() throws Exception
     {
-        //given
-        exportFromMySqlToNeo4j( "ngsdb" );
+        exportFromMySqlToNeo4j( "northwind" );
         neo4j.get().start();
+
         // then
         assertFalse( neo4j.get().containsImportErrorLog( Neo4j.DEFAULT_DATABASE ) );
-        Thread.sleep( 25000 );
-        String response = neo4j.get().executeHttp( NEO_TX_URI,
-                "MATCH (label:Label{name : \"EMI Group\"})--(labelType:LabelType) RETURN label, labelType" );
-        List<String> label = JsonPath.read( response, "$.results[*].data[*].row[0].name" );
-        List<String> labelType = JsonPath.read( response, "$.results[*].data[*].row[1].name" );
-        assertThat( label.get( 0 ), is( "EMI Group" ) );
-        assertThat( labelType.get( 0 ), is( "Holding" ) );
+
+        String customersJson = neo4j.get().executeHttp( NEO_TX_URI, "MATCH (c:Customer) RETURN c" );
+        String customersWithOrdersJson = neo4j.get().executeHttp( NEO_TX_URI,
+                "MATCH (c)--(o) " +
+                        "WHERE (c:Customer)<-[:CUSTOMER]-(o:Order) RETURN DISTINCT c" );
+        List<String> customers = JsonPath.read( customersJson, "$.results[*].data[*].row[0]" );
+        List<String> customersWithOrders = JsonPath.read( customersWithOrdersJson, "$.results[*].data[*].row[0]" );
+        MatcherAssert.assertThat( customers.size(), CoreMatchers.is( 93 ) );
+        MatcherAssert.assertThat( customersWithOrders.size(), CoreMatchers.is( 89 ) );
+
     }
 
     private static void exportFromMySqlToNeo4j( String database ) throws IOException
@@ -103,18 +107,17 @@ public class MusicBrainzPerformanceTest
         options.put( "multiline-fields", "true" );
         objectMapper.writeValue( importToolOptions.toFile(), options );
 
-        NeoIntegrationCli.executeMainReturnSysOut( new String[]{"mysql",
-                "export",
-                "--host", mySqlServer.get().ipAddress(),
-                "--user", MySqlClient.Parameters.DBUser.value(),
-                "--password", MySqlClient.Parameters.DBPassword.value(),
-                "--database", database,
-                "--import-tool", neo4j.get().binDirectory().toString(),
-                "--options-file", importToolOptions.toString(),
-                "--csv-directory", tempDirectory.get().toString(),
-                "--destination", neo4j.get().databasesDirectory().resolve( Neo4j.DEFAULT_DATABASE ).toString(),
-                "--force",
-                "--debug"} );
+        NeoIntegrationCli.executeMainReturnSysOut(
+                new String[]{"mysql",
+                        "export",
+                        "--host", mySqlServer.get().ipAddress(),
+                        "--user", RdbmsClient.Parameters.DBUser.value(),
+                        "--password", RdbmsClient.Parameters.DBPassword.value(),
+                        "--database", database,
+                        "--import-tool", neo4j.get().binDirectory().toString(),
+                        "--options-file", importToolOptions.toString(),
+                        "--csv-directory", tempDirectory.get().toString(),
+                        "--destination", neo4j.get().databasesDirectory().resolve( Neo4j.DEFAULT_DATABASE ).toString(),
+                        "--force"} );
     }
-
 }

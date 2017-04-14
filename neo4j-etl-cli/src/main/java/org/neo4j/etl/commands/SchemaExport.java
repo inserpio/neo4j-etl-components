@@ -14,6 +14,7 @@ import org.neo4j.etl.sql.metadata.Join;
 import org.neo4j.etl.sql.metadata.JoinTable;
 import org.neo4j.etl.sql.metadata.Table;
 import org.neo4j.etl.sql.metadata.TableName;
+import org.neo4j.etl.util.ArrayUtils;
 
 import static java.lang.String.format;
 
@@ -65,13 +66,13 @@ public class SchemaExport
 
     private void validate()
     {
-        List<TableName> allTableNames = tables.stream().map( Table::name ).collect( Collectors.toList() );
+        List<String> allTableNames = tables.stream().map( Table::descriptor ).collect( Collectors.toList() );
 
         joins.forEach(
                 join -> join.tableNames().forEach(
                         tableName ->
                         {
-                            if ( !allTableNames.contains( tableName ) )
+                            if ( !ArrayUtils.containsIgnoreCase( allTableNames, tableName.fullName() ) )
                             {
                                 throw new IllegalStateException(
                                         format( "Config is missing table definition '%s' for join [%s]",

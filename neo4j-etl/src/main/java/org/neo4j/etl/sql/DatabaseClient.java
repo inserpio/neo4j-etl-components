@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 import java.util.Spliterator;
 import java.util.concurrent.CompletableFuture;
@@ -36,6 +36,7 @@ public class DatabaseClient implements AutoCloseable
     private final Connection connection;
     private final DatabaseMetaData metaData;
     private final StatementFactory statementFactory;
+    private final boolean hasSchemas;
 
     public DatabaseClient( ConnectionConfig connectionConfig ) throws SQLException, ClassNotFoundException
     {
@@ -58,6 +59,7 @@ public class DatabaseClient implements AutoCloseable
 
         metaData = connection.getMetaData();
         statementFactory = connectionConfig.statementFactory();
+        hasSchemas = connectionConfig.hasSchemas();
 
         Loggers.Sql.log().fine( "Connected to database" );
     }
@@ -109,7 +111,9 @@ public class DatabaseClient implements AutoCloseable
         {
             while ( results.next() )
             {
-                tableNames.add( new TableName( connection.getCatalog(), results.getString( "TABLE_NAME" ) ) );
+                tableNames.add( new TableName(
+                        hasSchemas ? connection.getSchema() : connection.getCatalog(),
+                        results.getString( "TABLE_NAME" ) ) );
             }
         }
 
@@ -231,7 +235,7 @@ public class DatabaseClient implements AutoCloseable
                 }
                 if ( hasNext )
                 {
-                    Map<String, String> map = new HashMap<>();
+                    Map<String, String> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                     for ( String columnLabel : columnLabels )
                     {
                         try

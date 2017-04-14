@@ -1,5 +1,21 @@
 package org.neo4j.etl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.neo4j.etl.neo4j.Neo4j;
+import org.neo4j.etl.provisioning.Neo4jFixture;
+import org.neo4j.etl.provisioning.Server;
+import org.neo4j.etl.provisioning.ServerFixture;
+import org.neo4j.etl.provisioning.scripts.PostgreSqlScripts;
+import org.neo4j.etl.rdbms.RdbmsClient;
+import org.neo4j.etl.sql.DatabaseType;
+import org.neo4j.etl.util.ResourceRule;
+import org.neo4j.etl.util.TemporaryDirectory;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -8,31 +24,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-
-import org.neo4j.etl.mysql.MySqlClient;
-import org.neo4j.etl.neo4j.Neo4j;
-import org.neo4j.etl.provisioning.Neo4jFixture;
-import org.neo4j.etl.provisioning.Server;
-import org.neo4j.etl.provisioning.ServerFixture;
-import org.neo4j.etl.provisioning.scripts.MySqlScripts;
-import org.neo4j.etl.sql.DatabaseType;
-import org.neo4j.etl.util.ResourceRule;
-import org.neo4j.etl.util.TemporaryDirectory;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-
 import static org.neo4j.etl.neo4j.Neo4j.NEO4J_VERSION;
+import static org.neo4j.etl.neo4j.Neo4j.NEO_TX_URI;
 import static org.neo4j.etl.provisioning.platforms.TestType.INTEGRATION;
 
-public class ExclusionIntegrationTest
+public class PostgreSqlExclusionIntegrationTest
 {
     private static final String[] tablesToExclude = {"Orphan_Table", "Yet_Another_Orphan_Table", "Table_B"};
 //    private static final String[] tablesToInclude = {"Join_Table", "Table_A"};
@@ -42,24 +41,29 @@ public class ExclusionIntegrationTest
             new ResourceRule<>( TemporaryDirectory.temporaryDirectory() );
 
     @ClassRule
-    public static final ResourceRule<Server> mySqlServer = new ResourceRule<>(
+    public static final ResourceRule<Server> postgreSqlServer = new ResourceRule<>(
             ServerFixture.server(
-                    "mysql-etl-test",
-                    DatabaseType.MySQL.defaultPort(),
-                    MySqlScripts.startupScript(),
+                    "postgresql-etl-test",
+                    5433,
+                    PostgreSqlScripts.startupScript(),
                     tempDirectory.get(), INTEGRATION ) );
 
     @ClassRule
     public static final ResourceRule<Neo4j> neo4j = new ResourceRule<>(
             Neo4jFixture.neo4j( NEO4J_VERSION, tempDirectory.get() ) );
-    private static final URI NEO_TX_URI = URI.create( "http://localhost:7474/db/data/transaction/commit" );
 
     @BeforeClass
     public static void setUp() throws Exception
     {
-        MySqlClient client = new MySqlClient( mySqlServer.get().ipAddress() );
-        client.execute( MySqlScripts.exclusionScript().value() );
-        exportFromMySqlToNeo4j( );
+        RdbmsClient client = new RdbmsClient(
+                DatabaseType.PostgreSQL,
+                postgreSqlServer.get().ipAddress(),
+                5433,
+                "exclusion",
+                RdbmsClient.Parameters.DBUser.value(),
+                RdbmsClient.Parameters.DBPassword.value() );
+        client.execute( PostgreSqlScripts.exclusionScript().value() );
+        exportFromPostgreSqlToNeo4j( );
         neo4j.get().start();
     }
 
@@ -97,22 +101,23 @@ public class ExclusionIntegrationTest
         assertThat( leaves.size(), is( 1 ) );
     }
 
-    private static void exportFromMySqlToNeo4j( ) throws IOException
+    private static void exportFromPostgreSqlToNeo4j( ) throws IOException
     {
         Path importToolOptions = tempDirectory.get().resolve( "import-tool-options.json" );
         HashMap<Object, Object> options = new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
         List<String> args = new ArrayList<String>(  );
 
-        options.put( "quote", "`" );
+        options.put( "quote", "'" );
         options.put( "delimiter", "\t" );
         options.put( "multiline-fields", "true" );
         objectMapper.writeValue( importToolOptions.toFile(), options );
 
-        args.addAll( Arrays.asList( "mysql", "export",
-                "--host", mySqlServer.get().ipAddress(),
-                "--user", MySqlClient.Parameters.DBUser.value(),
-                "--password", MySqlClient.Parameters.DBPassword.value(),
+        args.addAll( Arrays.asList( "postgresql", "export",
+                "--host", postgreSqlServer.get().ipAddress(),
+                "--port", "5433",
+                "--user", RdbmsClient.Parameters.DBUser.value(),
+                "--password", RdbmsClient.Parameters.DBPassword.value(),
                 "--database", "exclusion",
                 "--import-tool", neo4j.get().binDirectory().toString(),
                 "--options-file", importToolOptions.toString(),
@@ -125,4 +130,5 @@ public class ExclusionIntegrationTest
 
         NeoIntegrationCli.executeMainReturnSysOut( args.toArray( new String[args.size()] ) );
     }
+
 }

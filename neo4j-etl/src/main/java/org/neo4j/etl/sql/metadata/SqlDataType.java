@@ -8,6 +8,9 @@ public enum SqlDataType
 {
     BIT( Neo4jDataType.Byte ),
     INT( Neo4jDataType.Int ),
+    INT2( Neo4jDataType.Int ),
+    INT4( Neo4jDataType.Int ),
+    INT8( Neo4jDataType.Int ),
     INT_UNSIGNED( Neo4jDataType.Int ),
     TINYINT( Neo4jDataType.Byte ),
     TINYINT_UNSIGNED( Neo4jDataType.Byte ),
@@ -38,7 +41,18 @@ public enum SqlDataType
     BLOB( null ),
     TINYBLOB( null ),
     MEDIUMBLOB( null ),
-    LONGBLOB( null );
+    LONGBLOB( null ),
+    BYTEA( null ),
+
+    SMALLSERIAL( Neo4jDataType.Short ),
+    SERIAL( Neo4jDataType.Int ),
+    SERIAL4( Neo4jDataType.Int ),
+    SERIAL8( Neo4jDataType.Int ),
+    BIGSERIAL( Neo4jDataType.Long ),
+
+    FLOAT4( Neo4jDataType.Float ),
+
+    BPCHAR( Neo4jDataType.String );
 
     public static final SqlDataType COMPOSITE_KEY_TYPE = TEXT;
     public static final SqlDataType LABEL_DATA_TYPE = TEXT;
@@ -72,6 +86,6 @@ public enum SqlDataType
 
     public boolean skipImport()
     {
-        return BLOB == this || TINYBLOB == this || MEDIUMBLOB == this || LONGBLOB == this;
+        return BLOB == this || TINYBLOB == this || MEDIUMBLOB == this || LONGBLOB == this || BYTEA == this;
     }
 }

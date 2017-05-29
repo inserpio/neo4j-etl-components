@@ -7,17 +7,18 @@ import java.util.Iterator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 
 public class MetadataMappings implements Iterable<MetadataMapping>
 {
-    public static MetadataMappings fromJson( JsonNode root )
+    public static MetadataMappings fromJson( JsonNode root, Formatting formatting )
     {
         MetadataMappings metadataMappings = new MetadataMappings();
 
         ArrayNode array = (ArrayNode) root;
         for ( JsonNode csvResource : array )
         {
-            metadataMappings.add( MetadataMapping.fromJson( csvResource ) );
+            metadataMappings.add( MetadataMapping.fromJson( csvResource, formatting ) );
         }
 
         return metadataMappings;

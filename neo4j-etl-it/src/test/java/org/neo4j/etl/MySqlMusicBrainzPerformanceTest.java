@@ -18,7 +18,7 @@ import org.neo4j.etl.neo4j.Neo4j;
 import org.neo4j.etl.provisioning.Neo4jFixture;
 import org.neo4j.etl.provisioning.Server;
 import org.neo4j.etl.provisioning.ServerFixture;
-import org.neo4j.etl.provisioning.scripts.MySqlScripts;
+import org.neo4j.etl.provisioning.scripts.RdbmsScripts;
 import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.ResourceRule;
 import org.neo4j.etl.util.TemporaryDirectory;
@@ -42,7 +42,7 @@ public class MySqlMusicBrainzPerformanceTest
             ServerFixture.server(
                     "mysql-etl-test-mbrainz",
                     DatabaseType.MySQL.defaultPort(),
-                    MySqlScripts.musicBrainzPerformanceStartupScript(),
+                    RdbmsScripts.musicBrainzPerformanceStartupScript( DatabaseType.MySQL ),
                     tempDirectory.get(),
                     PERFORMANCE ) );
 
@@ -61,7 +61,7 @@ public class MySqlMusicBrainzPerformanceTest
 //                    "ngsdb.sql",
 //                    RdbmsClient.Parameters.DBUser.value(),
 //                    RdbmsClient.Parameters.DBPassword.value(),
-//                    postgreSqlServer.get().ipAddress() );
+//                    oracleServer.get().ipAddress() );
         }
         catch ( IOException e )
         {

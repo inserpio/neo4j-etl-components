@@ -9,23 +9,24 @@ import org.neo4j.etl.util.Preconditions;
 
 public class ConnectionConfig
 {
-    public static Builder.SetHost forDatabase( DatabaseType databaseType )
+    public static Builder.SetHost forDatabaseFromHostAndPort(DatabaseType databaseType )
+    {
+        return new ConnectionConfigBuilder( databaseType );
+    }
+
+    public static Builder.SetUrl forDatabaseFromUrl(DatabaseType databaseType )
     {
         return new ConnectionConfigBuilder( databaseType );
     }
 
     private final DatabaseType databaseType;
-    private final String host;
-    private final int port;
-    private final String database;
+    private final URI uri;
     private final Credentials credentials;
 
     ConnectionConfig( ConnectionConfigBuilder builder )
     {
         this.databaseType = Preconditions.requireNonNull( builder.databaseType, "DatabaseType" );
-        this.host = Preconditions.requireNonNullString( builder.host, "Host" );
-        this.port = builder.port;
-        this.database = Preconditions.requireNonNull( builder.database, "Database" );
+        this.uri = Preconditions.requireNonNull( builder.uri, "Uri" );
         this.credentials = new Credentials(
                 Preconditions.requireNonNullString( builder.username, "Username" ),
                 builder.password );
@@ -38,7 +39,7 @@ public class ConnectionConfig
 
     public URI uri()
     {
-        return databaseType.createUri( host, port, database );
+        return this.uri;
     }
 
     Credentials credentials()
@@ -70,6 +71,11 @@ public class ConnectionConfig
 
     public interface Builder
     {
+        interface SetUrl
+        {
+            SetUsername url ( String url);
+        }
+
         interface SetHost
         {
             SetPort host( String host );

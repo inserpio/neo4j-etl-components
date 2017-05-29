@@ -1,6 +1,10 @@
 package org.neo4j.etl.sql;
 
-class ConnectionConfigBuilder implements ConnectionConfig.Builder.SetHost,
+import java.net.URI;
+
+class ConnectionConfigBuilder implements
+        ConnectionConfig.Builder.SetUrl,
+        ConnectionConfig.Builder.SetHost,
         ConnectionConfig.Builder.SetPort,
         ConnectionConfig.Builder.SetDatabaseOrUsername,
         ConnectionConfig.Builder.SetUsername,
@@ -8,16 +12,26 @@ class ConnectionConfigBuilder implements ConnectionConfig.Builder.SetHost,
         ConnectionConfig.Builder
 
 {
+    private String url;
+    private String host;
+    private int port;
+    private String database = "";
+
     final DatabaseType databaseType;
-    String host;
-    int port;
-    String database = "";
+    URI uri;
     String username;
     String password;
 
     ConnectionConfigBuilder( DatabaseType databaseType )
     {
         this.databaseType = databaseType;
+    }
+
+    @Override
+    public SetUsername url( String url )
+    {
+        this.url = url;
+        return this;
     }
 
     @Override
@@ -58,6 +72,8 @@ class ConnectionConfigBuilder implements ConnectionConfig.Builder.SetHost,
     @Override
     public ConnectionConfig build()
     {
+        this.uri = this.url != null ? URI.create( this.url ) : databaseType.createUri( host, port, database );
+
         return new ConnectionConfig( this );
     }
 }

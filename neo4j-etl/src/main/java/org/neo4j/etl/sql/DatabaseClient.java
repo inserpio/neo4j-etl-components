@@ -19,7 +19,9 @@ import java.util.logging.Level;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.lang3.StringUtils;
 import org.neo4j.etl.io.AwaitHandle;
+import org.neo4j.etl.sql.metadata.Schema;
 import org.neo4j.etl.sql.metadata.TableName;
 import org.neo4j.etl.util.FutureUtils;
 import org.neo4j.etl.util.Loggers;
@@ -30,7 +32,7 @@ public class DatabaseClient implements AutoCloseable
 {
     interface StatementFactory
     {
-        Statement createStatement( Connection connection) throws SQLException;
+        Statement createStatement( Connection connection ) throws SQLException;
     }
 
     private final Connection connection;
@@ -76,7 +78,7 @@ public class DatabaseClient implements AutoCloseable
 
     public QueryResults columns( TableName tableName ) throws SQLException
     {
-        return new SqlQueryResults( metaData.getColumns( "", tableName.schema(), tableName.simpleName(), "" ) );
+        return new SqlQueryResults( metaData.getColumns( "", tableName.schema(), tableName.simpleName(), null ) );
     }
 
     public AwaitHandle<QueryResults> executeQuery( String sql )
@@ -103,17 +105,26 @@ public class DatabaseClient implements AutoCloseable
                 }, r -> new Thread( r ).start() ) );
     }
 
-    public Collection<TableName> tableNames() throws SQLException
+    public Collection<TableName> tables( Schema schema ) throws SQLException
     {
         Collection<TableName> tableNames = new ArrayList<>();
 
-        try ( ResultSet results = connection.getMetaData().getTables( null, null, null, new String[]{"TABLE"} ) )
+        String tableSchema;
+
+        if ( schema != null && schema != Schema.UNDEFINED )
+        {
+            tableSchema =  StringUtils.upperCase( schema.name() );
+        }
+        else
+        {
+            tableSchema = hasSchemas ? connection.getSchema() : connection.getCatalog();
+        }
+
+        try ( ResultSet results = connection.getMetaData().getTables( null, tableSchema, null, new String[]{ "TABLE" } ) )
         {
             while ( results.next() )
             {
-                tableNames.add( new TableName(
-                        hasSchemas ? connection.getSchema() : connection.getCatalog(),
-                        results.getString( "TABLE_NAME" ) ) );
+                tableNames.add( new TableName( tableSchema, results.getString( "TABLE_NAME" ) ) );
             }
         }
 

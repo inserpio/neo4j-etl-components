@@ -17,7 +17,7 @@ import org.neo4j.etl.neo4j.Neo4j;
 import org.neo4j.etl.provisioning.Neo4jFixture;
 import org.neo4j.etl.provisioning.Server;
 import org.neo4j.etl.provisioning.ServerFixture;
-import org.neo4j.etl.provisioning.scripts.MySqlScripts;
+import org.neo4j.etl.provisioning.scripts.RdbmsScripts;
 import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.ResourceRule;
 import org.neo4j.etl.util.TemporaryDirectory;
@@ -42,7 +42,7 @@ public class MySqlNorthWindDatabaseInspectorIntegrationTest
             ServerFixture.server(
                     "mysql-etl-test-nw",
                     DatabaseType.MySQL.defaultPort(),
-                    MySqlScripts.startupScript(),
+                    RdbmsScripts.startupScript( DatabaseType.MySQL ),
                     tempDirectory.get(), INTEGRATION ) );
 
     @ClassRule
@@ -57,7 +57,7 @@ public class MySqlNorthWindDatabaseInspectorIntegrationTest
 //            LogManager.getLogManager().readConfiguration(
 //                    NeoIntegrationCli.class.getResourceAsStream( "/debug-logging.properties" ) );
             RdbmsClient client = new RdbmsClient( DatabaseType.MySQL, mySqlServer.get().ipAddress() );
-            client.execute( MySqlScripts.northwindScript().value() );
+            client.execute( RdbmsScripts.northwindScript( DatabaseType.MySQL ).value() );
             exportFromMySqlToNeo4j( "northwind" );
             neo4j.get().start();
         }

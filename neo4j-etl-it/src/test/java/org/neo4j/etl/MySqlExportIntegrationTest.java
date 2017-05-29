@@ -21,7 +21,7 @@ import org.neo4j.etl.neo4j.Neo4j;
 import org.neo4j.etl.provisioning.Neo4jFixture;
 import org.neo4j.etl.provisioning.Server;
 import org.neo4j.etl.provisioning.ServerFixture;
-import org.neo4j.etl.provisioning.scripts.MySqlScripts;
+import org.neo4j.etl.provisioning.scripts.RdbmsScripts;
 import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.ResourceRule;
 import org.neo4j.etl.util.TemporaryDirectory;
@@ -49,7 +49,7 @@ public class MySqlExportIntegrationTest
             ServerFixture.server(
                     "mysql-etl-test-export",
                     DatabaseType.MySQL.defaultPort(),
-                    MySqlScripts.startupScript(),
+                    RdbmsScripts.startupScript( DatabaseType.MySQL ),
                     tempDirectory.get(), INTEGRATION ) );
 
     @ClassRule
@@ -61,7 +61,7 @@ public class MySqlExportIntegrationTest
     public static void setUp() throws Exception
     {
         RdbmsClient client = new RdbmsClient( DatabaseType.MySQL, mySqlServer.get().ipAddress() );
-        client.execute( MySqlScripts.setupDatabaseScript().value() );
+        client.execute( RdbmsScripts.setupDatabaseScript( DatabaseType.MySQL ).value() );
         exportFromMySqlToNeo4j();
         neo4j.get().start();
     }

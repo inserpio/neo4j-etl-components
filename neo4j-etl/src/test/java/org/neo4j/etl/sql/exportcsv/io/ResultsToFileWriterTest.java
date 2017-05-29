@@ -108,9 +108,9 @@ public class ResultsToFileWriterTest
         when( mappings.columns() ).thenReturn(
                 asList(
                         new SimpleColumn( table, "id", ColumnRole.Data, SqlDataType.INT,
-                                ColumnValueSelectionStrategy.SelectColumnValue ),
+                                ColumnValueSelectionStrategy.SelectColumnValue, Formatting.DEFAULT ),
                         new SimpleColumn( table, "username", ColumnRole.Data, SqlDataType.VARCHAR,
-                                ColumnValueSelectionStrategy.SelectColumnValue ) ) );
+                                ColumnValueSelectionStrategy.SelectColumnValue, Formatting.DEFAULT ) ) );
 
         MetadataMapping resource = new MetadataMapping( table.fullName(), GraphObjectType.Node, "SELECT ...",
                 mappings );
@@ -199,7 +199,7 @@ public class ResultsToFileWriterTest
                 asList(
                         columnUtil.keyColumn( table, "id", ColumnRole.PrimaryKey ),
                         new SimpleColumn( table, "tiny_int_value", ColumnRole.Data, SqlDataType.TINYINT,
-                                ColumnValueSelectionStrategy.SelectColumnValue ) ) );
+                                ColumnValueSelectionStrategy.SelectColumnValue, Formatting.DEFAULT ) ) );
 
         MetadataMapping resource = new MetadataMapping(
                 table.fullName(),
@@ -228,7 +228,7 @@ public class ResultsToFileWriterTest
                 asList(
                         columnUtil.keyColumn( table, "id", ColumnRole.PrimaryKey ),
                         new SimpleColumn( table, "tiny_int_value", ColumnRole.Data, SqlDataType.TINYINT,
-                                ColumnValueSelectionStrategy.SelectColumnValue ) ) );
+                                ColumnValueSelectionStrategy.SelectColumnValue, Formatting.DEFAULT ) ) );
 
         MetadataMapping resource = new MetadataMapping(
                 table.fullName(),

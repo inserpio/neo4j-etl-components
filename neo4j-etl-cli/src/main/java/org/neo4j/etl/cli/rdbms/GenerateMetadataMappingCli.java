@@ -14,8 +14,10 @@ import com.github.rvesse.airline.annotations.Arguments;
 import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
 import com.github.rvesse.airline.annotations.OptionType;
+import com.github.rvesse.airline.annotations.restrictions.RequireOnlyOne;
 import com.github.rvesse.airline.annotations.restrictions.Required;
 
+import com.github.rvesse.airline.annotations.restrictions.RequiredOnlyIf;
 import com.github.rvesse.airline.model.CommandGroupMetadata;
 import org.neo4j.etl.commands.rdbms.GenerateMetadataMapping;
 import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
@@ -26,6 +28,7 @@ import org.neo4j.etl.sql.exportcsv.io.TinyIntResolver;
 import org.neo4j.etl.sql.exportcsv.mapping.FilterOptions;
 import org.neo4j.etl.sql.exportcsv.mapping.MetadataMappings;
 import org.neo4j.etl.sql.exportcsv.supplier.DefaultExportSqlSupplier;
+import org.neo4j.etl.sql.metadata.Schema;
 import org.neo4j.etl.util.CliRunner;
 import org.neo4j.etl.util.Loggers;
 
@@ -37,19 +40,25 @@ public class GenerateMetadataMappingCli implements Runnable
     @Inject
     private CommandGroupMetadata commandGroupMetadata;
 
-    @SuppressWarnings("FieldCanBeLocal")
+    @RequireOnlyOne
+    @Option(type = OptionType.COMMAND,
+            name = {"--url"},
+            description = "Url to use for connection to RDBMS.",
+            title = "name")
+    private String url;
+
+    @RequireOnlyOne
     @Option(type = OptionType.COMMAND,
             name = {"-h", "--host"},
             description = "Host to use for connection to RDBMS.",
             title = "name")
-    private String host = "localhost";
+    private String host;
 
-    @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"-p", "--port"},
             description = "Port number to use for connection to RDBMS.",
             title = "#")
-    private int port = 3306;
+    private Integer port;
 
     @Required
     @Option(type = OptionType.COMMAND,
@@ -64,12 +73,18 @@ public class GenerateMetadataMappingCli implements Runnable
             title = "name")
     private String password;
 
-    @Required
+    @RequiredOnlyIf( names = { "host" } )
     @Option(type = OptionType.COMMAND,
             name = {"-d", "--database"},
             description = "RDBMS database.",
             title = "name")
     private String database;
+
+    @Option(type = OptionType.COMMAND,
+            name = {"-s", "--schema"},
+            description = "RDBMS database.",
+            title = "name")
+    private String schema;
 
     @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
@@ -134,13 +149,20 @@ public class GenerateMetadataMappingCli implements Runnable
         {
             DatabaseType databaseType = DatabaseType.fromString( this.commandGroupMetadata.getName() );
 
-            ConnectionConfig connectionConfig = ConnectionConfig.forDatabase( databaseType )
-                    .host( host )
-                    .port( port )
-                    .database( database )
-                    .username( user )
-                    .password( password )
-                    .build();
+            ConnectionConfig connectionConfig = this.url == null ?
+                    ConnectionConfig.forDatabaseFromHostAndPort(databaseType)
+                            .host(host)
+                            .port( port != null ? port : databaseType.defaultPort() )
+                            .database(database)
+                            .username(user)
+                            .password(password)
+                            .build()
+                    :
+                    ConnectionConfig.forDatabaseFromUrl(databaseType)
+                            .url(url)
+                            .username(user)
+                            .password(password)
+                            .build();
 
             ImportToolOptions importToolOptions =
                     ImportToolOptions.initialiseFromFile( Paths.get( importToolOptionsFile ) );
@@ -153,13 +175,16 @@ public class GenerateMetadataMappingCli implements Runnable
 
             final FilterOptions filterOptions = new FilterOptions( tinyIntAs, relationshipNameFrom, exclusionMode,
                     tables, false );
+
+            Schema schema = this.schema != null ? new Schema( this.schema ) : Schema.UNDEFINED;
+
             new GenerateMetadataMapping(
                     new GenerateMetadataMappingEventHandler(),
                     System.out,
                     connectionConfig,
                     formatting,
                     new DefaultExportSqlSupplier(),
-                    filterOptions, new TinyIntResolver( filterOptions.tinyIntAs() ) ).call();
+                    filterOptions, new TinyIntResolver( filterOptions.tinyIntAs() ) ).forSchema( schema ).call();
         }
         catch ( Exception e )
         {
@@ -167,7 +192,7 @@ public class GenerateMetadataMappingCli implements Runnable
         }
     }
 
-    public static Callable<MetadataMappings> metadataMappingsFromFile( String mappingsFile ) throws IOException
+    public static Callable<MetadataMappings> metadataMappingsFromFile( String mappingsFile, Formatting formatting ) throws IOException
     {
         Callable<MetadataMappings> metadataMappings;
         if ( mappingsFile.equalsIgnoreCase( "stdin" ) )
@@ -176,13 +201,13 @@ public class GenerateMetadataMappingCli implements Runnable
             try ( Reader reader = new InputStreamReader( System.in );
                   BufferedReader buffer = new BufferedReader( reader ) )
             {
-                metadataMappings = GenerateMetadataMapping.load( buffer );
+                metadataMappings = GenerateMetadataMapping.load( buffer, formatting );
             }
         }
         else
         {
             Loggers.Default.log( Level.INFO, "Reading metadata mapping from file: " + mappingsFile );
-            metadataMappings = GenerateMetadataMapping.load( mappingsFile );
+            metadataMappings = GenerateMetadataMapping.load( mappingsFile, formatting );
         }
         return metadataMappings;
     }

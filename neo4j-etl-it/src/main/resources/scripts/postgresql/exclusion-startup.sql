@@ -1,0 +1,3 @@
+DROP DATABASE IF EXISTS exclusion;
+
+CREATE DATABASE exclusion WITH OWNER 'neo4j' ENCODING 'UTF8' LC_COLLATE = 'en_US.utf8' LC_CTYPE = 'en_US.utf8';

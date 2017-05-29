@@ -6,12 +6,7 @@ import java.util.List;
 
 import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 import org.neo4j.etl.sql.DatabaseClient;
-import org.neo4j.etl.sql.metadata.Join;
-import org.neo4j.etl.sql.metadata.JoinTable;
-import org.neo4j.etl.sql.metadata.Table;
-import org.neo4j.etl.sql.metadata.TableInfo;
-import org.neo4j.etl.sql.metadata.TableInfoAssembler;
-import org.neo4j.etl.sql.metadata.TableName;
+import org.neo4j.etl.sql.metadata.*;
 import org.neo4j.etl.util.ArrayUtils;
 
 public class DatabaseInspector
@@ -31,13 +26,13 @@ public class DatabaseInspector
         this.tableInfoAssembler = new TableInfoAssembler( databaseClient, formatting, tablesToExclude );
     }
 
-    public SchemaExport buildSchemaExport() throws Exception
+    public SchemaExport buildSchemaExport( Schema schema ) throws Exception
     {
         HashSet<Join> joins = new HashSet<>();
         HashSet<Table> tables = new HashSet<>();
         HashSet<JoinTable> joinTables = new HashSet<>();
 
-        for ( TableName tableName : databaseClient.tableNames() )
+        for ( TableName tableName : databaseClient.tables( schema ) )
         {
             if ( !ArrayUtils.containsIgnoreCase( tablesToExclude, tableName.simpleName() ) )
             {

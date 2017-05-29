@@ -46,7 +46,8 @@ class TableToCsvFieldMapper implements DatabaseObjectToCsvFieldMapper<Table>
                 formatting.sqlQuotes().forConstant().enquote( formatting.labelFormatter().format( table.name().simpleName() ) ),
                 "_NODE_LABEL_",
                 ColumnRole.Literal,
-                SqlDataType.LABEL_DATA_TYPE, ColumnValueSelectionStrategy.SelectColumnValue );
+                SqlDataType.LABEL_DATA_TYPE, ColumnValueSelectionStrategy.SelectColumnValue,
+                formatting );
 
         builder.add( new ColumnToCsvFieldMapping( label, CsvField.label() ) );
 

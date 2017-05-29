@@ -23,25 +23,24 @@ import org.neo4j.etl.sql.exportcsv.mapping.ExclusionMode;
 import org.neo4j.etl.sql.exportcsv.mapping.FilterOptions;
 import org.neo4j.etl.sql.exportcsv.mapping.MetadataMappings;
 import org.neo4j.etl.sql.exportcsv.mapping.RelationshipNameResolver;
+import org.neo4j.etl.sql.metadata.Schema;
 
 public class GenerateMetadataMapping implements Callable<MetadataMappings>
 {
 
-    private TinyIntResolver tinyIntResolver;
-
-    public static Callable<MetadataMappings> load( String uri )
+    public static Callable<MetadataMappings> load( String uri, Formatting formatting )
     {
         return () ->
         {
             JsonNode root = new ObjectMapper().readTree( Paths.get( uri ).toFile() );
-            return MetadataMappings.fromJson( root );
+            return MetadataMappings.fromJson( root, formatting );
         };
     }
 
-    public static Callable<MetadataMappings> load( Reader reader ) throws IOException
+    public static Callable<MetadataMappings> load( Reader reader, Formatting formatting ) throws IOException
     {
         JsonNode root = new ObjectMapper().readTree( reader );
-        return () -> MetadataMappings.fromJson( root );
+        return () -> MetadataMappings.fromJson( root, formatting );
     }
 
     private final GenerateMetadataMappingEvents events;
@@ -51,20 +50,8 @@ public class GenerateMetadataMapping implements Callable<MetadataMappings>
     private final DatabaseExportSqlSupplier sqlSupplier;
     private final RelationshipNameResolver relationshipNameResolver;
     private final FilterOptions filterOptions;
-
-    public GenerateMetadataMapping( OutputStream output,
-                                    ConnectionConfig connectionConfig,
-                                    Formatting formatting,
-                                    DatabaseExportSqlSupplier sqlSupplier, TinyIntResolver tinyIntResolver )
-    {
-        this( GenerateMetadataMappingEvents.EMPTY,
-                output,
-                connectionConfig,
-                formatting,
-                sqlSupplier,
-                FilterOptions.DEFAULT,
-                tinyIntResolver );
-    }
+    private final TinyIntResolver tinyIntResolver;
+    private Schema schema;
 
     public GenerateMetadataMapping( GenerateMetadataMappingEvents events,
                                     OutputStream output,
@@ -81,6 +68,12 @@ public class GenerateMetadataMapping implements Callable<MetadataMappings>
         this.filterOptions = filterOptions;
         this.relationshipNameResolver = new RelationshipNameResolver( filterOptions.relationshipNameFrom() );
         this.tinyIntResolver = tinyIntResolver;
+        this.schema = Schema.UNDEFINED;
+    }
+
+    public Callable<MetadataMappings> forSchema( final Schema schema ) {
+        this.schema = schema;
+        return this;
     }
 
     @Override
@@ -92,11 +85,11 @@ public class GenerateMetadataMapping implements Callable<MetadataMappings>
 
         if ( filterOptions.exclusionMode().equals( ExclusionMode.INCLUDE ) )
         {
-            filterOptions.invertTables( databaseClient.tableNames() );
+            filterOptions.invertTables( databaseClient.tables( this.schema ) );
         }
 
         SchemaExport schemaExport = new DatabaseInspector( databaseClient, formatting, filterOptions.tablesToExclude() )
-                .buildSchemaExport();
+                .buildSchemaExport( this.schema );
         MetadataMappings metadataMappings = schemaExport
                 .generateMetadataMappings( formatting, sqlSupplier, relationshipNameResolver, tinyIntResolver );
 

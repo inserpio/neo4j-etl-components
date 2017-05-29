@@ -11,16 +11,6 @@ public class SqlQuotes
     private final QuoteChar forColumn;
     private final QuoteChar forConstant;
 
-    public SqlQuotes()
-    {
-        this( QuoteChar.NO_QUOTES );
-    }
-
-    public SqlQuotes( QuoteChar forAll )
-    {
-        this( forAll, forAll, forAll, QuoteChar.SINGLE_QUOTES);
-    }
-
     public SqlQuotes( QuoteChar forSchema, QuoteChar forTable, QuoteChar forColumn, QuoteChar forConstant )
     {
         this.forSchema = forSchema;

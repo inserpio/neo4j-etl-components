@@ -4,12 +4,15 @@ import org.neo4j.etl.sql.ConnectionConfig;
 import org.neo4j.etl.sql.DatabaseClient;
 import org.neo4j.etl.sql.DatabaseType;
 
+import java.sql.SQLException;
+
 public class RdbmsClient
 {
     private DatabaseType databaseType;
-    private final String host;
-    private final int port;
-    private final String database;
+    private String url;
+    private String host;
+    private int port;
+    private String database;
     private final String user;
     private final String password;
 
@@ -17,6 +20,14 @@ public class RdbmsClient
     public RdbmsClient( DatabaseType databaseType, String host )
     {
         this( databaseType, host, databaseType.defaultPort(), Parameters.DBName.value(), Parameters.DBUser.value(), Parameters.DBPassword.value() );
+    }
+
+    public RdbmsClient( DatabaseType databaseType, String url, String user, String password )
+    {
+        this.databaseType = databaseType;
+        this.url = url;
+        this.user = user;
+        this.password = password;
     }
 
     public RdbmsClient( DatabaseType databaseType, String host, int port, String database, String user, String password )
@@ -31,7 +42,7 @@ public class RdbmsClient
 
     public enum Parameters
     {
-        DBName( "" ), DBUser( "neo4j" ), DBPassword( "neo4j" );
+        DBRootUser( "root" ), DBRootPassword( "xsjhdcfhsd" ), DBName( "" ), DBUser( "neo4j" ), DBPassword( "neo4j" );
 
         private final String value;
 
@@ -48,21 +59,67 @@ public class RdbmsClient
 
     public void execute( String sql ) throws Exception
     {
-        DatabaseClient client = new DatabaseClient(
-                ConnectionConfig.forDatabase( this.databaseType )
-                        .host( host )
-                        .port( port )
-                        .database( database )
-                        .username( user )
-                        .password( password )
-                        .build() );
+        execute( sql, false, -1 );
+    }
+
+    public void executeWithPeriodicCommit( String sql, int periodicCommit ) throws Exception
+    {
+        execute( sql, false, periodicCommit );
+    }
+
+    public void executeSkippingExceptions( String sql ) throws Exception
+    {
+        execute( sql, true, -1 );
+    }
+
+    private void execute( String sql, boolean skipExceptions, int periodicCommit ) throws Exception
+    {
+        DatabaseClient client = buildDatabaseClient();
+
+        int index = 0;
 
         for ( String line : sql.split( ";" ) )
         {
-            if ( !line.trim().isEmpty() )
+            try
             {
-                client.execute( line ).await();
+                if (!line.trim().isEmpty())
+                {
+                    client.execute(line).await();
+
+                    if (periodicCommit != -1 && ++index == periodicCommit)
+                    {
+                        client.close();
+                        client = buildDatabaseClient();
+                        index = 0;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (!skipExceptions)
+                {
+                    throw e;
+                }
             }
         }
+    }
+
+    private DatabaseClient buildDatabaseClient() throws SQLException, ClassNotFoundException {
+        return new DatabaseClient(
+                    this.url == null ?
+                            ConnectionConfig.forDatabaseFromHostAndPort(databaseType)
+                                    .host(host)
+                                    .port(port)
+                                    .database(database)
+                                    .username(user)
+                                    .password(password)
+                                    .build()
+                            :
+                            ConnectionConfig.forDatabaseFromUrl(databaseType)
+                                    .url(url)
+                                    .username(user)
+                                    .password(password)
+                                    .build()
+            );
     }
 }

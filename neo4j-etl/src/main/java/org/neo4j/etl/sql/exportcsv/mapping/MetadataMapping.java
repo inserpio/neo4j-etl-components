@@ -5,16 +5,17 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.neo4j.etl.neo4j.importcsv.config.GraphObjectType;
+import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 
 public class MetadataMapping
 {
-    public static MetadataMapping fromJson( JsonNode root )
+    public static MetadataMapping fromJson( JsonNode root, Formatting formatting )
     {
         return new MetadataMapping(
                 root.path( "name" ).textValue(),
                 GraphObjectType.valueOf( root.path( "graph-object-type" ).textValue() ),
                 root.path( "sql" ).textValue(),
-                ColumnToCsvFieldMappings.fromJson( root.path( "mappings" ) ) );
+                ColumnToCsvFieldMappings.fromJson( root.path( "mappings" ), formatting ) );
     }
 
     private final String name;

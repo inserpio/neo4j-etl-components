@@ -3,6 +3,7 @@ package org.neo4j.etl.sql.metadata;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Test;
 
+import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 import org.neo4j.etl.neo4j.importcsv.config.formatting.QuoteChar;
 import org.neo4j.etl.sql.QueryResults;
 import org.neo4j.etl.sql.RowAccessor;
@@ -32,19 +33,22 @@ public class SimpleColumnTest
                 "id-alias",
                 ColumnRole.PrimaryKey,
                 SqlDataType.INT,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
         Column column2 = new SimpleColumn(
                 personTable,
                 "username",
                 ColumnRole.Data,
                 SqlDataType.TEXT,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
         Column column3 = new SimpleColumn( personTable,
                 QuoteChar.DOUBLE_QUOTES.enquote( "PERSON" ),
                 "PERSON",
                 ColumnRole.Literal,
                 SqlDataType.TEXT,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
 
         // then
         assertThat( column1.aliasedColumn(), is( "`test`.`Person`.`id` AS `id-alias`" ) );
@@ -67,13 +71,15 @@ public class SimpleColumnTest
                 "id",
                 ColumnRole.Data,
                 SqlDataType.INT,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
         Column column2 = new SimpleColumn(
                 personTable,
                 "username",
                 ColumnRole.Data,
                 SqlDataType.TEXT,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
 
         // then
         results.next();
@@ -96,13 +102,15 @@ public class SimpleColumnTest
                 "id",
                 ColumnRole.Data,
                 SqlDataType.INT,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
         Column column2 = new SimpleColumn(
                 personTable,
                 "username",
                 ColumnRole.Data,
                 SqlDataType.TEXT,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
 
         // then
         results.next();
@@ -121,7 +129,8 @@ public class SimpleColumnTest
                 "Person",
                 ColumnRole.Literal,
                 SqlDataType.LABEL_DATA_TYPE,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
         // then
         assertThat( labelColumn.aliasedColumn(), is( "\"Person\" AS `Person`" ) );
     }
@@ -137,7 +146,8 @@ public class SimpleColumnTest
                 "id-alias",
                 ColumnRole.PrimaryKey,
                 SqlDataType.INT,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
 
         JsonNode json = column.toJson();
 
@@ -159,7 +169,8 @@ public class SimpleColumnTest
                 "id-alias",
                 ColumnRole.PrimaryKey,
                 SqlDataType.INT,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
 
         // then
         assertTrue( column.allowAddToSelectStatement() );
@@ -176,7 +187,8 @@ public class SimpleColumnTest
                 "id-alias",
                 ColumnRole.PrimaryKey,
                 SqlDataType.INT,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
 
         RowAccessor row = mock( RowAccessor.class );
 
@@ -198,7 +210,8 @@ public class SimpleColumnTest
                 "id-alias",
                 ColumnRole.PrimaryKey,
                 SqlDataType.INT,
-                ColumnValueSelectionStrategy.SelectRowIndex );
+                ColumnValueSelectionStrategy.SelectRowIndex,
+                Formatting.DEFAULT );
 
         // then
         assertFalse( column.allowAddToSelectStatement() );
@@ -215,7 +228,8 @@ public class SimpleColumnTest
                 "id-alias",
                 ColumnRole.PrimaryKey,
                 SqlDataType.INT,
-                ColumnValueSelectionStrategy.SelectRowIndex );
+                ColumnValueSelectionStrategy.SelectRowIndex,
+                Formatting.DEFAULT );
 
         RowAccessor row = mock( RowAccessor.class );
 

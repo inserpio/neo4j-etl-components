@@ -19,7 +19,7 @@ import org.neo4j.etl.util.Preconditions;
 
 public class ColumnToCsvFieldMappings
 {
-    public static ColumnToCsvFieldMappings fromJson( JsonNode root )
+    public static ColumnToCsvFieldMappings fromJson( JsonNode root, Formatting formatting )
     {
         ArrayNode mappingArray = (ArrayNode) root;
         Collection<ColumnToCsvFieldMapping> mappings = new ArrayList<>();
@@ -27,7 +27,7 @@ public class ColumnToCsvFieldMappings
         {
             mappings.add( ColumnToCsvFieldMapping.fromJson( jsonNode ) );
         }
-        return new ColumnToCsvFieldMappings( mappings, Formatting.DEFAULT );
+        return new ColumnToCsvFieldMappings( mappings, formatting );
     }
 
     public static Builder builder()
@@ -65,6 +65,8 @@ public class ColumnToCsvFieldMappings
 
     public Collection<String> tableNames()
     {
+        // TODO replace formatting.sqlQuotes().forTable().value() + StringUtils.join( name.split( "\\." ), formatting.sqlQuotes().forTable().value() + "." + formatting.sqlQuotes().forTable().value() ) + formatting.sqlQuotes().forTable().value())
+        // TODO with formatting.sqlQuotes().forTable(name) moving the logic inside SqlQuote class
         return columns().stream()
                 .map( Column::table )
                 .distinct()

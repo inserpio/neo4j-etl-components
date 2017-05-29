@@ -3,6 +3,7 @@ package org.neo4j.etl.sql.exportcsv;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 import org.neo4j.etl.sql.metadata.Column;
 import org.neo4j.etl.sql.metadata.ColumnRole;
 import org.neo4j.etl.sql.metadata.ColumnValueSelectionStrategy;
@@ -21,7 +22,8 @@ public class ColumnUtil
     public Column column( TableName table, String name, String alias, ColumnRole role )
     {
         return new SimpleColumn( table, name, alias, role, SqlDataType.TEXT,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
     }
 
     public SimpleColumn keyColumn( TableName tableName, String nameAndAlias, ColumnRole role )
@@ -31,7 +33,8 @@ public class ColumnUtil
                 nameAndAlias,
                 nameAndAlias,
                 role,
-                SqlDataType.KEY_DATA_TYPE, ColumnValueSelectionStrategy.SelectColumnValue );
+                SqlDataType.KEY_DATA_TYPE, ColumnValueSelectionStrategy.SelectColumnValue,
+                Formatting.DEFAULT );
     }
 
     public Column compositeKeyColumn( TableName tableName, List<String> columnNames, ColumnRole role )

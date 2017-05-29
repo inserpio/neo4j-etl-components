@@ -167,7 +167,8 @@ public class TableInfoAssembler
                 SYNTHETIC_PRIMARY_KEY_NAME,
                 ColumnRole.PrimaryKey,
                 SqlDataType.INT,
-                ColumnValueSelectionStrategy.SelectRowIndex );
+                ColumnValueSelectionStrategy.SelectRowIndex,
+                formatting );
     }
 
     private Column createForeignKeyTargetColumn( Map<String, String> fkRow, SqlDataType sqlDataType )
@@ -180,7 +181,8 @@ public class TableInfoAssembler
                 targetTableName,
                 fkRow.get( "PKCOLUMN_NAME" ),
                 ColumnRole.Data,
-                sqlDataType, ColumnValueSelectionStrategy.SelectColumnValue );
+                sqlDataType, ColumnValueSelectionStrategy.SelectColumnValue,
+                formatting );
     }
 
     private List<Column> columnsLessKeyColumns( Map<String, Column> allColumns, Collection<Column> keyColumns )

@@ -29,18 +29,18 @@ import static org.neo4j.etl.neo4j.Neo4j.NEO4J_VERSION;
 import static org.neo4j.etl.neo4j.Neo4j.NEO_TX_URI;
 import static org.neo4j.etl.provisioning.platforms.TestType.INTEGRATION;
 
-public class PostgreSqlNorthWindDatabaseInspectorIntegrationTest
+public class OracleNorthWindDatabaseInspectorIntegrationTest
 {
     @ClassRule
     public static final ResourceRule<Path> tempDirectory =
             new ResourceRule<>( TemporaryDirectory.temporaryDirectory() );
 
     @ClassRule
-    public static final ResourceRule<Server> postgreSqlServer = new ResourceRule<>(
+    public static final ResourceRule<Server> oracleServer = new ResourceRule<>(
             ServerFixture.server(
-                    "postgresql-etl-test-nw",
-                    5433,
-                    RdbmsScripts.startupScript( DatabaseType.PostgreSQL ),
+                    "oracle-etl-test-nw",
+                    49161,
+                    RdbmsScripts.startupScript( DatabaseType.Oracle ),
                     tempDirectory.get(), INTEGRATION ) );
 
     @ClassRule
@@ -50,25 +50,25 @@ public class PostgreSqlNorthWindDatabaseInspectorIntegrationTest
     @BeforeClass
     public static void setUp() throws Exception
     {
-        RdbmsClient postgres = new RdbmsClient(
-                DatabaseType.PostgreSQL,
-                postgreSqlServer.get().ipAddress(),
-                5433,
-                "postgres",
+        RdbmsClient system = new RdbmsClient(
+                DatabaseType.Oracle,
+                oracleServer.get().ipAddress(),
+                49161,
+                "XE",
                 RdbmsClient.Parameters.DBUser.value(),
                 RdbmsClient.Parameters.DBPassword.value() );
-        postgres.execute( RdbmsScripts.northwindStartupScript( DatabaseType.PostgreSQL ).value() );
+        system.executeSkippingExceptions( RdbmsScripts.northwindStartupScript( DatabaseType.Oracle ).value() );
 
-        RdbmsClient northwind = new RdbmsClient(
-                DatabaseType.PostgreSQL,
-                postgreSqlServer.get().ipAddress(),
-                5433,
+        RdbmsClient exclusion = new RdbmsClient(
+                DatabaseType.Oracle,
+                oracleServer.get().ipAddress(),
+                49161,
+                "XE",
                 "northwind",
-                RdbmsClient.Parameters.DBUser.value(),
-                RdbmsClient.Parameters.DBPassword.value() );
-        northwind.execute( RdbmsScripts.northwindScript( DatabaseType.PostgreSQL ).value() );
+                "northwind" );
+        exclusion.executeWithPeriodicCommit( RdbmsScripts.northwindScript( DatabaseType.Oracle ).value(), 300 );
 
-        exportFromPostreSqlToNeo4j();
+        exportFromOracleToNeo4j();
 
         neo4j.get().start();
     }
@@ -80,7 +80,7 @@ public class PostgreSqlNorthWindDatabaseInspectorIntegrationTest
     }
 
     @Test
-    public void shouldExportFromPostgreSqlAndImportIntoGraph() throws Exception
+    public void shouldExportFromOracleAndImportIntoGraph() throws Exception
     {
         assertFalse( neo4j.get().containsImportErrorLog( Neo4j.DEFAULT_DATABASE ) );
 
@@ -112,7 +112,7 @@ public class PostgreSqlNorthWindDatabaseInspectorIntegrationTest
         assertThat( lastNames, hasItems( "Fuller", "Buchanan" ) );
     }
 
-    private static void exportFromPostreSqlToNeo4j() throws IOException
+    private static void exportFromOracleToNeo4j() throws IOException
     {
         Path importToolOptions = tempDirectory.get().resolve( "import-tool-options.json" );
         ObjectMapper objectMapper = new ObjectMapper();
@@ -121,13 +121,13 @@ public class PostgreSqlNorthWindDatabaseInspectorIntegrationTest
         objectMapper.writeValue( importToolOptions.toFile(), options );
 
         NeoIntegrationCli.executeMainReturnSysOut(
-                new String[]{"postgresql",
-                        "export",
-                        "--host", postgreSqlServer.get().ipAddress(),
-                        "--port", "5433",
+                new String[]{ "oracle", "export",
+                        "--host", oracleServer.get().ipAddress(),
+                        "--port", "49161",
                         "--user", RdbmsClient.Parameters.DBUser.value(),
                         "--password", RdbmsClient.Parameters.DBPassword.value(),
-                        "--database", "northwind",
+                        "--database", "XE",
+                        "--schema", "northwind",
                         "--import-tool", neo4j.get().binDirectory().toString(),
                         "--options-file", importToolOptions.toString(),
                         "--csv-directory", tempDirectory.get().toString(),

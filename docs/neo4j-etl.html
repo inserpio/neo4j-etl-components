@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
 <meta name="generator" content="AsciiDoc 8.6.9" />
-<title>Neo4j ETL Components</title>
+<title></title>
 <style type="text/css">
 /* Shared CSS for AsciiDoc xhtml11 and html5 backends */
 
@@ -733,185 +733,8 @@ asciidoc.install();
 </head>
 <body class="article">
 <div id="header">
-<h1>Neo4j ETL Components</h1>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_overview">Overview</h2>
-<div class="sectionbody">
-<div class="paragraph"><p>The Neo4j ETL components, especially the <code>neo4j-etl</code> tool, can be used to import well modeled (i.e. normalized) relational data into Neo4j.
-It applies some simple rules for transforming the relational model.</p></div>
-<div class="paragraph"><p>The process as outlined below:</p></div>
-<div class="olist arabic"><ol class="arabic">
-<li>
-<p>
-Read database metadata and generate mapping.json
-</p>
-</li>
-<li>
-<p>
-Optionally edit mapping.json
-</p>
-</li>
-<li>
-<p>
-Export relational data to CSV
-</p>
-</li>
-<li>
-<p>
-Generate Mapping Headers
-</p>
-</li>
-<li>
-<p>
-Import into Neo4j using the bulk <code>neo4j-import</code> tool
-</p>
-</li>
-</ol></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_architecture_diagram">Architecture Diagram</h2>
-<div class="sectionbody">
-<div class="imageblock">
-<div class="content">
-<img src="neo4j-etl-architecture.png" alt="neo4j-etl-architecture.png" />
-</div>
-</div>
-<div class="sect2">
-<h3 id="_what_it_is">What it is</h3>
-<div class="ulist"><ul>
-<li>
-<p>
-Command-Line tools
-</p>
-</li>
-<li>
-<p>
-Java API/library
-</p>
-</li>
-<li>
-<p>
-Infer Schema to mapping file
-</p>
-</li>
-<li>
-<p>
-Filter and merge strategies
-</p>
-</li>
-<li>
-<p>
-Describe indexes
-</p>
-</li>
-<li>
-<p>
-Non-trivial datatypes (dates, binary)
-</p>
-</li>
-<li>
-<p>
-Read mapping file to export data from other databases then
-</p>
-</li>
-<li>
-<p>
-Import into Neo via Neo4j Import Tool
-</p>
-</li>
-<li>
-<p>
-Build indexes
-</p>
-</li>
-<li>
-<p>
-Non-trivial datatypes (dates, binary)
-</p>
-</li>
-<li>
-<p>
-Support on Linux
-</p>
-</li>
-<li>
-<p>
-Support MySQL, PostgreSQL, Oracle
-</p>
-</li>
-<li>
-<p>
-Support user specified JDBC drivers
-</p>
-</li>
-</ul></div>
-</div>
-<div class="sect2">
-<h3 id="_plans_for_the_future">Plans for the Future</h3>
-<div class="ulist"><ul>
-<li>
-<p>
-UI tool to modify mappings - currently manual editing
-</p>
-</li>
-<li>
-<p>
-Custom Mapping Rules<br />
- Transformations for names, data, links
-</p>
-</li>
-<li>
-<p>
-Online Synchronisation, Import into existing database - currently, only supporting initial import
-</p>
-</li>
-<li>
-<p>
-Exemplary integration into a 3rd party ETL pipeline
-</p>
-</li>
-</ul></div>
-</div>
-<div class="sect2">
-<h3 id="_who_is_it_for">Who is it for</h3>
-<div class="ulist"><ul>
-<li>
-<p>
-Developer learning or playing with Neo4j for initial data import
-</p>
-</li>
-<li>
-<p>
-Partners providing data integration with Neo4j
-</p>
-</li>
-<li>
-<p>
-Enterprise developers building applications based on well modeled relational data
-</p>
-</li>
-</ul></div>
-</div>
-<div class="sect2">
-<h3 id="_open_questions">Open Questions</h3>
-<div class="ulist"><ul>
-<li>
-<p>
-Date and binary datatypes
-</p>
-</li>
-<li>
-<p>
-Security (secure connections, handling of passwords, encrypting data?)
-</p>
-</li>
-</ul></div>
-</div>
-</div>
-</div>
 <div class="sect1">
 <h2 id="neo4j-etl-cli">neo4j-etl Command Line Tool</h2>
 <div class="sectionbody">
@@ -977,6 +800,25 @@ $NEO4J_HOME/bin/neo4j-shell -path $NEO4J_HOME/data/databases/graph.db/ -c 'MATCH
 # 9 rows</code></pre>
 </div></div>
 <div class="sect2">
+<h3 id="_help_command">Help command</h3>
+<div class="listingblock">
+<div class="content">
+<pre><code>NAME
+        neo4j-etl help - Display help information
+
+SYNOPSIS
+        neo4j-etl help [--] [ &lt;command&gt;... ]
+
+OPTIONS
+        --
+            This option can be used to separate command-line options from the
+            list of arguments (useful when arguments might be mistaken for
+            command-line options)
+
+        &lt;command&gt;</code></pre>
+</div></div>
+</div>
+<div class="sect2">
 <h3 id="_rdbms_command">RDBMS Command</h3>
 <div class="listingblock">
 <div class="content">
@@ -1014,26 +856,7 @@ SYNOPSIS
 </div></div>
 </div>
 <div class="sect2">
-<h3 id="_em_help_em_command"><em>help</em> Command</h3>
-<div class="listingblock">
-<div class="content">
-<pre><code>NAME
-        neo4j-etl help - Display help information
-
-SYNOPSIS
-        neo4j-etl help [--] [ &lt;command&gt;... ]
-
-OPTIONS
-        --
-            This option can be used to separate command-line options from the
-            list of arguments (useful when arguments might be mistaken for
-            command-line options)
-
-        &lt;command&gt;</code></pre>
-</div></div>
-</div>
-<div class="sect2">
-<h3 id="_em_generate_metadata_mapping_em_command"><em>generate-metadata-mapping</em> Command</h3>
+<h3 id="_rdbms_em_generate_metadata_mapping_em_command">RDBMS <em>generate-metadata-mapping</em> Command</h3>
 <div class="listingblock">
 <div class="content">
 <pre><code>NAME
@@ -1041,15 +864,13 @@ OPTIONS
         metadata mapping Json.
 
 SYNOPSIS
-        neo4j-etl { mysql | postgresql | oracle } generate-metadata-mapping
-                [ --url &lt;url&gt; ] [ {-h | --host} &lt;hostname&gt; ] [ {-p | --port} &lt;port #&gt; ]
-                [ {-d | --database} &lt;name&gt; {-s | --schema} &lt;schema&gt;
-                {-u | --user} &lt;username&gt; [ --password &lt;password&gt; ]
+        neo4j-etl { mysql | postgresql | oracle } generate-metadata-mapping {-d | --database} &lt;name&gt;
                 [ --debug ] [ --delimiter &lt;delimiter&gt; ]
                 [ {--exclusion-mode | --exc} &lt;exclude|include|none(default)&gt; ]
-                [ --options-file &lt;file&gt; ] [ --quote &lt;quote&gt; ]
+                [ {-h | --host} &lt;name&gt; ] [ --options-file &lt;file&gt; ] [ {-p | --port} &lt;#&gt; ]
+                [ --password &lt;name&gt; ] [ --quote &lt;quote&gt; ]
                 [ {--relationship-name | --rel-name} &lt;table(default)|column&gt; ]
-                [ --tiny-int &lt;byte(default)|boolean&gt; ] [--] [ &lt;table1 table2 ...&gt;... ]
+                [ --tiny-int &lt;byte(default)|boolean&gt; ] {-u | --user} &lt;name&gt; [--] [ &lt;table1 table2 ...&gt;... ]
 
 OPTIONS
         --url &lt;url&gt;
@@ -1112,7 +933,7 @@ OPTIONS
 </div></div>
 </div>
 <div class="sect2">
-<h3 id="_em_export_em_command"><em>export</em> Command</h3>
+<h3 id="_rdbms_em_export_em_command">RDBMS <em>export</em> Command</h3>
 <div class="listingblock">
 <div class="content">
 <pre><code>NAME
@@ -1322,178 +1143,11 @@ root@692c446a274b:~# exit
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_capabilities">Capabilities</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_inferring_schema_with_mapping_rules_generate_metadata_mapping">Inferring Schema with Mapping Rules (generate-metadata-mapping)</h3>
-<div class="ulist"><ul>
-<li>
-<p>
-Generic { MySql | PostgreSQL | Oracle } database mapping based on the following rules
-</p>
-</li>
-<li>
-<p>
-A <em>table</em> with a foreign key is treated as a <em>Join</em> and imported as a <em>node</em> with a <em>relationship</em>
-</p>
-</li>
-<li>
-<p>
-Ex: <code>*Person* -&gt; Address</code> is imported as <code>*(Person)-[:ADDRESS_ID]-&gt;*(Address)</code>
-</p>
-</li>
-<li>
-<p>
-A <em>table</em> that has two foreign keys is imported as a <em>JoinTable</em> and imported as a <em>relationship</em>
-</p>
-</li>
-<li>
-<p>
-Ex: <code>Student &lt;- *Student_Course* -&gt; Course</code> is imported as <br />
-<code>(Student) -[*:STUDENT_COURSE*]-&gt; (Course)</code>
-</p>
-</li>
-<li>
-<p>
-A <em>table</em> that has more than two foreign keys is treated as an <em>intermediate node</em> and imported as <em>node with multiple relationships</em>
-</p>
-</li>
-<li>
-<p>
-Ex: <code>*Order_Detail* -&gt; Shipping_Address, *Order_Detail* -&gt; Payment_Information, *Order_Detail* -&gt; Shipment_Instructions</code> is imported as,<br />
- <code>(Shipping_Address) *-[:SHIPPING]-&gt; (Order_Detail)*</code><br />
- <code>(Payment_Information) *-[:PAYMENT]-&gt; (Order_Detail)*</code><br />
- <code>(Shipment_Instructions) *-[:SHIPMENT]-&gt; (Order_Detail)*</code><br />
-</p>
-</li>
-<li>
-<p>
-Resolve relationships through composite keys.
-</p>
-</li>
-<li>
-<p>
-Support most of the data types.
-</p>
-<div class="ulist"><ul>
-<li>
-<p>
-<em>TinyInt</em> can be imported as either <em>Byte</em> or as a <em>Boolean</em> <em>(This is to support boolean values being saved in mysql as TinyInt)</em>
-</p>
-</li>
-<li>
-<p>
-<em>Dates</em> are imported as <em>String</em>
-</p>
-</li>
-<li>
-<p>
-<em>Blobs</em> are skipped while importing until the import-tool supports binary array data.
-</p>
-</li>
-<li>
-<p>
-<em>Decimal to be confirmed.</em>
-</p>
-</li>
-</ul></div>
-</li>
-<li>
-<p>
-Relationship names can either take <em>column name</em> or the <em>table that is being referred to</em>
-</p>
-<div class="ulist"><ul>
-<li>
-<p>
-<code>--relationship-name=table</code> then a <code>Person-&gt;Address</code> will become <code>(Person)-[*:ADDRESS*]-&gt;(Address)</code>
-</p>
-</li>
-<li>
-<p>
-<code>--relationship-name=column</code> will become <code>(Person)-[*:ADDRESS_ID*]-&gt;(Address)</code>
-</p>
-</li>
-</ul></div>
-</li>
-<li>
-<p>
-Filter tables that you want to include or exclude using <code>--include</code> and <code>--exclude</code>
-</p>
-</li>
-<li>
-<p>
-TODO: Filter columns that you want to include or exclude using <code>--include</code> and <code>--exclude</code>
-</p>
-</li>
-<li>
-<p>
-TODO: Retaining natural keys(marked as PrimaryKeys and ForeignKeys) as needed using &lt;TBA&gt; flag
-</p>
-<div class="ulist"><ul>
-<li>
-<p>
-A Foreign Key is usually used to create a relationship between 2 nodes without being saved as a property.
-</p>
-</li>
-<li>
-<p>
-With this flag, the node would keep that value as a property.
-</p>
-</li>
-<li>
-<p>
-Ex: A loan has the SSN of the loan applicant which would normally be used to connect the <code>Loan</code> and <code>Person</code> nodes.
-</p>
-</li>
-<li>
-<p>
-With this flag the <code>Loan</code> node will also keep the <code>SSN</code> as a property.
-</p>
-</li>
-</ul></div>
-</li>
-</ul></div>
-</div>
-<div class="sect2">
-<h3 id="_exporting_data_export">Exporting Data (export)</h3>
-<div class="ulist"><ul>
-<li>
-<p>
-Generate CSV files from relational source as outlined by <code>mappings.json</code>
-</p>
-<div class="ulist"><ul>
-<li>
-<p>
-TODO: Use a streaming api that is more performant
-</p>
-</li>
-</ul></div>
-</li>
-<li>
-<p>
-Import CSV using <code>neo4j-import</code> providing the correct labels and rel-types and headers headers
-</p>
-</li>
-<li>
-<p>
-TODO: Build indexes automatically as part of import
-</p>
-</li>
-<li>
-<p>
-TODO: Missing ability to pass options to <code>neo4j-import</code> tool as a file instead of command line arguments
-</p>
-</li>
-</ul></div>
-</div>
-</div>
-</div>
 </div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-30 20:53:01 CEST
+Last updated 2017-05-03 00:27:59 CEST
 </div>
 </div>
 </body>

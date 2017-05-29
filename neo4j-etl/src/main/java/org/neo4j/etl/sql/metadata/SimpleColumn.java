@@ -28,7 +28,8 @@ public class SimpleColumn implements Column
                 root.path( "alias" ).textValue(),
                 ColumnRole.valueOf( root.path( "role" ).textValue() ),
                 SqlDataType.valueOf( root.path( "sql-data-type" ).textValue() ),
-                ColumnValueSelectionStrategy.valueOf( root.path( "column-value-selection-strategy" ).textValue() ) );
+                ColumnValueSelectionStrategy.valueOf( root.path( "column-value-selection-strategy" ).textValue() ),
+                Formatting.DEFAULT ); // TODO check if default formatting is fine
     }
 
     private final TableName table;
@@ -43,28 +44,10 @@ public class SimpleColumn implements Column
                          String name,
                          ColumnRole role,
                          SqlDataType dataType,
-                         ColumnValueSelectionStrategy columnValueSelectionStrategy )
-    {
-        this( table, name, name, role, dataType, columnValueSelectionStrategy, Formatting.DEFAULT );
-    }
-
-    public SimpleColumn( TableName table,
-                         String name,
-                         ColumnRole role,
-                         SqlDataType dataType,
                          ColumnValueSelectionStrategy columnValueSelectionStrategy,
                          Formatting formatting )
     {
         this( table, name, name, role, dataType, columnValueSelectionStrategy, formatting );
-    }
-
-    public SimpleColumn( TableName table,
-                         String name,
-                         String alias,
-                         ColumnRole role,
-                         SqlDataType dataType,
-                         ColumnValueSelectionStrategy columnValueSelectionStrategy ) {
-        this(table, name, alias, role, dataType, columnValueSelectionStrategy, Formatting.DEFAULT );
     }
 
     public SimpleColumn( TableName table,

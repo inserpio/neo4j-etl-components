@@ -10,14 +10,13 @@ import org.neo4j.etl.neo4j.Neo4j;
 import org.neo4j.etl.provisioning.Neo4jFixture;
 import org.neo4j.etl.provisioning.Server;
 import org.neo4j.etl.provisioning.ServerFixture;
-import org.neo4j.etl.provisioning.scripts.PostgreSqlScripts;
+import org.neo4j.etl.provisioning.scripts.RdbmsScripts;
 import org.neo4j.etl.rdbms.RdbmsClient;
 import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.ResourceRule;
 import org.neo4j.etl.util.TemporaryDirectory;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +44,7 @@ public class PostgreSqlExclusionIntegrationTest
             ServerFixture.server(
                     "postgresql-etl-test",
                     5433,
-                    PostgreSqlScripts.startupScript(),
+                    RdbmsScripts.startupScript( DatabaseType.PostgreSQL ),
                     tempDirectory.get(), INTEGRATION ) );
 
     @ClassRule
@@ -55,15 +54,26 @@ public class PostgreSqlExclusionIntegrationTest
     @BeforeClass
     public static void setUp() throws Exception
     {
-        RdbmsClient client = new RdbmsClient(
+        RdbmsClient postgres = new RdbmsClient(
+                DatabaseType.PostgreSQL,
+                postgreSqlServer.get().ipAddress(),
+                5433,
+                "postgres",
+                RdbmsClient.Parameters.DBUser.value(),
+                RdbmsClient.Parameters.DBPassword.value() );
+        postgres.execute( RdbmsScripts.exclusionStartupScript( DatabaseType.PostgreSQL ).value() );
+
+        RdbmsClient exclusion = new RdbmsClient(
                 DatabaseType.PostgreSQL,
                 postgreSqlServer.get().ipAddress(),
                 5433,
                 "exclusion",
                 RdbmsClient.Parameters.DBUser.value(),
                 RdbmsClient.Parameters.DBPassword.value() );
-        client.execute( PostgreSqlScripts.exclusionScript().value() );
+        exclusion.execute( RdbmsScripts.exclusionScript( DatabaseType.PostgreSQL ).value() );
+
         exportFromPostgreSqlToNeo4j( );
+
         neo4j.get().start();
     }
 
@@ -101,7 +111,7 @@ public class PostgreSqlExclusionIntegrationTest
         assertThat( leaves.size(), is( 1 ) );
     }
 
-    private static void exportFromPostgreSqlToNeo4j( ) throws IOException
+    private static void exportFromPostgreSqlToNeo4j() throws IOException
     {
         Path importToolOptions = tempDirectory.get().resolve( "import-tool-options.json" );
         HashMap<Object, Object> options = new HashMap<>();

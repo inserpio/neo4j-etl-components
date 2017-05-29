@@ -26,7 +26,7 @@ public class Neo4j implements AutoCloseable
 {
     public static final URI NEO_TX_URI = URI.create( "http://localhost:7474/db/data/transaction/commit" );
 
-    public static final Neo4jVersion NEO4J_VERSION = Neo4jVersion.v3_0_3;
+    public static final Neo4jVersion NEO4J_VERSION = Neo4jVersion.v3_1_3;
 
     public static final String DEFAULT_DATABASE = "graph.db";
 
@@ -69,9 +69,10 @@ public class Neo4j implements AutoCloseable
         }
     }
 
-    public boolean containsImportErrorLog( String database )
+    public boolean containsImportErrorLog( String database ) throws IOException
     {
-        return Files.exists( databasesDirectory().resolve( database ).resolve( "bad.log" ) );
+        Path bad = databasesDirectory().resolve(database).resolve("bad.log");
+        return Files.exists(bad) && Files.size(bad) > 0;
     }
 
     public void start() throws Exception

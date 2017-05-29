@@ -15,6 +15,7 @@ import org.neo4j.etl.provisioning.platforms.Aws;
 import org.neo4j.etl.provisioning.platforms.Local;
 import org.neo4j.etl.provisioning.platforms.TestType;
 import org.neo4j.etl.provisioning.platforms.Vagrant;
+import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.EnvironmentVariables;
 import org.neo4j.etl.util.LazyResource;
 import org.neo4j.etl.util.Resource;
@@ -94,11 +95,12 @@ public class ServerFixture
         return value.isPresent() ? value : EnvironmentVariables.asOptionalString( key );
     }
 
-    public static void executeImportOfDatabase( Path tempDirectoryPath,
-                                                final String databaseSqlFileName,
-                                                String username,
-                                                String password,
-                                                String hostname ) throws Exception
+    public static void executeImportOfDatabase(Path tempDirectoryPath,
+                                               final String databaseSqlFileName,
+                                               String username,
+                                               String password,
+                                               String hostname,
+                                               DatabaseType databaseType ) throws Exception
     {
         Client httpClient = Client.create();
 
@@ -114,7 +116,7 @@ public class ServerFixture
                 Files.copy( entityInputStream, fileOnDisk );
 
                 Commands commands = Commands.builder(
-                        new String[]{"mysql", "-u", username, "-p" + password, "-h", hostname} )
+                        new String[]{databaseType.name().toLowerCase(), "-u", username, "-p" + password, "-h", hostname} )
                         .inheritWorkingDirectory()
                         .failOnNonZeroExitValue()
                         .noTimeout()

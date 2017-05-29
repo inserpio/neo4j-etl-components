@@ -8,23 +8,25 @@ Data import from relational databases to Neo4j.
 
 == Download & Install
 
-Download & unzip the latest `neo4j-etl-components.zip` from https://github.com/neo4j-contrib/neo4j-etl-components/releases
+Download & unzip the latest https://github.com/neo4j-contrib/neo4j-etl-components/releases/latest[neo4j-etl-components.zip].
+Once unzipped, download the proper JDBC Driver xref:jdbc-drivers[here] and add it to the `lib` folder.
 
 == Examples of command usage:
 
 .Minimal command line
 ----
-./bin/neo4j-etl mysql export  --user <user> --password <pwd> --database northwind \
+./bin/neo4j-etl { mysql | postgresql | oracle } export --url <url> --user <user> --password <pwd> \
  --destination $NEO4J_HOME/data/databases/graph.db/ --import-tool $NEO4J_HOME/bin  \
  --csv-directory /tmp/northwind
 ----
 
 .Full set of command line options
 ----
-./bin/neo4j-etl mysql export  --host 127.0.0.1 --port 3306 --user <user> --password <pwd> \
+./bin/neo4j-etl { mysql | postgresql | oracle } export --url <url> --user <user> --password <pwd> \
 --database <database> --destination $NEO4J_HOME/data/databases/graph.db/ \
---import-tool $NEO4J_HOME/bin  --csv-directory /tmp  \
---options-file ./import-tool-options.json --force --debug
+--import-tool $NEO4J_HOME/bin --csv-directory /tmp  \
+--options-file ./import-tool-options.json
+--force --debug
 ----
 
 For detailed usage see also the: http://neo4j-contrib.github.io/neo4j-etl-components#neo4j-etl-cli[tool documentation].
@@ -61,42 +63,73 @@ We're welcoming all contributions.
 == Prerequisites
 
 * https://maven.apache.org/[Maven]
-* https://www.mysql.com/[MySql]
+* JDBC Driver:
+
+[[jdbc-drivers]]
+
+|===
+|Vendor |JDBC Driver URL
+
+|https://www.mysql.com/[MySql]
+|http://dev.mysql.com/downloads/connector/j/
+
+|http://www.postgresql.com/[PostgreSql]
+|https://jdbc.postgresql.org/download.html
+
+|https://www.oracle.com/[Oracle]
+|http://www.oracle.com/technetwork/database/features/jdbc/index.html
+|===
+
+== Tests
+
+Northwind database scripts are downloaded from https://code.google.com/archive/p/northwindextended/downloads
 
 == Integration Tests
 
 You can run the tests with 
 
-* a local MySQL instance, 
+* a local instance,
+* a https://www.docker.com/[Docker] instance,
 * https://www.vagrantup.com/[Vagrant]
 * or in AWS.
 
-You will need a MySQL user `neo4j` with password `neo4j` with admin privileges to run the tests.
+You will need a RDBMS user `neo4j` with password `neo4j` with admin privileges to run the tests.
 
 To run the tests in AWS, you'll need an AWS IAM user.
 
-To run the tests using a local MySQL instance:
+To run the tests using a local instance:
 
 .Grant all privileges to the user `neo4j` identified by password `neo4j`
+
+MySQL:
 ----
 CREATE USER 'neo4j'@'localhost' IDENTIFIED BY 'neo4j';
 GRANT ALL PRIVILEGES ON *.* TO 'neo4j'@'localhost' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 ----
+PostgreSQL:
+----
+CREATE USER neo4j WITH SUPERUSER ENCRYPTED PASSWORD 'neo4j';
+----
+Oracle:
+----
+CREATE USER neo4j IDENTIFIED BY neo4j;
+GRANT DBA TO neo4j;
+----
 
-`mvn -DPLATFORM=local clean integration-test`
+To run the tests locally:
+
+`mvn -P integration-test clean test`
 
 To run the tests using Vagrant:
 
-`mvn -DPLATFORM=vagrant clean integration-test`
+`mvn -P integration-test -D PLATFORM=vagrant clean test`
 
 To run the tests using AWS:
 
 Note: You need to create AWS Keypair and have the credentials file created to do this
 
-`mvn -DPLATFORM=aws -DEC2_SSH_KEY=<name of your EC2 SSH key> clean integration-test`
-
-If you don't supply a `PLATFORM` parameter, the tests will attempt to use Vagrant.
+`mvn -P integration-test -D PLATFORM=aws -D EC2_SSH_KEY=<name of your EC2 SSH key> clean test`
 
 == Performance Tests
 
@@ -104,13 +137,11 @@ Set of tests that are part of the `neo4j-etl-it` module.
 
 However, they are skipped usually when you run the integration-test target by default. You can run them separately as part of a test suite.
 
+To run performance tests locally:
+
+`mvn -P performance-test clean dependency:copy-dependencies test -D failIfNoTests=false -D EC2_SSH_KEY=<name of your EC2 SSH key>`
+
 To run performance tests in AWS:
 
-`mvn clean dependency:copy-dependencies integration-test -Dtest=PerformanceTestSuite -DfailIfNoTests=false -DPLATFORM=aws -DEC2_SSH_KEY=<name of your EC2 SSH key>`
+`mvn -P performance-test clean dependency:copy-dependencies test -D PLATFORM=aws -D failIfNoTests=false -D EC2_SSH_KEY=<name of your EC2 SSH key>`
 
-To run performance tests locally,
-
-Ensure that you have the datasets imported in your local mysql instance. 
-You could do this by uncommenting the bits in the code to download the sql file from S3.
-
-`mvn clean dependency:copy-dependencies integration-test -Dtest=PerformanceTestSuite -DfailIfNoTests=false -DPLATFORM=local`

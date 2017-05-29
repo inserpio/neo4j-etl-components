@@ -44,7 +44,8 @@ class JoinToCsvFieldMapper implements DatabaseObjectToCsvFieldMapper<Join>
                 "_RELATIONSHIP_TYPE_",
                 ColumnRole.Literal,
                 SqlDataType.RELATIONSHIP_TYPE_DATA_TYPE,
-                ColumnValueSelectionStrategy.SelectColumnValue );
+                ColumnValueSelectionStrategy.SelectColumnValue,
+                formatting );
         builder.add( new ColumnToCsvFieldMapping( relationshipTypeColumn, CsvField.relationshipType() ) );
 
         return builder.build();

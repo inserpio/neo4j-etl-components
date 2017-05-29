@@ -35,7 +35,7 @@ public enum DatabaseType
                 @Override
                 public SqlQuotes sqlQuotes()
                 {
-                    return new SqlQuotes( QuoteChar.TICK_QUOTES, QuoteChar.TICK_QUOTES, QuoteChar.TICK_QUOTES, QuoteChar.DOUBLE_QUOTES ) ;
+                    return SqlQuotes.DEFAULT;
                 }
 
                 @Override
@@ -67,12 +67,44 @@ public enum DatabaseType
         @Override
         public SqlQuotes sqlQuotes()
         {
-            return SqlQuotes.DEFAULT;
+            return new SqlQuotes( QuoteChar.DOUBLE_QUOTES, QuoteChar.DOUBLE_QUOTES, QuoteChar.DOUBLE_QUOTES, QuoteChar.SINGLE_QUOTES );
         }
 
         @Override
         public boolean hasSchemas() {
             return true;
+        }
+    },
+
+    Oracle ( "oracle.jdbc.OracleDriver", 1521 )
+    {
+        @Override
+        public URI createUri( String host, int port, String database )
+        {
+            return URI.create(
+                    format( "jdbc:oracle:thin:@%s:%s:%s", host, port, database ) );
+        }
+
+        @Override
+        public DatabaseClient.StatementFactory statementFactory()
+        {
+            return connection -> {
+                Statement statement = connection.createStatement(
+                        ResultSet.TYPE_FORWARD_ONLY,
+                        ResultSet.CONCUR_READ_ONLY );
+                return statement;
+            };
+        }
+
+        @Override
+        public SqlQuotes sqlQuotes()
+        {
+            return new SqlQuotes( QuoteChar.DOUBLE_QUOTES, QuoteChar.DOUBLE_QUOTES, QuoteChar.DOUBLE_QUOTES, QuoteChar.SINGLE_QUOTES );
+        }
+
+        @Override
+        public boolean hasSchemas() {
+            return false;
         }
     };
 

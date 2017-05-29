@@ -26,6 +26,7 @@ public enum SqlDataType
 
     CHAR( Neo4jDataType.String ),
     VARCHAR( Neo4jDataType.String ),
+    VARCHAR2( Neo4jDataType.String ),
     TEXT( Neo4jDataType.String ),
     TINYTEXT( Neo4jDataType.String ),
     MEDIUMTEXT( Neo4jDataType.String ),
@@ -52,7 +53,9 @@ public enum SqlDataType
 
     FLOAT4( Neo4jDataType.Float ),
 
-    BPCHAR( Neo4jDataType.String );
+    BPCHAR( Neo4jDataType.String ),
+
+    NUMBER( Neo4jDataType.Float );
 
     public static final SqlDataType COMPOSITE_KEY_TYPE = TEXT;
     public static final SqlDataType LABEL_DATA_TYPE = TEXT;

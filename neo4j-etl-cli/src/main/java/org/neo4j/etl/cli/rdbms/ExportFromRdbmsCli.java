@@ -11,7 +11,9 @@ import com.github.rvesse.airline.annotations.Arguments;
 import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
 import com.github.rvesse.airline.annotations.OptionType;
+import com.github.rvesse.airline.annotations.restrictions.RequireOnlyOne;
 import com.github.rvesse.airline.annotations.restrictions.Required;
+import com.github.rvesse.airline.annotations.restrictions.RequiredOnlyIf;
 import com.github.rvesse.airline.model.CommandGroupMetadata;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,6 +32,7 @@ import org.neo4j.etl.sql.exportcsv.mapping.FilterOptions;
 import org.neo4j.etl.sql.exportcsv.mapping.MetadataMappings;
 import org.neo4j.etl.sql.exportcsv.mapping.TinyIntAs;
 import org.neo4j.etl.sql.exportcsv.supplier.DefaultExportSqlSupplier;
+import org.neo4j.etl.sql.metadata.Schema;
 import org.neo4j.etl.util.CliRunner;
 
 import javax.inject.Inject;
@@ -40,19 +43,25 @@ public class ExportFromRdbmsCli implements Runnable
     @Inject
     private CommandGroupMetadata commandGroupMetadata;
 
-    @SuppressWarnings("FieldCanBeLocal")
+    @RequireOnlyOne
+    @Option(type = OptionType.COMMAND,
+            name = {"--url"},
+            description = "Url to use for connection to RDBMS.",
+            title = "hostname")
+    private String url;
+
+    @RequireOnlyOne
     @Option(type = OptionType.COMMAND,
             name = {"-h", "--host"},
             description = "Host to use for connection to RDBMS.",
             title = "hostname")
-    private String host = "localhost";
+    private String host;
 
-    @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"-p", "--port"},
             description = "Port number to use for connection to RDBMS.",
             title = "port #")
-    private int port = 3306;
+    private Integer port;
 
     @Required
     @Option(type = OptionType.COMMAND,
@@ -67,12 +76,18 @@ public class ExportFromRdbmsCli implements Runnable
             title = "password")
     private String password;
 
-    @Required
+    @RequiredOnlyIf( names = { "host" } )
     @Option(type = OptionType.COMMAND,
             name = {"-d", "--database"},
             description = "RDBMS database.",
             title = "name")
     private String database;
+
+    @Option(type = OptionType.COMMAND,
+            name = {"-s", "--schema"},
+            description = "RDBMS schema.",
+            title = "name")
+    private String schema;
 
     @Required
     @Option(type = OptionType.COMMAND,
@@ -169,15 +184,22 @@ public class ExportFromRdbmsCli implements Runnable
     {
         try
         {
-            DatabaseType databaseType = DatabaseType.fromString(this.commandGroupMetadata.getName());
+            DatabaseType databaseType = DatabaseType.fromString( this.commandGroupMetadata.getName() );
 
-            ConnectionConfig connectionConfig = ConnectionConfig.forDatabase( databaseType )
-                    .host( host )
-                    .port( port )
-                    .database( database )
-                    .username( user )
-                    .password( password )
-                    .build();
+            ConnectionConfig connectionConfig = this.url == null ?
+                    ConnectionConfig.forDatabaseFromHostAndPort(databaseType)
+                            .host(host)
+                            .port( port != null ? port : databaseType.defaultPort() )
+                            .database(database)
+                            .username(user)
+                            .password(password)
+                            .build()
+                    :
+                    ConnectionConfig.forDatabaseFromUrl(databaseType)
+                            .url(url)
+                            .username(user)
+                            .password(password)
+                            .build();
 
             Environment environment = new Environment(
                     new ImportToolDirectorySupplier( Paths.get( importToolDirectory ) ).supply(),
@@ -217,7 +239,7 @@ public class ExportFromRdbmsCli implements Runnable
 
         if ( StringUtils.isNotEmpty( mappingFile ) )
         {
-            generateMetadataMappings = GenerateMetadataMappingCli.metadataMappingsFromFile( mappingFile );
+            generateMetadataMappings = GenerateMetadataMappingCli.metadataMappingsFromFile( mappingFile, formatting );
         }
         else
         {
@@ -231,6 +253,8 @@ public class ExportFromRdbmsCli implements Runnable
                     new DefaultExportSqlSupplier(),
                     filterOptions,
                     tinyIntResolver );
+            Schema schema = this.schema != null ? new Schema( this.schema ) : Schema.UNDEFINED;
+            ((GenerateMetadataMapping) generateMetadataMappings).forSchema( schema );
         }
 
         return generateMetadataMappings.call();

@@ -44,7 +44,8 @@ public class TableToCsvFieldMapperTest
                         ColumnRole.PrimaryKey ) )
                 .addColumn( columnUtil.column( personTable, "username", ColumnRole.Data ) )
                 .addColumn( new SimpleColumn( personTable, "age", ColumnRole.Data, SqlDataType.INT,
-                        ColumnValueSelectionStrategy.SelectColumnValue ) )
+                        ColumnValueSelectionStrategy.SelectColumnValue,
+                        Formatting.DEFAULT ) )
                 .build();
 
         TableToCsvFieldMapper mapper = new TableToCsvFieldMapper( Formatting.DEFAULT, tinyIntResolver );

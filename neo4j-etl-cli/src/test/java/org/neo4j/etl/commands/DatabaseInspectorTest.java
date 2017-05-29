@@ -14,10 +14,7 @@ import org.neo4j.etl.io.AwaitHandle;
 import org.neo4j.etl.sql.DatabaseClient;
 import org.neo4j.etl.sql.QueryResults;
 import org.neo4j.etl.sql.StubQueryResults;
-import org.neo4j.etl.sql.metadata.Join;
-import org.neo4j.etl.sql.metadata.JoinTable;
-import org.neo4j.etl.sql.metadata.Table;
-import org.neo4j.etl.sql.metadata.TableName;
+import org.neo4j.etl.sql.metadata.*;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -83,7 +80,7 @@ public class DatabaseInspectorTest
         TableName person = new TableName( "test.Person" );
         TableName address = new TableName( "test.Address" );
 
-        when( databaseClient.tableNames() ).thenReturn( asList( person, address ) );
+        when( databaseClient.tables( Schema.UNDEFINED ) ).thenReturn( asList( person, address ) );
         when( databaseClient.executeQuery( any( String.class ) ) )
                 .thenReturn( AwaitHandle.forReturnValue( personTableSchema ) )
                 .thenReturn( AwaitHandle.forReturnValue( personResults ) )
@@ -93,7 +90,7 @@ public class DatabaseInspectorTest
 
         // when
         DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient, new ArrayList<String>(  ) );
-        SchemaExport schemaExport = databaseInspector.buildSchemaExport();
+        SchemaExport schemaExport = databaseInspector.buildSchemaExport( Schema.UNDEFINED );
 
         // then
         List<TableName> tableNames = schemaExport.tables().stream().map( Table::name ).collect( Collectors.toList() );
@@ -163,7 +160,7 @@ public class DatabaseInspectorTest
         TableName book = new TableName( "test.Book" );
         TableName author = new TableName( "test.Author" );
 
-        when( databaseClient.tableNames() ).thenReturn( asList( book, author ) );
+        when( databaseClient.tables( Schema.UNDEFINED ) ).thenReturn( asList( book, author ) );
         when( databaseClient.executeQuery( any( String.class ) ) )
                 .thenReturn( AwaitHandle.forReturnValue( bookSchema ) )
                 .thenReturn( AwaitHandle.forReturnValue( bookResults ) )
@@ -173,7 +170,7 @@ public class DatabaseInspectorTest
 
         // when
         DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient, new ArrayList<String>(  ) );
-        SchemaExport schemaExport = databaseInspector.buildSchemaExport();
+        SchemaExport schemaExport = databaseInspector.buildSchemaExport( Schema.UNDEFINED );
 
         // then
         List<TableName> tableNames = schemaExport.tables().stream().map( Table::name ).collect( Collectors.toList() );
@@ -222,7 +219,7 @@ public class DatabaseInspectorTest
 
         TableName employee = new TableName( "test.Employee" );
 
-        when( databaseClient.tableNames() ).thenReturn( singletonList( employee ) );
+        when( databaseClient.tables( Schema.UNDEFINED ) ).thenReturn( singletonList( employee ) );
         when( databaseClient.executeQuery( any( String.class ) ) )
                 .thenReturn( AwaitHandle.forReturnValue( employeeSchema ) )
                 .thenReturn( AwaitHandle.forReturnValue( employeeResults ) )
@@ -230,7 +227,7 @@ public class DatabaseInspectorTest
 
         // when
         DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient, new ArrayList<String>(  ) );
-        SchemaExport schemaExport = databaseInspector.buildSchemaExport();
+        SchemaExport schemaExport = databaseInspector.buildSchemaExport( Schema.UNDEFINED );
 
         // then
         List<TableName> tableNames = schemaExport.tables().stream().map( Table::name ).collect( Collectors.toList() );
@@ -300,7 +297,7 @@ public class DatabaseInspectorTest
         TableName student = new TableName( "test.Student" );
         TableName course = new TableName( "test.Course" );
         TableName studentCourse = new TableName( "test.Student_Course" );
-        when( databaseClient.tableNames() ).thenReturn( asList( student, course, studentCourse ) );
+        when( databaseClient.tables( Schema.UNDEFINED ) ).thenReturn( asList( student, course, studentCourse ) );
         when( databaseClient.executeQuery( any( String.class ) ) )
                 .thenReturn( AwaitHandle.forReturnValue( studentTableSchema ) )
                 .thenReturn( AwaitHandle.forReturnValue( studentResults ) )
@@ -312,7 +309,7 @@ public class DatabaseInspectorTest
 
         // when
         DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient, new ArrayList<String>(  ) );
-        SchemaExport schemaExport = databaseInspector.buildSchemaExport();
+        SchemaExport schemaExport = databaseInspector.buildSchemaExport( Schema.UNDEFINED );
 
         // then
         List<TableName> tableNames = schemaExport.tables().stream().map( Table::name ).collect( Collectors.toList() );

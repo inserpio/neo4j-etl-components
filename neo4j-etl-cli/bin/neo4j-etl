@@ -1,10 +1,8 @@
 #!/bin/bash -e
 
-jarpath="${0%%/neo4j-etl}/.."
+jarpath="${0%%/neo4j-etl}/../lib"
 
-jar=$(find $jarpath -name neo4j-etl.jar)
-
-# pick up other jars for database drivers
 jars=$(find $jarpath -name *.jar | tr ' \n' ':')
+jars=`echo $jars | sed "s/.$//g"`
 
-java -classpath $jars -jar ${jar}  "$@"
+java -cp $jars org.neo4j.etl.NeoIntegrationCli "$@"

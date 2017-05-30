@@ -77,7 +77,7 @@ We're welcoming all contributions.
 |https://jdbc.postgresql.org/download.html
 
 |https://www.oracle.com/[Oracle]
-|http://www.oracle.com/technetwork/database/features/jdbc/index.html
+|http://www.oracle.com/technetwork/database/features/jdbc/default-2280470.html
 |===
 
 == Tests
@@ -115,6 +115,12 @@ Oracle:
 ----
 CREATE USER neo4j IDENTIFIED BY neo4j;
 GRANT DBA TO neo4j;
+----
+
+For Oracle, you'll need to add the Oracle Driver to your local Maven repository manually:
+----
+mvn install:install-file -Dfile={Path/to/your/ojdbc7.jar} \
+      -DgroupId=com.oracle -DartifactId=ojdbc7 -Dversion=12.1.0.2 -Dpackaging=jar
 ----
 
 To run the tests locally:

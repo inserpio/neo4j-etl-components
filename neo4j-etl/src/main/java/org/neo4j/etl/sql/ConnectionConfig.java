@@ -32,11 +32,6 @@ public class ConnectionConfig
                 builder.password );
     }
 
-    String driverClassName()
-    {
-        return databaseType.driverClassName();
-    }
-
     public URI uri()
     {
         return this.uri;
@@ -50,11 +45,6 @@ public class ConnectionConfig
     DatabaseClient.StatementFactory statementFactory()
     {
         return databaseType.statementFactory();
-    }
-
-    boolean hasSchemas()
-    {
-        return databaseType.hasSchemas();
     }
 
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")

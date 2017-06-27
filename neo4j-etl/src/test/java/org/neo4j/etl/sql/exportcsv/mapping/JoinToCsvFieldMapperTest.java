@@ -53,7 +53,7 @@ public class JoinToCsvFieldMapperTest
                 CsvField.endId( new IdSpace( "test.Address" ) ),
                 CsvField.relationshipType() ) );
 
-        assertEquals( asList( "test.Person.id", "test.Person.addressId", "\"ADDRESS\"" ), columns );
+        assertEquals( asList( "test.Person.id", "test.Person.addressId", "ADDRESS" ), columns );
     }
 
     @Test
@@ -83,7 +83,7 @@ public class JoinToCsvFieldMapperTest
                 CsvField.endId( new IdSpace( "test.Address" ) ),
                 CsvField.relationshipType() ) );
 
-        assertEquals( asList( "test.Person.id", "test.Person.addressId", "\"ADDRESS_ID\"" ), columns );
+        assertEquals( asList( "test.Person.id", "test.Person.addressId", "ADDRESS_ID" ), columns );
     }
 
     @Test
@@ -119,6 +119,6 @@ public class JoinToCsvFieldMapperTest
 
         assertEquals( asList( "test.Book.id",
                 "test.Book.author_first_name\0test.Book.author_last_name",
-                "\"AUTHOR_FIRST_NAME_AUTHOR_LAST_NAME\"" ), columns );
+                "AUTHOR_FIRST_NAME_AUTHOR_LAST_NAME" ), columns );
     }
 }

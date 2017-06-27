@@ -212,7 +212,6 @@ public class ExportFromRdbmsCli implements Runnable
             Formatting formatting = Formatting.builder()
                     .delimiter( importToolOptions.getDelimiter( delimiter ) )
                     .quote( importToolOptions.getQuoteCharacter( quote ) )
-                    .sqlQuotes( databaseType.sqlQuotes() )
                     .build();
 
             TinyIntResolver tinyIntResolver = new TinyIntResolver( TinyIntAs.parse( tinyIntAs ) );

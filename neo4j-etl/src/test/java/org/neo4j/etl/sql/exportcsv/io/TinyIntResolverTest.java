@@ -17,7 +17,7 @@ public class TinyIntResolverTest
     public void byteResolverShouldNotTransformToBoolean() throws Exception
     {
         assertEquals( "1", byteResolver.handleSpecialCaseForTinyInt( "1", SqlDataType.INT ) );
-        assertEquals( "1", byteResolver.handleSpecialCaseForTinyInt( "1", SqlDataType.VARCHAR ) );
+        assertEquals( "1", byteResolver.handleSpecialCaseForTinyInt( "1", SqlDataType.TEXT ) );
         assertEquals( "1", byteResolver.handleSpecialCaseForTinyInt( "1", SqlDataType.TINYINT ) );
         assertEquals( "0", byteResolver.handleSpecialCaseForTinyInt( "0", SqlDataType.TINYINT ) );
     }
@@ -26,7 +26,7 @@ public class TinyIntResolverTest
     public void booleanResolverShouldTransformTinyIntToBoolean() throws Exception
     {
         assertEquals( "1", booleanResolver.handleSpecialCaseForTinyInt( "1", SqlDataType.INT ) );
-        assertEquals( "1", booleanResolver.handleSpecialCaseForTinyInt( "1", SqlDataType.VARCHAR ) );
+        assertEquals( "1", booleanResolver.handleSpecialCaseForTinyInt( "1", SqlDataType.TEXT ) );
         assertEquals( "true", booleanResolver.handleSpecialCaseForTinyInt( "1", SqlDataType.TINYINT ) );
         assertEquals( "false", booleanResolver.handleSpecialCaseForTinyInt( "0", SqlDataType.TINYINT ) );
     }
@@ -34,16 +34,16 @@ public class TinyIntResolverTest
     @Test
     public void byteResolverShouldReturnTargetDataTypeAsIs() throws Exception
     {
-        assertEquals( Neo4jDataType.Int, byteResolver.targetDataType( SqlDataType.INT ) );
-        assertEquals( Neo4jDataType.String, byteResolver.targetDataType( SqlDataType.VARCHAR ) );
-        assertEquals( Neo4jDataType.Byte, byteResolver.targetDataType( SqlDataType.TINYINT ) );
+        assertEquals( Neo4jDataType.Long, byteResolver.targetDataType( SqlDataType.INT ) );
+        assertEquals( Neo4jDataType.String, byteResolver.targetDataType( SqlDataType.TEXT ) );
+        assertEquals( Neo4jDataType.Long, byteResolver.targetDataType( SqlDataType.TINYINT ) );
     }
 
     @Test
     public void booleanResolverShouldReturnTargetDataTypeAsBooleanForTinyInt() throws Exception
     {
-        assertEquals( Neo4jDataType.Int, booleanResolver.targetDataType( SqlDataType.INT ) );
-        assertEquals( Neo4jDataType.String, booleanResolver.targetDataType( SqlDataType.VARCHAR ) );
+        assertEquals( Neo4jDataType.Long, booleanResolver.targetDataType( SqlDataType.INT ) );
+        assertEquals( Neo4jDataType.String, booleanResolver.targetDataType( SqlDataType.TEXT ) );
         assertEquals( Neo4jDataType.Boolean, booleanResolver.targetDataType( SqlDataType.TINYINT ) );
     }
 }

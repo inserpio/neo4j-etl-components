@@ -88,7 +88,20 @@ public class GenerateMetadataMapping implements Callable<MetadataMappings>
             filterOptions.invertTables( databaseClient.tables( this.schema ) );
         }
 
-        SchemaExport schemaExport = new DatabaseInspector( databaseClient, formatting, filterOptions.tablesToExclude() )
+        // FIXME this should be done in a smartest way
+        final Formatting formatting = Formatting.builder()
+                .arrayDelimiter(this.formatting.delimiter())
+                .delimiter(this.formatting.delimiter())
+                .labelFormatter(this.formatting.labelFormatter())
+                .propertyFormatter(this.formatting.propertyFormatter())
+                .quote(this.formatting.quote())
+                .relationshipFormatter(this.formatting.relationshipFormatter())
+                // We use database client to set up quotes, no more hard coded quotes
+                .databaseClient(databaseClient)
+                .build();
+
+        // TODO: the column types to exclude should be passed using filter options
+        SchemaExport schemaExport = new DatabaseInspector( databaseClient, formatting, filterOptions )
                 .buildSchemaExport( this.schema );
         MetadataMappings metadataMappings = schemaExport
                 .generateMetadataMappings( formatting, sqlSupplier, relationshipNameResolver, tinyIntResolver );

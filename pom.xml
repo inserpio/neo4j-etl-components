@@ -19,6 +19,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <schema.crawler.version>14.16.01</schema.crawler.version>
     </properties>
 
     <organization>
@@ -108,6 +109,31 @@
                 <groupId>edu.washington.cs.knowitall</groupId>
                 <artifactId>morpha-stemmer</artifactId>
                 <version>1.0.5</version>
+            </dependency>
+
+            <!-- schema crawler dependencies -->
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler</artifactId>
+                <version>${schema.crawler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler-oracle</artifactId>
+                <version>${schema.crawler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler-postgresql</artifactId>
+                <version>${schema.crawler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler-mysql</artifactId>
+                <version>${schema.crawler.version}</version>
             </dependency>
 
             <dependency>

@@ -1,21 +1,18 @@
 package org.neo4j.etl.sql.exportcsv.mapping;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
+import org.neo4j.etl.neo4j.importcsv.fields.CsvField;
+import org.neo4j.etl.sql.metadata.Column;
+import org.neo4j.etl.util.Preconditions;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import org.apache.commons.lang3.StringUtils;
-
-import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
-import org.neo4j.etl.neo4j.importcsv.fields.CsvField;
-import org.neo4j.etl.sql.metadata.Column;
-import org.neo4j.etl.sql.metadata.TableName;
-import org.neo4j.etl.util.Preconditions;
 
 public class ColumnToCsvFieldMappings
 {
@@ -63,16 +60,12 @@ public class ColumnToCsvFieldMappings
                 .collect( Collectors.toList() );
     }
 
-    public Collection<String> tableNames()
-    {
-        // TODO replace formatting.sqlQuotes().forTable().value() + StringUtils.join( name.split( "\\." ), formatting.sqlQuotes().forTable().value() + "." + formatting.sqlQuotes().forTable().value() ) + formatting.sqlQuotes().forTable().value())
-        // TODO with formatting.sqlQuotes().forTable(name) moving the logic inside SqlQuote class
+    public Collection<String> tableNames() {
         return columns().stream()
-                .map( Column::table )
+                .map(Column::table)
                 .distinct()
-                .map( TableName::fullName )
-                .map( name -> formatting.sqlQuotes().forTable().value() + StringUtils.join( name.split( "\\." ), formatting.sqlQuotes().forTable().value() + "." + formatting.sqlQuotes().forTable().value() ) + formatting.sqlQuotes().forTable().value())
-                .collect( Collectors.toCollection( LinkedHashSet::new ) );
+                .map(tableName -> formatting.sqlQuotes().quoteTable(tableName))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public JsonNode toJson()

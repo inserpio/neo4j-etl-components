@@ -170,7 +170,6 @@ public class GenerateMetadataMappingCli implements Runnable
             Formatting formatting = Formatting.builder()
                     .delimiter( importToolOptions.getDelimiter( this.delimiter ) )
                     .quote( importToolOptions.getQuoteCharacter( this.quote ) )
-                    .sqlQuotes( databaseType.sqlQuotes() )
                     .build();
 
             final FilterOptions filterOptions = new FilterOptions( tinyIntAs, relationshipNameFrom, exclusionMode,

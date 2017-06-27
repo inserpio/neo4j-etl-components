@@ -89,7 +89,7 @@ public class DatabaseInspectorTest
                 .thenReturn( AwaitHandle.forReturnValue( addressResults ) );
 
         // when
-        DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient, new ArrayList<String>(  ) );
+        DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient );
         SchemaExport schemaExport = databaseInspector.buildSchemaExport( Schema.UNDEFINED );
 
         // then
@@ -169,7 +169,7 @@ public class DatabaseInspectorTest
                 .thenReturn( AwaitHandle.forReturnValue( addressResults ) );
 
         // when
-        DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient, new ArrayList<String>(  ) );
+        DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient );
         SchemaExport schemaExport = databaseInspector.buildSchemaExport( Schema.UNDEFINED );
 
         // then
@@ -226,7 +226,7 @@ public class DatabaseInspectorTest
                 .thenReturn( AwaitHandle.forReturnValue( joinResults ) );
 
         // when
-        DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient, new ArrayList<String>(  ) );
+        DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient );
         SchemaExport schemaExport = databaseInspector.buildSchemaExport( Schema.UNDEFINED );
 
         // then
@@ -308,7 +308,7 @@ public class DatabaseInspectorTest
                 .thenReturn( AwaitHandle.forReturnValue( joinTableResults ) );
 
         // when
-        DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient, new ArrayList<String>(  ) );
+        DatabaseInspector databaseInspector = new DatabaseInspector( databaseClient );
         SchemaExport schemaExport = databaseInspector.buildSchemaExport( Schema.UNDEFINED );
 
         // then

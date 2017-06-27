@@ -88,6 +88,7 @@ class ResultsToFileWriter
         {
             if ( useQuotes )
             {
+                // TODO: check if "writeEnquoted" can be removed
                 this.formatting.quote().writeEnquoted( value, writer );
             }
             else

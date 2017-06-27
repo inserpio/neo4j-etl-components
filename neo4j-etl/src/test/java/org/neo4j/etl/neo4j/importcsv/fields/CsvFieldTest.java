@@ -70,7 +70,7 @@ public class CsvFieldTest
     public void shouldRoundTripDataToFromJson()
     {
         // given
-        CsvField data = CsvField.data( "my-data", Neo4jDataType.Float );
+        CsvField data = CsvField.data( "my-data", Neo4jDataType.Double );
 
         // then
         assertEquals( data, CsvField.fromJson( data.toJson() ) );
@@ -80,7 +80,7 @@ public class CsvFieldTest
     public void shouldRoundTripArrayToFromJson()
     {
         // given
-        CsvField array = CsvField.array( "my-data", Neo4jDataType.Float );
+        CsvField array = CsvField.array( "my-data", Neo4jDataType.Double );
 
         // then
         assertEquals( array, CsvField.fromJson( array.toJson() ) );

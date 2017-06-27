@@ -2,7 +2,7 @@ DROP DATABASE IF EXISTS javabase;
 CREATE DATABASE javabase
   DEFAULT CHARACTER SET utf8
   COLLATE utf8_unicode_ci;
-GRANT ALL ON javabase.* TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.* TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.Address
@@ -10,7 +10,7 @@ CREATE TABLE javabase.Address
   id       INT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
   postcode TEXT NOT NULL
 );
-GRANT ALL ON javabase.Address TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Address TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.Person
@@ -20,7 +20,7 @@ CREATE TABLE javabase.Person
   addressId INT  NOT NULL,
   FOREIGN KEY (addressId) REFERENCES javabase.Address (id)
 );
-GRANT ALL ON javabase.Person TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Person TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.Numeric_Table
@@ -34,7 +34,7 @@ CREATE TABLE javabase.Numeric_Table
   double_field    DOUBLE,
   decimal_field   DECIMAL(8,2)
 );
-GRANT ALL ON javabase.Numeric_Table TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Numeric_Table TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.String_Table
@@ -54,7 +54,7 @@ CREATE TABLE javabase.String_Table
   enum_field       ENUM('val-1', 'val-2'),
   varchar_field    VARCHAR(200)
 );
-GRANT ALL ON javabase.String_Table TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.String_Table TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 
@@ -69,7 +69,7 @@ CREATE TABLE javabase.Date_Table
   time_field      TIME,
   year_field      YEAR(4)
 );
-GRANT ALL ON javabase.Date_Table TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Date_Table TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.Publisher
@@ -77,7 +77,7 @@ CREATE TABLE javabase.Publisher
   id   INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
   name VARCHAR(20)                    NOT NULL
 );
-GRANT ALL ON javabase.Publisher TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Publisher TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.Author
@@ -87,7 +87,7 @@ CREATE TABLE javabase.Author
   age        INT,
   PRIMARY KEY (first_name, last_name)
 );
-GRANT ALL ON javabase.Author TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Author TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.Author_Publisher
@@ -100,7 +100,7 @@ CREATE TABLE javabase.Author_Publisher
   FOREIGN KEY (author_first_name, author_last_name) REFERENCES javabase.Author (first_name, last_name),
   FOREIGN KEY (publisherId) REFERENCES javabase.Publisher (id)
 );
-GRANT ALL ON javabase.Author_Publisher TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Author_Publisher TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.Book
@@ -113,7 +113,7 @@ CREATE TABLE javabase.Book
   FOREIGN KEY (author_first_name, author_last_name) REFERENCES javabase.Author (first_name, last_name),
   FOREIGN KEY (reference_book_id) REFERENCES javabase.Book (id)
 );
-GRANT ALL ON javabase.Book TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Book TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.Student
@@ -121,7 +121,7 @@ CREATE TABLE javabase.Student
   id       INT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
   username TEXT NOT NULL
 );
-GRANT ALL ON javabase.Student TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Student TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.Course
@@ -129,7 +129,7 @@ CREATE TABLE javabase.Course
   id   INT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
   name TEXT NOT NULL
 );
-GRANT ALL ON javabase.Course TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Course TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.Student_Course
@@ -140,7 +140,7 @@ CREATE TABLE javabase.Student_Course
   FOREIGN KEY (studentId) REFERENCES javabase.Student (id),
   FOREIGN KEY (courseId) REFERENCES javabase.Course (id)
 );
-GRANT ALL ON javabase.Student_Course TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Student_Course TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE javabase.Team
@@ -153,7 +153,7 @@ CREATE TABLE javabase.Team
   FOREIGN KEY (teamMember2Id) REFERENCES javabase.Student (id),
   FOREIGN KEY (teamMember3Id) REFERENCES javabase.Student (id)
 );
-GRANT ALL ON javabase.Team TO '<DBUser>'@'localhost'
+GRANT ALL ON javabase.Team TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 INSERT INTO javabase.Address (postcode) VALUES ('AB12 1XY');

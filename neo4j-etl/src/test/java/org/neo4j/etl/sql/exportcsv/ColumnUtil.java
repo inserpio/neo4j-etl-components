@@ -33,7 +33,7 @@ public class ColumnUtil
                 nameAndAlias,
                 nameAndAlias,
                 role,
-                SqlDataType.KEY_DATA_TYPE, ColumnValueSelectionStrategy.SelectColumnValue,
+                SqlDataType.TEXT, ColumnValueSelectionStrategy.SelectColumnValue,
                 Formatting.DEFAULT );
     }
 

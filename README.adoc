@@ -116,6 +116,26 @@ Oracle:
 CREATE USER neo4j IDENTIFIED BY neo4j;
 GRANT DBA TO neo4j;
 ----
+Microsoft SQL:
+----
+CREATE DATABASE northwind
+GO
+
+USE northwind
+GO
+
+EXEC sp_configure 'contained database authentication', 1
+GO
+reconfigure
+GO
+
+ALTER DATABASE northwind
+SET containment = partial
+GO
+
+CREATE USER neo4j WITH PASSWORD = 'pAssword!'
+GO
+----
 
 For Oracle, you'll need to add the Oracle Driver to your local Maven repository manually:
 ----

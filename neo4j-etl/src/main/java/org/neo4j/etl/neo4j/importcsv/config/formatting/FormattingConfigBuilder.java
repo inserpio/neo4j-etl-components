@@ -1,5 +1,6 @@
 package org.neo4j.etl.neo4j.importcsv.config.formatting;
 
+import org.neo4j.etl.sql.DatabaseClient;
 import org.neo4j.etl.sql.exportcsv.formatting.SqlQuotes;
 
 class FormattingConfigBuilder implements Formatting.Builder
@@ -55,9 +56,8 @@ class FormattingConfigBuilder implements Formatting.Builder
     }
 
     @Override
-    public Formatting.Builder sqlQuotes( SqlQuotes sqlQuotes )
-    {
-        this.sqlQuotes = sqlQuotes;
+    public Formatting.Builder databaseClient(DatabaseClient databaseClient){
+        this.sqlQuotes = databaseClient.getQuotes();
         return this;
     }
 

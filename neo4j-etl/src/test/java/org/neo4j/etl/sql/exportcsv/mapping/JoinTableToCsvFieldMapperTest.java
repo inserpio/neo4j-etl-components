@@ -71,7 +71,7 @@ public class JoinTableToCsvFieldMapperTest
                 CsvField.data( "credits", Neo4jDataType.String ) ) );
 
         assertEquals(
-                asList( "test.Student_Course.studentId", "test.Student_Course.courseId", "\"STUDENT_COURSE\"",
+                asList( "test.Student_Course.studentId", "test.Student_Course.courseId", "STUDENT_COURSE",
                         "test.Student_Course.credits" )
                 , columns );
     }
@@ -114,7 +114,7 @@ public class JoinTableToCsvFieldMapperTest
                 CsvField.endId( new IdSpace( "test.Course" ) ),
                 CsvField.relationshipType() ) );
 
-        assertEquals( asList( "test.Student_Course.studentId", "test.Student_Course.courseId", "\"COURSE_ID\"" )
+        assertEquals( asList( "test.Student_Course.studentId", "test.Student_Course.courseId", "COURSE_ID" )
                 , columns );
     }
 }

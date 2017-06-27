@@ -91,7 +91,7 @@ public class CompositeColumn implements Column
     @Override
     public SqlDataType sqlDataType()
     {
-        return SqlDataType.COMPOSITE_KEY_TYPE;
+        return SqlDataType.TEXT;
     }
 
     @Override

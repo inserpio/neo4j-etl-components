@@ -43,7 +43,7 @@ public class SimpleColumnTest
                 ColumnValueSelectionStrategy.SelectColumnValue,
                 Formatting.DEFAULT );
         Column column3 = new SimpleColumn( personTable,
-                QuoteChar.DOUBLE_QUOTES.enquote( "PERSON" ),
+                "PERSON",
                 "PERSON",
                 ColumnRole.Literal,
                 SqlDataType.TEXT,
@@ -125,10 +125,11 @@ public class SimpleColumnTest
         TableName personTable = new TableName( "test.Person" );
         Column labelColumn = new SimpleColumn(
                 personTable,
-                "\"Person\"",
+                // We don't need to escape with quote character because it's done automatically if literal
+                "Person",
                 "Person",
                 ColumnRole.Literal,
-                SqlDataType.LABEL_DATA_TYPE,
+                SqlDataType.TEXT,
                 ColumnValueSelectionStrategy.SelectColumnValue,
                 Formatting.DEFAULT );
         // then

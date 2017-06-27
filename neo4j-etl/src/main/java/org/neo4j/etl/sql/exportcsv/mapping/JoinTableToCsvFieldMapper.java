@@ -45,10 +45,11 @@ class JoinTableToCsvFieldMapper implements DatabaseObjectToCsvFieldMapper<JoinTa
         String relationshipType = formatting.relationshipFormatter().format( resolvedName );
 
         SimpleColumn from = new SimpleColumn( table,
-                formatting.sqlQuotes().forConstant().enquote( relationshipType ),
+                //formatting.sqlQuotes().forConstant().enquote( relationshipType ),
+                relationshipType,
                 "_RELATIONSHIP_TYPE_",
                 ColumnRole.Literal,
-                SqlDataType.RELATIONSHIP_TYPE_DATA_TYPE,
+                SqlDataType.TEXT,
                 ColumnValueSelectionStrategy.SelectColumnValue,
                 formatting );
 

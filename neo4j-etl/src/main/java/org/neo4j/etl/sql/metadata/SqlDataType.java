@@ -1,94 +1,107 @@
 package org.neo4j.etl.sql.metadata;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.neo4j.etl.neo4j.importcsv.fields.Neo4jDataType;
+import schemacrawler.schema.JavaSqlType;
+import schemacrawler.utility.JavaSqlTypes;
 
 import static java.lang.String.format;
 
-public enum SqlDataType
-{
-    BIT( Neo4jDataType.Byte ),
-    INT( Neo4jDataType.Int ),
-    INT2( Neo4jDataType.Int ),
-    INT4( Neo4jDataType.Int ),
-    INT8( Neo4jDataType.Int ),
-    INT_UNSIGNED( Neo4jDataType.Int ),
-    TINYINT( Neo4jDataType.Byte ),
-    TINYINT_UNSIGNED( Neo4jDataType.Byte ),
-    SMALLINT( Neo4jDataType.Short ),
-    SMALLINT_UNSIGNED( Neo4jDataType.Short ),
-    BIGINT( Neo4jDataType.Long ),
-    BIGINT_UNSIGNED( Neo4jDataType.Long ),
-    FLOAT( Neo4jDataType.Float ),
-    DOUBLE( Neo4jDataType.Double ),
-    DECIMAL( Neo4jDataType.Float ),
-    MEDIUMINT( Neo4jDataType.Int ),
-    MEDIUMINT_UNSIGNED( Neo4jDataType.Int ),
+public class SqlDataType {
+    /*BLOB(null),
+    TINYBLOB(null),
+    MEDIUMBLOB(null),
+    LONGBLOB(null),
+    BYTEA(null),*/
 
-    CHAR( Neo4jDataType.String ),
-    VARCHAR( Neo4jDataType.String ),
-    VARCHAR2( Neo4jDataType.String ),
-    TEXT( Neo4jDataType.String ),
-    TINYTEXT( Neo4jDataType.String ),
-    MEDIUMTEXT( Neo4jDataType.String ),
-    LONGTEXT( Neo4jDataType.String ),
-    ENUM( Neo4jDataType.String ),
+    public static final SqlDataType TEXT = SqlDataType.parse("VARCHAR");
 
-    DATE( Neo4jDataType.String ),
-    DATETIME( Neo4jDataType.String ),
-    TIMESTAMP( Neo4jDataType.String ),
-    TIME( Neo4jDataType.String ),
-    YEAR( Neo4jDataType.String ),
+    public static final SqlDataType INT = SqlDataType.parse("INTEGER");
 
-    BLOB( null ),
-    TINYBLOB( null ),
-    MEDIUMBLOB( null ),
-    LONGBLOB( null ),
-    BYTEA( null ),
-
-    SMALLSERIAL( Neo4jDataType.Short ),
-    SERIAL( Neo4jDataType.Int ),
-    SERIAL4( Neo4jDataType.Int ),
-    SERIAL8( Neo4jDataType.Int ),
-    BIGSERIAL( Neo4jDataType.Long ),
-
-    FLOAT4( Neo4jDataType.Float ),
-
-    BPCHAR( Neo4jDataType.String ),
-
-    NUMBER( Neo4jDataType.Float );
-
-    public static final SqlDataType COMPOSITE_KEY_TYPE = TEXT;
-    public static final SqlDataType LABEL_DATA_TYPE = TEXT;
-    public static final SqlDataType RELATIONSHIP_TYPE_DATA_TYPE = TEXT;
-    public static final SqlDataType KEY_DATA_TYPE = TEXT;
-
-    public static SqlDataType parse( String dataType )
-    {
-        try
-        {
-            return SqlDataType.valueOf( dataType.replaceAll(" ", "_").toUpperCase() );
-        }
-        catch ( NullPointerException e )
-        {
-            throw new IllegalArgumentException( format( "Unrecognized SQL data type: %s", dataType ) );
-        }
-    }
+    public static final SqlDataType TINYINT = SqlDataType.parse("TINYINT");
 
     private Neo4jDataType neo4jDataType;
 
-    SqlDataType( Neo4jDataType neo4jDataType )
-    {
-        this.neo4jDataType = neo4jDataType;
+    private JavaSqlType javaSqlType;
+
+    /**
+     * Creates a SQL data type from a SQL java type.
+     * It automatically infers Neo4j data type
+     *
+     * @param javaSqlType
+     */
+    public SqlDataType(JavaSqlType javaSqlType) {
+        this.javaSqlType = javaSqlType;
+        this.neo4jDataType = inferNeo4jDataType(javaSqlType);
+    }
+
+    public static SqlDataType parse(String dataType) {
+        try {
+            return new SqlDataType(new JavaSqlTypes().getFromJavaSqlTypeName(dataType.toUpperCase()));
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException(format("Unrecognized SQL data type: %s", dataType));
+        }
+    }
+
+    public String name() {
+        return this.javaSqlType.getJavaSqlTypeName();
+    }
+
+    /**
+     * Retrieves Neo4j data type from the Java Sql type
+     *
+     * @param javaSqlType
+     * @return a data type supported by Neo4j
+     */
+    private Neo4jDataType inferNeo4jDataType(JavaSqlType javaSqlType) {
+        JavaSqlType.JavaSqlTypeGroup javaSqlTypeGroup = javaSqlType.getJavaSqlTypeGroup();
+
+        switch (javaSqlTypeGroup) {
+            case integer:
+                // TODO: this should be converted according to TinyIntResolver but TinyInt is not valid for all DBs
+                /*if (javaSqlType.getJavaSqlTypeName().equals("TINYINT")) {
+                    return Neo4jDataType.Byte;
+                }*/
+                return Neo4jDataType.Long;
+            case bit:
+                // TODO: probably this should be converted to a string
+                return Neo4jDataType.Byte;
+            case real:
+                return Neo4jDataType.Double;
+            case character:
+            case temporal:
+            case url:
+            case xml:
+                return Neo4jDataType.String;
+            // TODO: probably this should be skipped or translated into a string representation
+            case binary:
+                return Neo4jDataType.Boolean;
+            default:
+                return null;
+            // TODO: add "id" and "reference" Java SQL type
+
+        }
     }
 
     /*You need to handle the tinyInt scenario always transform from TinyIntResolver*/
-    public Neo4jDataType toNeo4jDataType()
-    {
+    public Neo4jDataType toNeo4jDataType() {
         return neo4jDataType;
     }
 
-    public boolean skipImport()
-    {
-        return BLOB == this || TINYBLOB == this || MEDIUMBLOB == this || LONGBLOB == this || BYTEA == this;
+    /**
+     * Check if SqlTypeData is a binary data, for example a BLOB
+     *
+     * @return a boolean, true if it's a byte data
+     */
+    public boolean isBinaryObject() {
+        JavaSqlType.JavaSqlTypeGroup javaSqlTypeGroup = this.javaSqlType.getJavaSqlTypeGroup();
+
+        return javaSqlTypeGroup.equals(JavaSqlType.JavaSqlTypeGroup.object) ||
+                javaSqlTypeGroup.equals(JavaSqlType.JavaSqlTypeGroup.large_object);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o);
     }
 }

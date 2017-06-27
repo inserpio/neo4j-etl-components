@@ -35,6 +35,26 @@
         </dependency>
 
         <dependency>
+            <groupId>us.fatehi</groupId>
+            <artifactId>schemacrawler</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>us.fatehi</groupId>
+            <artifactId>schemacrawler-oracle</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>us.fatehi</groupId>
+            <artifactId>schemacrawler-postgresql</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>us.fatehi</groupId>
+            <artifactId>schemacrawler-mysql</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>

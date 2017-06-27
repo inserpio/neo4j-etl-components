@@ -109,7 +109,7 @@ public class ResultsToFileWriterTest
                 asList(
                         new SimpleColumn( table, "id", ColumnRole.Data, SqlDataType.INT,
                                 ColumnValueSelectionStrategy.SelectColumnValue, Formatting.DEFAULT ),
-                        new SimpleColumn( table, "username", ColumnRole.Data, SqlDataType.VARCHAR,
+                        new SimpleColumn( table, "username", ColumnRole.Data, SqlDataType.TEXT,
                                 ColumnValueSelectionStrategy.SelectColumnValue, Formatting.DEFAULT ) ) );
 
         MetadataMapping resource = new MetadataMapping( table.fullName(), GraphObjectType.Node, "SELECT ...",

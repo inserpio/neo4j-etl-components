@@ -60,7 +60,7 @@ public class TableToCsvFieldMapperTest
                 CsvField.id( new IdSpace( "test.Person" ) ),
                 CsvField.data( "id", Neo4jDataType.String ),
                 CsvField.data( "username", Neo4jDataType.String ),
-                CsvField.data( "age", Neo4jDataType.Int ),
+                CsvField.data( "age", Neo4jDataType.Long ),
                 CsvField.label() ) );
     }
 

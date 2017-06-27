@@ -129,7 +129,7 @@ public class OracleExclusionIntegrationTest
                 "--user", RdbmsClient.Parameters.DBUser.value(),
                 "--password", RdbmsClient.Parameters.DBPassword.value(),
                 "--database", "XE",
-                "--schema", "exclusion",
+                "--schema", "EXCLUSION",
                 "--import-tool", neo4j.get().binDirectory().toString(),
                 "--options-file", importToolOptions.toString(),
                 "--csv-directory", tempDirectory.get().toString(),

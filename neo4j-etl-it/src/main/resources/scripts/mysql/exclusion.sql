@@ -2,7 +2,7 @@ DROP DATABASE IF EXISTS exclusion;
 CREATE DATABASE exclusion
   DEFAULT CHARACTER SET utf8
   COLLATE utf8_unicode_ci;
-GRANT ALL ON exclusion.* TO '<DBUser>'@'localhost'
+GRANT ALL ON exclusion.* TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE exclusion.Orphan_Table
@@ -10,7 +10,7 @@ CREATE TABLE exclusion.Orphan_Table
   id       INT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
   number   INT  NOT NULL
 );
-GRANT ALL ON exclusion.Orphan_Table TO '<DBUser>'@'localhost'
+GRANT ALL ON exclusion.Orphan_Table TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE exclusion.Yet_Another_Orphan_Table
@@ -18,7 +18,7 @@ CREATE TABLE exclusion.Yet_Another_Orphan_Table
   id       INT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
   number   INT  NOT NULL
 );
-GRANT ALL ON exclusion.Yet_Another_Orphan_Table TO '<DBUser>'@'localhost'
+GRANT ALL ON exclusion.Yet_Another_Orphan_Table TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE exclusion.Leaf_Table
@@ -26,7 +26,7 @@ CREATE TABLE exclusion.Leaf_Table
   id       INT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
   number   INT  NOT NULL
 );
-GRANT ALL ON exclusion.Leaf_Table TO '<DBUser>'@'localhost'
+GRANT ALL ON exclusion.Leaf_Table TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE exclusion.Points_To_Leaf_Table
@@ -35,7 +35,7 @@ CREATE TABLE exclusion.Points_To_Leaf_Table
   leafId   INT  NOT NULL,
   FOREIGN KEY (leafId) REFERENCES exclusion.Leaf_Table (id)
 );
-GRANT ALL ON exclusion.Points_To_Leaf_Table TO '<DBUser>'@'localhost'
+GRANT ALL ON exclusion.Points_To_Leaf_Table TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE exclusion.Table_A
@@ -43,7 +43,7 @@ CREATE TABLE exclusion.Table_A
   id       INT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
   number   INT  NOT NULL
 );
-GRANT ALL ON exclusion.Table_A TO '<DBUser>'@'localhost'
+GRANT ALL ON exclusion.Table_A TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE exclusion.Table_B
@@ -51,7 +51,7 @@ CREATE TABLE exclusion.Table_B
   id       INT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
   number   INT  NOT NULL
 );
-GRANT ALL ON exclusion.Table_B TO '<DBUser>'@'localhost'
+GRANT ALL ON exclusion.Table_B TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 CREATE TABLE exclusion.Join_Table
@@ -62,7 +62,7 @@ CREATE TABLE exclusion.Join_Table
   FOREIGN KEY (table_a_id) REFERENCES exclusion.Table_A (id),
   FOREIGN KEY (table_b_id) REFERENCES exclusion.Table_B (id)
 );
-GRANT ALL ON exclusion.Join_Table TO '<DBUser>'@'localhost'
+GRANT ALL ON exclusion.Join_Table TO '<DBUser>'@'%'
 IDENTIFIED BY '<DBPassword>';
 
 INSERT INTO exclusion.Orphan_Table ( number ) VALUES(321);

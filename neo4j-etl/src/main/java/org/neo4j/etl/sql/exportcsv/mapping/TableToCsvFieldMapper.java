@@ -43,10 +43,11 @@ class TableToCsvFieldMapper implements DatabaseObjectToCsvFieldMapper<Table>
 
         SimpleColumn label = new SimpleColumn(
                 table.name(),
-                formatting.sqlQuotes().forConstant().enquote( formatting.labelFormatter().format( table.name().simpleName() ) ),
+                //formatting.sqlQuotes().forConstant().enquote( formatting.labelFormatter().format( table.name().simpleName() ) ),
+                formatting.labelFormatter().format( table.name().simpleName()),
                 "_NODE_LABEL_",
                 ColumnRole.Literal,
-                SqlDataType.LABEL_DATA_TYPE, ColumnValueSelectionStrategy.SelectColumnValue,
+                SqlDataType.TEXT, ColumnValueSelectionStrategy.SelectColumnValue,
                 formatting );
 
         builder.add( new ColumnToCsvFieldMapping( label, CsvField.label() ) );

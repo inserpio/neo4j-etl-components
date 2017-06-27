@@ -1,5 +1,6 @@
 package org.neo4j.etl.neo4j.importcsv.config.formatting;
 
+import org.neo4j.etl.sql.DatabaseClient;
 import org.neo4j.etl.sql.exportcsv.formatting.SqlQuotes;
 import org.neo4j.etl.util.Preconditions;
 
@@ -84,7 +85,7 @@ public class Formatting
 
         Builder propertyFormatter( Formatter propertyFormatter );
 
-        Builder sqlQuotes( SqlQuotes sqlQuotes );
+        Builder databaseClient(DatabaseClient databaseClient);
 
         Formatting build();
     }

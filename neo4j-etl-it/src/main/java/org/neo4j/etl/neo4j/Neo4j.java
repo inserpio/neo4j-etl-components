@@ -44,6 +44,11 @@ public class Neo4j implements AutoCloseable
         return directory.resolve( "bin" );
     }
 
+    public Path importDirectory()
+    {
+        return directory.resolve( "import" );
+    }
+
     public Path databasesDirectory()
     {
         return directory.resolve( "data/databases" );
@@ -62,6 +67,8 @@ public class Neo4j implements AutoCloseable
         properties.load( Files.newInputStream( confFile ) );
 
         properties.setProperty( "dbms.security.auth_enabled", "false" );
+        properties.setProperty( "dbms.security.allow_csv_import_from_file_urls", "true" );
+        properties.setProperty( "dbms.directories.import", importDirectory().toAbsolutePath().toString() );
 
         try ( BufferedWriter writer = Files.newBufferedWriter( confFile ) )
         {

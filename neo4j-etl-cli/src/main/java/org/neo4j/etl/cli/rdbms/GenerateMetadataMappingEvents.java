@@ -1,4 +1,4 @@
-package org.neo4j.etl.commands.rdbms;
+package org.neo4j.etl.cli.rdbms;
 
 public interface GenerateMetadataMappingEvents
 {

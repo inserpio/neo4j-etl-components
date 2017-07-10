@@ -17,7 +17,7 @@ class ConnectionConfigBuilder implements
     private int port;
     private String database = "";
 
-    final DatabaseType databaseType;
+    DatabaseType databaseType;
     URI uri;
     String username;
     String password;

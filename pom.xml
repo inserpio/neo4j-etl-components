@@ -30,9 +30,13 @@
     <developers>
         <developer>
             <id>neo-technology</id>
+            <organization>Neo Technology, Incl.</organization>
+            <url>http://neotechnology.com/</url>
         </developer>
         <developer>
             <id>larus</id>
+            <organization>Larus Business Automation, Srl.</organization>
+            <url>http://www.larus-ba.it/neo4j/</url>
         </developer>
     </developers>
 

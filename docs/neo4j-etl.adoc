@@ -27,37 +27,65 @@ You can follow the proper link in the below table in order to download the prope
 
 NOTE: For very large databases make sure to have enough disk-space for the CSV export and the Neo4j datastore and enough RAM and CPUs to finish the import quickly.
 
-.Simple Example Session
+=== Available commands
+
 ----
-export NEO4J_HOME=/path/to/neo4j-enterprise-3.1.3
+include::neo4j-etl-rdbms.txt[]
+----
 
-mkdir -p /tmp/northwind
+=== 'help' command
 
-./bin/neo4j-etl { mysql | postgresql | oracle } generate-metadata-mapping --database northwind --user root > /tmp/northwind/mapping.json
-# Creating RDBMS to CSV mappings...
+----
+include::neo4j-etl-help.txt[]
+----
 
-echo '{"multiline-fields":"true"}' > /tmp/northwind/options.json
+=== 'generate-metadata-mapping' command
 
-./bin/neo4j-etl { mysql | postgresql | oracle } export --database northwind --user root \
---destination $NEO4J_HOME/data/databases/graph.db/ --import-tool $NEO4J_HOME/bin  \
---csv-directory /tmp/northwind --mapping-file /tmp/northwind/mapping.json --options-file /tmp/northwind/options.json \
---force --quote '"'
+----
+include::neo4j-etl-rdbms-generate-metadata-mapping.txt[]
+----
 
-# - Reading options from file /tmp/northwind/options.json.
-# - Reading metadata mapping from file: /tmp/northwind/mapping.json
-# Exporting from RDBMS to CSV...
+=== 'export' command
 
-# CSV directory: /tmp/northwind/csv-006
-# - Writing CSV headers for node northwind.Territories
-# - Writing CSV data for node northwind.Territories
-# ...
-# - Writing CSV headers for relationship northwind.Employees.EmployeeID_northwind.Employees.ReportsTo
-# - Writing CSV data for relationship northwind.Employees.EmployeeID_northwind.Employees.ReportsTo
-# Creating Neo4j store from CSV...
-# /Users/mh/v/neo4j-enterprise-3.1.3/data/databases/graph.db
+----
+include::neo4j-etl-rdbms-export.txt[]
+----
 
+== Example Session: Basic
 
-$NEO4J_HOME/bin/neo4j-shell -path $NEO4J_HOME/data/databases/graph.db/ -c 'MATCH (n) RETURN labels(n), count(*);'
+=== Generate Metadata Mapping
+
+----
+~: export NEO4J_HOME=/path/to/neo4j-enterprise-3.1.3
+
+~: mkdir -p /tmp/northwind
+
+~: $NEO4J_HOME/bin/neo4j-etl oracle generate-metadata-mapping \
+  --rdbms:url jdbc:oracle:thin:@localhost:49161:XE \
+  --rdbms:user northwind --rdbms:password northwind \
+  --rdbms:schema northwind > /tmp/northwind/mapping.json
+----
+
+=== Offline Bulk Import via `neo4j-import` tool for initial load (neo4j must be empty)
+
+----
+~: echo '{ "multiline-fields" : "true" }' > /tmp/northwind/options.json
+
+~: $NEO4J_HOME/bin/neo4j-etl oracle export  \
+  --rdbms:url jdbc:oracle:thin:@localhost:49161:XE \
+  --rdbms:user northwind --rdbms:password northwind \
+  --rdbms:schema northwind
+  --using bulk:neo4j-import
+  --import-tool $NEO4J_HOME/bin  \
+  --csv-directory /tmp/northwind \
+  --options-file /tmp/northwind/options.json \
+  --quote '"' --force
+----
+
+- Test Offline Bulk Import result
+
+----
+~: $NEO4J_HOME/bin/neo4j-shell -path $NEO4J_HOME/data/databases/graph.db/ -c 'MATCH (n) RETURN labels(n), count(*);'
 
 # +--------------------------+
 # | labels(n)     | count(*) |
@@ -75,38 +103,46 @@ $NEO4J_HOME/bin/neo4j-shell -path $NEO4J_HOME/data/databases/graph.db/ -c 'MATCH
 # 9 rows
 ----
 
-////
-./neo4j-etl { mysql | postgresql | oracle } export --host 127.0.0.1 --user neo4j --password neo4j \
---database javabase --destination /tmp/neo4j-enterprise-3.0.1/data/databases/graph.db/ \
---import-tool /tmp/neo4j-enterprise-3.1.3/bin  --csv-directory ./  \
---options-file ./import-tool-options.json --force —debug
-////
-
-=== RDBMS Command
+=== Online Batch Import via `java-bolt-driver` for incremental load (neo4j can be already populated)
 
 ----
-include::neo4j-etl-rdbms.txt[]
+~: echo '{ "multiline-fields" : "true" }' > /tmp/northwind/options.json
+
+~: $NEO4J_HOME/bin/neo4j-etl oracle export  \
+  --rdbms:url jdbc:oracle:thin:@localhost:49161:XE \
+  --rdbms:user northwind --rdbms:password northwind \
+  --rdbms:schema northwind
+  --using cypher:direct
+  --neo4j:url bolt://localhost:7687 \
+  --neo4j:user neo4j --neo4j:password neo4j \
+  --import-tool $NEO4J_HOME/bin  \
+  --csv-directory /tmp/northwind \
+  --options-file /tmp/northwind/options.json \
+  --quote '"' --force
 ----
 
-=== 'help' Command
+- Test Online Batch Incremental Import result
 
 ----
-include::neo4j-etl-help.txt[]
+~: $NEO4J_HOME/bin/cypher-shell -a bolt://localhost:7687 -u neo4j -p neo4j 'MATCH (n) RETURN labels(n), count(*);'
+
+# +--------------------------+
+# | labels(n)     | count(*) |
+# +--------------------------+
+# | ["Shipper"]   | 3        |
+# | ["Employee"]  | 9        |
+# | ["Region"]    | 4        |
+# | ["Customer"]  | 93       |
+# | ["Territory"] | 53       |
+# | ["Product"]   | 77       |
+# | ["Supplier"]  | 29       |
+# | ["Order"]     | 830      |
+# | ["Category"]  | 8        |
+# +--------------------------+
+# 9 rows
 ----
 
-=== 'generate-metadata-mapping' Command
-
-----
-include::neo4j-etl-rdbms-generate-metadata-mapping.txt[]
-----
-
-=== 'export' Command
-
-----
-include::neo4j-etl-rdbms-export.txt[]
-----
-
-=== Example Session: Docker + Northwind
+== Example Session: Docker + Northwind
 
 This example session is based on the Northwind example dataset.
 
@@ -156,12 +192,16 @@ https://raw.githubusercontent.com/neo4j-contrib/neo4j-etl-components/master/neo4
 
 ~: mkdir -p /tmp/northwind
 
-~: echo '{"multiline-fields":"true"}' > /tmp/northwind/options.json
+~: echo '{ "multiline-fields" : "true" }' > /tmp/northwind/options.json
 
-~: ./bin/neo4j-etl mysql export --url jdbc:mysql://localhost:5433/northwind?autoReconnect=true&useSSL=false \
-      --user neo4j --password neo4j --import-tool $NEO4J_HOME/bin \
-      --options-file /tmp/northwind/options.json --csv-directory /tmp/northwind \
-      --destination $NEO4J_HOME/data/databases/graph.db/ --quote '"' --force
+~: ./bin/neo4j-etl mysql export \
+  --rdbms:url jdbc:mysql://localhost:5433/northwind?autoReconnect=true&useSSL=false \
+  --rdbms:user neo4j --rdbms:password neo4j \
+  --import-tool $NEO4J_HOME/bin \
+  --options-file /tmp/northwind/options.json \
+  --csv-directory /tmp/northwind \
+  --destination $NEO4J_HOME/data/databases/graph.db/ \
+  --quote '"' --force
 ----
 
 .PostgreSQL
@@ -193,10 +233,14 @@ https://raw.githubusercontent.com/neo4j-contrib/neo4j-etl-components/master/neo4
 
 ~: echo '{"multiline-fields":"true"}' > /tmp/northwind/options.json
 
-~: ./bin/neo4j-etl postgresql export --url jdbc:postgresql://localhost:5433/northwind?ssl=false \
-      --user neo4j --password neo4j --import-tool $NEO4J_HOME/bin \
-      --options-file /tmp/northwind/options.json --csv-directory /tmp/northwind \
-      --destination $NEO4J_HOME/data/databases/graph.db/ --quote '"' --force
+~: ./bin/neo4j-etl postgresql export \
+  --rdbms:url jdbc:postgresql://localhost:5433/northwind?ssl=false \
+  --rdbms:user neo4j --rdbms:password neo4j \
+  --import-tool $NEO4J_HOME/bin \
+  --options-file /tmp/northwind/options.json \
+  --csv-directory /tmp/northwind \
+  --destination $NEO4J_HOME/data/databases/graph.db/ \
+  --quote '"' --force
 ----
 
 .Oracle
@@ -237,10 +281,15 @@ root@692c446a274b:~# exit
 
 ~: echo '{"multiline-fields":"true"}' > /tmp/northwind/options.json
 
-~: ./bin/neo4j-etl oracle export --url jdbc:oracle:thin:@localhost:49161:XE \
-      --schema northwind --user northwind --password northwind --import-tool $NEO4J_HOME/bin \
-      --options-file /tmp/northwind/options.json --csv-directory /tmp/northwind \
-      --destination $NEO4J_HOME/data/databases/graph.db/ --quote '"' --force
+~: ./bin/neo4j-etl oracle export \
+  --rdbms:url jdbc:oracle:thin:@localhost:49161:XE \
+  --rdbms:user northwind --rdbms:password northwind \
+  --rdbms:schema northwind \
+  --import-tool $NEO4J_HOME/bin \
+  --options-file /tmp/northwind/options.json \
+  --csv-directory /tmp/northwind \
+  --destination $NEO4J_HOME/data/databases/graph.db/ \
+  --quote '"' --force
 ----
 
 .Microsoft SQL

@@ -1,19 +1,18 @@
 package org.neo4j.etl;
 
+import com.github.rvesse.airline.Cli;
+import com.github.rvesse.airline.builder.CliBuilder;
+import com.github.rvesse.airline.help.Help;
+import org.neo4j.etl.cli.rdbms.ImportFromRdbmsCli;
+import org.neo4j.etl.cli.rdbms.GenerateMetadataMappingCli;
+import org.neo4j.etl.sql.DatabaseType;
+import org.neo4j.etl.util.CliRunner;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.LogManager;
-
-import com.github.rvesse.airline.Cli;
-import com.github.rvesse.airline.builder.CliBuilder;
-import com.github.rvesse.airline.help.Help;
-
-import org.neo4j.etl.cli.rdbms.ExportFromRdbmsCli;
-import org.neo4j.etl.cli.rdbms.GenerateMetadataMappingCli;
-import org.neo4j.etl.sql.DatabaseType;
-import org.neo4j.etl.util.CliRunner;
 
 public class NeoIntegrationCli
 {
@@ -70,16 +69,16 @@ public class NeoIntegrationCli
     private static Cli<Runnable> parser()
     {
         CliBuilder<Runnable> builder = Cli.<Runnable>builder( "neo4j-etl" )
-                .withDescription( "Neo4j etl tools." )
+                .withDescription( "Neo4j etl importers." )
                 .withDefaultCommand( Help.class )
                 .withCommand( Help.class );
 
         for (DatabaseType databaseType : DatabaseType.values())
         {
             builder.withGroup(databaseType.name().toLowerCase())
-                    .withDescription(databaseType.name() + " export tools.")
+                    .withDescription(databaseType.name() + " export importers.")
                     .withDefaultCommand(Help.class)
-                    .withCommand(ExportFromRdbmsCli.class)
+                    .withCommand(ImportFromRdbmsCli.class)
                     .withCommand(GenerateMetadataMappingCli.class)
                     .withCommand(Help.class);
         }

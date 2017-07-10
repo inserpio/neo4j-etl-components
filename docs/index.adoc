@@ -7,11 +7,15 @@ It applies some simple rules for transforming the relational model.
 
 The process as outlined below:
 
-1. Read database metadata and generate mapping.json
-2. Optionally edit mapping.json
-3. Export relational data to CSV
-4. Generate Mapping Headers
-5. Import into Neo4j using the bulk `neo4j-import` tool
+. Read database metadata and generate mapping.json
+. Optionally edit mapping.json
+. Export relational data to CSV
+. Generate Mapping Headers
+. Import into Neo4j using
+.. the `neo4j-import` tool for initial *offline* bulk load
+.. the `neo4j-shell` tool for incremental *offline* bulk load
+.. the `cypher-shell` tool for incremental *online* single-transaction load
+.. the `java bolt driver` for incremental *online* batch load
 
 == Architecture Diagram
 
@@ -26,10 +30,12 @@ image::neo4j-etl-architecture.png[]
 * Describe indexes
 * Non-trivial datatypes (dates, binary)
 * Read mapping file to export data from other databases then
-* Import into Neo via Neo4j Import Tool
-* Build indexes
+* Import into Neo via different tools (`neo4j-import`, `neo4j-shell`, `cypher-shell`, `java bolt driver`)
+* Work in offline and online mode
+* Import in both an empty (initial load) and not-empty graph (incremental)
+* Build indexes and constraints
 * Non-trivial datatypes (dates, binary)
-* Support on Linux
+* Support on Unix-like and Microsoft Operating Systems
 * Support MySQL, PostgreSQL, Oracle
 * Support user specified JDBC drivers
 
@@ -38,7 +44,6 @@ image::neo4j-etl-architecture.png[]
 * UI tool to modify mappings - currently manual editing
 * Custom Mapping Rules +
  Transformations for names, data, links
-* Online Synchronisation, Import into existing database - currently, only supporting initial import
 * Exemplary integration into a 3rd party ETL pipeline
 
 === Who is it for
@@ -96,7 +101,6 @@ include::neo4j-etl.adoc[]
 
 * Generate CSV files from relational source as outlined by `mappings.json` 
 ** TODO: Use a streaming api that is more performant
-* Import CSV using `neo4j-import` providing the correct labels and rel-types and headers headers
-
-* TODO: Build indexes automatically as part of import
-* TODO: Missing ability to pass options to `neo4j-import` tool as a file instead of command line arguments
+* Import CSV providing the correct labels and rel-types and headers headers
+** TODO: Missing ability to pass options to `neo4j-import` tool as a file instead of command line arguments
+** TODO: Create indexes and constraints related to not-primary key columns

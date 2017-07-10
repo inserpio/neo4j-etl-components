@@ -1,7 +1,6 @@
 package org.neo4j.etl;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +35,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import static org.neo4j.etl.neo4j.Neo4j.NEO4J_VERSION;
+import static org.neo4j.etl.neo4j.Neo4j.NEO_TX_URI;
 import static org.neo4j.etl.provisioning.platforms.TestType.INTEGRATION;
 
 public class MySqlExportIntegrationTest
@@ -55,7 +55,6 @@ public class MySqlExportIntegrationTest
     @ClassRule
     public static final ResourceRule<Neo4j> neo4j = new ResourceRule<>(
             Neo4jFixture.neo4j( NEO4J_VERSION, tempDirectory.get() ) );
-    private static final URI NEO_TX_URI = URI.create( "http://localhost:7474/db/data/transaction/commit" );
 
     @BeforeClass
     public static void setUp() throws Exception

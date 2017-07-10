@@ -40,94 +40,76 @@ public class GenerateMetadataMappingCli implements Runnable
     @Inject
     private CommandGroupMetadata commandGroupMetadata;
 
-    @RequireOnlyOne
+    /*
+     * RDBMS connection parameters
+     */
+
+    @RequireOnlyOne(tag = "database")
     @Option(type = OptionType.COMMAND,
-            name = {"--url"},
+            name = { "--rdbms:url", "--url" },
             description = "Url to use for connection to RDBMS.",
-            title = "name")
-    private String url;
-
-    @RequireOnlyOne
-    @Option(type = OptionType.COMMAND,
-            name = {"-h", "--host"},
-            description = "Host to use for connection to RDBMS.",
-            title = "name")
-    private String host;
-
-    @Option(type = OptionType.COMMAND,
-            name = {"-p", "--port"},
-            description = "Port number to use for connection to RDBMS.",
-            title = "#")
-    private Integer port;
+            title = "RDBMS url")
+    protected String rdbmsUrl;
 
     @Required
     @Option(type = OptionType.COMMAND,
-            name = {"-u", "--user"},
+            name = { "--rdbms:user", "-u", "--user" },
             description = "User for login to RDBMS.",
-            title = "name")
-    private String user;
+            title = "RDBMS user")
+    protected String rdbmsUser;
 
+    @Required
     @Option(type = OptionType.COMMAND,
-            name = {"--password"},
+            name = { "--rdbms:password", "--password" },
             description = "Password for login to RDBMS.",
-            title = "name")
-    private String password;
-
-    @RequiredOnlyIf( names = { "host" } )
-    @Option(type = OptionType.COMMAND,
-            name = {"-d", "--database"},
-            description = "RDBMS database.",
-            title = "name")
-    private String database;
+            title = "RDBMS password")
+    protected String rdbmsPassword;
 
     @Option(type = OptionType.COMMAND,
-            name = {"-s", "--schema"},
-            description = "RDBMS database.",
-            title = "name")
-    private String schema;
+            name = { "--rdbms:schema", "-s", "--schema" },
+            description = "RDBMS schema.",
+            title = "schema")
+    protected String rdbmsSchema;
 
-    @SuppressWarnings("FieldCanBeLocal")
+    /*
+     * Optional parameters
+     */
+
     @Option(type = OptionType.COMMAND,
             name = {"--delimiter"},
             description = "Delimiter to separate fields in CSV.",
             title = "delimiter")
     private String delimiter;
 
-    @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"--quote"},
             description = "Character to treat as quotation character for values in CSV data.",
             title = "quote")
     private String quote;
 
-    @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"--options-file"},
             description = "Path to file containing Neo4j import tool options.",
-            title = "file")
+            title = "option file")
     private String importToolOptionsFile = "";
 
-    @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"--debug"},
             description = "Print detailed diagnostic output.")
     private boolean debug = false;
 
-    @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"--relationship-name", "--rel-name"},
             description = "Specifies whether to get the name for relationships from table names or column names.",
             title = "table(default)|column")
     private String relationshipNameFrom = "table";
 
-    @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"--tiny-int"},
             description = "Specifies whether to convert TinyInt to byte or boolean",
             title = "byte(default)|boolean")
     private String tinyIntAs = "byte";
 
-    @SuppressWarnings("FieldCanBeLocal")
     @Option(type = OptionType.COMMAND,
             name = {"--exclusion-mode", "--exc"},
             description = "Specifies how to handle table exclusion. Options are mutually exclusive." +
@@ -137,10 +119,39 @@ public class GenerateMetadataMappingCli implements Runnable
             title = "exclude|include|none(default)")
     private String exclusionMode = "none";
 
-    @SuppressWarnings("FieldCanBeLocal")
     @Arguments(description = "Tables to be excluded/included",
             title = "table1 table2 ...")
     private List<String> tables = new ArrayList<String>();
+
+    /*
+     * Deprecated parameters (to be removed in future releases, still maintained for retro-compatibility)
+     */
+
+    // deprecated in favour of "--rdbms:url"
+    @Deprecated
+    @RequireOnlyOne(tag = "database")
+    @Option(type = OptionType.COMMAND,
+            name = {"-h", "--host"},
+            description = "Host to use for connection to RDBMS.",
+            title = "RDBMS host")
+    protected String rdbmsHost;
+
+    // deprecated in favour of "--rdbms:url"
+    @Deprecated
+    @Option(type = OptionType.COMMAND,
+            name = {"-p", "--port"},
+            description = "Port number to use for connection to RDBMS.",
+            title = "RDBMS port")
+    protected Integer rdbmsPort;
+
+    // deprecated in favour of "--rdbms:url"
+    @Deprecated
+    @RequiredOnlyIf( names = { "host" } )
+    @Option(type = OptionType.COMMAND,
+            name = {"-d", "--database"},
+            description = "RDBMS database.",
+            title = "RDBMS database")
+    protected String rdbmsDatabase;
 
     @Override
     public void run()
@@ -149,19 +160,19 @@ public class GenerateMetadataMappingCli implements Runnable
         {
             DatabaseType databaseType = DatabaseType.fromString( this.commandGroupMetadata.getName() );
 
-            ConnectionConfig connectionConfig = this.url == null ?
+            ConnectionConfig connectionConfig = this.rdbmsUrl == null ?
                     ConnectionConfig.forDatabaseFromHostAndPort(databaseType)
-                            .host(host)
-                            .port( port != null ? port : databaseType.defaultPort() )
-                            .database(database)
-                            .username(user)
-                            .password(password)
+                            .host(rdbmsHost)
+                            .port( rdbmsPort != null ? rdbmsPort : databaseType.defaultPort() )
+                            .database(rdbmsDatabase)
+                            .username(rdbmsUser)
+                            .password(rdbmsPassword)
                             .build()
                     :
                     ConnectionConfig.forDatabaseFromUrl(databaseType)
-                            .url(url)
-                            .username(user)
-                            .password(password)
+                            .url(rdbmsUrl)
+                            .username(rdbmsUser)
+                            .password(rdbmsPassword)
                             .build();
 
             ImportToolOptions importToolOptions =
@@ -175,7 +186,7 @@ public class GenerateMetadataMappingCli implements Runnable
             final FilterOptions filterOptions = new FilterOptions( tinyIntAs, relationshipNameFrom, exclusionMode,
                     tables, false );
 
-            Schema schema = this.schema != null ? new Schema( this.schema ) : Schema.UNDEFINED;
+            Schema schema = this.rdbmsSchema != null ? new Schema( this.rdbmsSchema ) : Schema.UNDEFINED;
 
             new GenerateMetadataMapping(
                     new GenerateMetadataMappingEventHandler(),

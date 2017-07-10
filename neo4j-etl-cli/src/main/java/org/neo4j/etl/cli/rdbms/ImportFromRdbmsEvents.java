@@ -1,10 +1,10 @@
-package org.neo4j.etl.commands.rdbms;
+package org.neo4j.etl.cli.rdbms;
 
 import java.nio.file.Path;
 
-public interface ExportFromRdbmsEvents
+public interface ImportFromRdbmsEvents
 {
-    ExportFromRdbmsEvents EMPTY = new ExportFromRdbmsEvents()
+    ImportFromRdbmsEvents EMPTY = new ImportFromRdbmsEvents()
     {
         @Override
         public void onExportingToCsv( Path csvDirectory )

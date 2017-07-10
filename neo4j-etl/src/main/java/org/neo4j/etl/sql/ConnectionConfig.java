@@ -9,12 +9,12 @@ import org.neo4j.etl.util.Preconditions;
 
 public class ConnectionConfig
 {
-    public static Builder.SetHost forDatabaseFromHostAndPort(DatabaseType databaseType )
+    public static Builder.SetHost forDatabaseFromHostAndPort( DatabaseType databaseType )
     {
         return new ConnectionConfigBuilder( databaseType );
     }
 
-    public static Builder.SetUrl forDatabaseFromUrl(DatabaseType databaseType )
+    public static Builder.SetUrl forDatabaseFromUrl( DatabaseType databaseType )
     {
         return new ConnectionConfigBuilder( databaseType );
     }
@@ -63,7 +63,7 @@ public class ConnectionConfig
     {
         interface SetUrl
         {
-            SetUsername url ( String url);
+            SetUsername url ( String url );
         }
 
         interface SetHost

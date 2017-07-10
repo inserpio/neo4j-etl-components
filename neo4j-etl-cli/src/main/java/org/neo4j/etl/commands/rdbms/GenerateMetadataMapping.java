@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import org.neo4j.etl.cli.rdbms.GenerateMetadataMappingEvents;
 import org.neo4j.etl.commands.DatabaseInspector;
 import org.neo4j.etl.commands.SchemaExport;
 import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;

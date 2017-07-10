@@ -3,12 +3,11 @@ package org.neo4j.etl.cli.rdbms;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.neo4j.etl.commands.rdbms.ExportFromRdbmsEvents;
 import org.neo4j.etl.util.CliRunner;
 
 import static java.lang.String.format;
 
-public class ExportRdbmsEventHandler implements ExportFromRdbmsEvents
+public class ImportFromRdbmsEventHandler implements ImportFromRdbmsEvents
 {
     @Override
     public void onExportingToCsv( Path csvDirectory )

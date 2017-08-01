@@ -15,7 +15,7 @@ Once unzipped, download the proper JDBC Driver (xref:jdbc-drivers[here]) and add
 
 .Minimal command line
 ----
-./bin/neo4j-etl { mysql | postgresql | oracle } export \
+./bin/neo4j-etl export \
  --rdbms:url <url> --rdbms:user <user> --rdbms:password <password> \
  --destination $NEO4J_HOME/data/databases/graph.db/ --import-tool $NEO4J_HOME/bin \
  --csv-directory /tmp/northwind
@@ -23,7 +23,7 @@ Once unzipped, download the proper JDBC Driver (xref:jdbc-drivers[here]) and add
 
 .Full set of command line options
 ----
-./bin/neo4j-etl { mysql | postgresql | oracle } export \
+./bin/neo4j-etl export \
  --rdbms:url <url> --rdbms:user <user> --rdbms:password <password> --rdbms:schema <schema> \
  --using { bulk:neo4j-import | cypher:neo4j-shell | cypher:shell | cypher:direct } \
  --neo4j:url <neo4j url> --neo4j:user <neo4j user> --neo4j:password <neo4j password> \
@@ -80,6 +80,8 @@ We're welcoming all contributions.
 
 |https://www.oracle.com/[Oracle]
 |http://www.oracle.com/technetwork/database/features/jdbc/default-2280470.html
+|https://www.microsoft.com/en-us/sql-server/[Microsoft SQL Server]
+|https://www.microsoft.com/en-us/download/details.aspx?id=55539
 |===
 
 == Tests

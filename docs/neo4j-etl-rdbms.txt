@@ -1,12 +1,12 @@
 NAME
 
-        neo4j-etl { mysql | postgresql | oracle }
+        neo4j-etl
 
-            - Export tools for MySQL, PostgreSQL and Oracle RDBMS.
+            - Export tools for MySQL, PostgreSQL, Oracle and Microsoft SQL RDBMS.
 
 SYNOPSIS
 
-        neo4j-etl { mysql | postgresql | oracle } { export | generate-metadata-mapping | help* }
+        neo4j-etl { export | generate-metadata-mapping | help* }
 
             [--] [cmd-options] <cmd-args>
 
@@ -64,7 +64,7 @@ SYNOPSIS
             help: [ <command>... ]
 
         Where * indicates the default command(s)
-        See 'neo4j-etl help { mysql | postgresql | oracle } <command>' for more information on a specific command.
+        See 'neo4j-etl help <command>' for more information on a specific command.
 
         Note:
 

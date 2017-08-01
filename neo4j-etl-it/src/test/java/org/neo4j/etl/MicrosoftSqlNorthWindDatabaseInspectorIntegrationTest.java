@@ -12,7 +12,6 @@ import org.neo4j.etl.provisioning.Server;
 import org.neo4j.etl.provisioning.ServerFixture;
 import org.neo4j.etl.provisioning.scripts.RdbmsScripts;
 import org.neo4j.etl.rdbms.RdbmsClient;
-import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.ResourceRule;
 import org.neo4j.etl.util.TemporaryDirectory;
 
@@ -38,20 +37,24 @@ public class MicrosoftSqlNorthWindDatabaseInspectorIntegrationTest {
     public static final ResourceRule<Server> msSqlServer = new ResourceRule<>(
             ServerFixture.server(
                     "mssql-etl-test-nw",
-                    DatabaseType.MSSQL.defaultPort(),
-                    RdbmsScripts.startupScript(DatabaseType.MSSQL),
+                    1433,
+                    RdbmsScripts.startupScript("MSSQL"),
                     tempDirectory.get(), INTEGRATION));
 
     @ClassRule
     public static final ResourceRule<Neo4j> neo4j = new ResourceRule<>(
             Neo4jFixture.neo4j(NEO4J_VERSION, tempDirectory.get()));
 
+    private static String url;
+
     @BeforeClass
     public static void setUp() throws Exception {
+        url = String.format("jdbc:sqlserver://%s:%s;databaseName=%s", msSqlServer.get().ipAddress(), 1433, "master");
+
         try {
             // FIXME: define a user "neo4j" to run the script (do not use admin)
-            RdbmsClient client = new RdbmsClient(DatabaseType.MSSQL, DatabaseType.MSSQL.createUri("localhost", 1433, "master").toString(), "sa", "Passw0rd!");
-            client.execute(RdbmsScripts.northwindScript(DatabaseType.MSSQL).value());
+            RdbmsClient client = new RdbmsClient(url, "sa", "Passw0rd!");
+            client.execute(RdbmsScripts.northwindScript("MSSQL").value());
             exportFromMsSqlToNeo4j("Northwind");
             neo4j.get().start();
         } catch (IOException e) {
@@ -75,11 +78,11 @@ public class MicrosoftSqlNorthWindDatabaseInspectorIntegrationTest {
         // FIXME: define a user "neo4j" to run the script (do not use admin)
         // FIXME: check ".dbo" suffix
         NeoIntegrationCli.executeMainReturnSysOut(
-                new String[]{"mssql",
+                new String[]{
                         "export",
-                        "--host", msSqlServer.get().ipAddress(),
-                        "--user", "sa",
-                        "--password", "Passw0rd!",
+                        "--rdbms:url", url,
+                        "--rdbms:user", "sa",
+                        "--rdbms:password", "Passw0rd!",
                         "--database", database,
                         "--schema", database + ".dbo",
                         "--import-tool", neo4j.get().binDirectory().toString(),

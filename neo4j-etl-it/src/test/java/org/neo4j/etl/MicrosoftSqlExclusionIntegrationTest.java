@@ -12,7 +12,6 @@ import org.neo4j.etl.provisioning.Server;
 import org.neo4j.etl.provisioning.ServerFixture;
 import org.neo4j.etl.provisioning.scripts.RdbmsScripts;
 import org.neo4j.etl.rdbms.RdbmsClient;
-import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.ResourceRule;
 import org.neo4j.etl.util.TemporaryDirectory;
 
@@ -39,8 +38,8 @@ public class MicrosoftSqlExclusionIntegrationTest {
     public static final ResourceRule<Server> msSqlServer = new ResourceRule<>(
             ServerFixture.server(
                     "mssql-etl-test",
-                    DatabaseType.MSSQL.defaultPort(),
-                    RdbmsScripts.startupScript(DatabaseType.MSSQL),
+                    1433,
+                    RdbmsScripts.startupScript("MSSQL"),
                     tempDirectory.get(), INTEGRATION));
     @ClassRule
     public static final ResourceRule<Neo4j> neo4j = new ResourceRule<>(
@@ -48,11 +47,15 @@ public class MicrosoftSqlExclusionIntegrationTest {
     private static final String[] tablesToExclude = {"Orphan_Table", "Yet_Another_Orphan_Table", "Table_B"};
     private static final URI NEO_TX_URI = URI.create("http://localhost:7474/db/data/transaction/commit");
 
+    private static String url;
+
     @BeforeClass
     public static void setUp() throws Exception {
+        url = String.format("jdbc:sqlserver://%s:%s;databaseName=%s", msSqlServer.get().ipAddress(), 1433, "master");
+
         // FIXME: define a user "neo4j" to run the script (do not use admin)
-        RdbmsClient client = new RdbmsClient(DatabaseType.MSSQL, DatabaseType.MSSQL.createUri("localhost", 1433, "master").toString(), "sa", "Passw0rd!");
-        client.execute(RdbmsScripts.exclusionScript(DatabaseType.MSSQL).value());
+        RdbmsClient client = new RdbmsClient(url, "sa", "Passw0rd!");
+        client.execute(RdbmsScripts.exclusionScript("MSSQL").value());
         exportFromMsSqlToNeo4j();
         neo4j.get().start();
     }
@@ -75,10 +78,10 @@ public class MicrosoftSqlExclusionIntegrationTest {
 
         // FIXME: define a user "neo4j" to run the script (do not use admin)
         // FIXME: check ".dbo" suffix
-        args.addAll(Arrays.asList("mssql", "export",
-                "--host", msSqlServer.get().ipAddress(),
-                "--user", "sa",
-                "--password", "Passw0rd!",
+        args.addAll(Arrays.asList("export",
+                "--rdbms:url", url,
+                "--rdbms:user", "sa",
+                "--rdbms:password", "Passw0rd!",
                 "--database", "exclusion",
                 "--schema", "exclusion.dbo",
                 "--import-tool", neo4j.get().binDirectory().toString(),

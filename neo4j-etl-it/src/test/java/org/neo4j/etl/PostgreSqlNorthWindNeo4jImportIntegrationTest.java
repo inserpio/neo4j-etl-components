@@ -11,7 +11,6 @@ import org.neo4j.etl.provisioning.Server;
 import org.neo4j.etl.provisioning.ServerFixture;
 import org.neo4j.etl.provisioning.scripts.RdbmsScripts;
 import org.neo4j.etl.rdbms.RdbmsClient;
-import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.util.ResourceRule;
 import org.neo4j.etl.util.TemporaryDirectory;
 
@@ -32,7 +31,7 @@ public class PostgreSqlNorthWindNeo4jImportIntegrationTest
     @ClassRule
     public static final ResourceRule<Server> postgreSqlServer= new ResourceRule<>(
             ServerFixture.server("postgresql-etl-test-nw", 5433,
-                    RdbmsScripts.startupScript( DatabaseType.PostgreSQL ),
+                    RdbmsScripts.startupScript( "PostgreSQL" ),
                     tempDirectory.get(), INTEGRATION ) );
 
     @ClassRule
@@ -68,7 +67,6 @@ public class PostgreSqlNorthWindNeo4jImportIntegrationTest
         objectMapper.writeValue( importToolOptions.toFile(), options );
 
         return new String[] {
-                "postgresql",
                 "export",
                 "--rdbms:url", format( "jdbc:postgresql://%s:%s/%s?ssl=false", postgreSqlServer.get().ipAddress(), "5433", "northwind" ),
                 "--rdbms:user", RdbmsClient.Parameters.DBUser.value(),

@@ -10,8 +10,8 @@ import com.github.rvesse.airline.annotations.restrictions.RequiredOnlyIf;
 import com.github.rvesse.airline.model.CommandGroupMetadata;
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.etl.commands.Using;
-import org.neo4j.etl.commands.rdbms.ImportFromRdbms;
 import org.neo4j.etl.commands.rdbms.GenerateMetadataMapping;
+import org.neo4j.etl.commands.rdbms.ImportFromRdbms;
 import org.neo4j.etl.environment.CsvDirectorySupplier;
 import org.neo4j.etl.environment.DestinationDirectorySupplier;
 import org.neo4j.etl.environment.Environment;
@@ -20,7 +20,6 @@ import org.neo4j.etl.neo4j.importcsv.config.formatting.Formatting;
 import org.neo4j.etl.neo4j.importcsv.config.formatting.ImportToolOptions;
 import org.neo4j.etl.neo4j.loadcsv.config.Neo4jConnectionConfig;
 import org.neo4j.etl.sql.ConnectionConfig;
-import org.neo4j.etl.sql.DatabaseType;
 import org.neo4j.etl.sql.exportcsv.io.TinyIntResolver;
 import org.neo4j.etl.sql.exportcsv.mapping.FilterOptions;
 import org.neo4j.etl.sql.exportcsv.mapping.MetadataMappings;
@@ -39,8 +38,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 @Command(name = "export", description = "Export from RDBMS and import into NEO4J via CSV files.")
-public class ImportFromRdbmsCli implements Runnable
-{
+public class ImportFromRdbmsCli implements Runnable {
     @Inject
     protected CommandGroupMetadata commandGroupMetadata;
 
@@ -50,27 +48,27 @@ public class ImportFromRdbmsCli implements Runnable
 
     @RequireOnlyOne(tag = "database")
     @Option(type = OptionType.COMMAND,
-            name = { "--rdbms:url", "--url" },
+            name = {"--rdbms:url"},
             description = "Url to use for connection to RDBMS.",
             title = "RDBMS url")
     protected String rdbmsUrl;
 
     @Required
     @Option(type = OptionType.COMMAND,
-            name = { "--rdbms:user", "-u", "--user" },
+            name = {"--rdbms:user"},
             description = "User for login to RDBMS.",
             title = "RDBMS user")
     protected String rdbmsUser;
 
     @Required
     @Option(type = OptionType.COMMAND,
-            name = { "--rdbms:password", "--password" },
+            name = {"--rdbms:password"},
             description = "Password for login to RDBMS.",
             title = "RDBMS password")
     protected String rdbmsPassword;
 
     @Option(type = OptionType.COMMAND,
-            name = { "--rdbms:schema", "-s", "--schema" },
+            name = {"--rdbms:schema", "-s", "--schema"},
             description = "RDBMS schema.",
             title = "schema")
     protected String rdbmsSchema;
@@ -80,7 +78,7 @@ public class ImportFromRdbmsCli implements Runnable
      */
 
     @Option(type = OptionType.COMMAND,
-            name = { "--neo4j:url", "--graph:url", "--graph:neo4j:url" },
+            name = {"--neo4j:url", "--graph:url", "--graph:neo4j:url"},
             description = "Url to use for connection to Neo4j.",
             title = "neo4j url")
     protected String neo4jUrl = "bolt://localhost:7687";
@@ -199,24 +197,7 @@ public class ImportFromRdbmsCli implements Runnable
 
     // deprecated in favour of "--rdbms:url"
     @Deprecated
-    @RequireOnlyOne(tag = "database")
-    @Option(type = OptionType.COMMAND,
-            name = {"-h", "--host"},
-            description = "Host to use for connection to RDBMS.",
-            title = "RDBMS host")
-    protected String rdbmsHost;
-
-    // deprecated in favour of "--rdbms:url"
-    @Deprecated
-    @Option(type = OptionType.COMMAND,
-            name = {"-p", "--port"},
-            description = "Port number to use for connection to RDBMS.",
-            title = "RDBMS port")
-    protected Integer rdbmsPort;
-
-    // deprecated in favour of "--rdbms:url"
-    @Deprecated
-    @RequiredOnlyIf( names = { "host" } )
+    @RequiredOnlyIf(names = {"host"})
     @Option(type = OptionType.COMMAND,
             name = {"-d", "--database"},
             description = "RDBMS database.",
@@ -224,50 +205,36 @@ public class ImportFromRdbmsCli implements Runnable
     protected String rdbmsDatabase;
 
     @Override
-    public void run()
-    {
-        try
-        {
-            DatabaseType databaseType = DatabaseType.fromString( this.commandGroupMetadata.getName() );
-
-            ConnectionConfig rdbmsConnectionConfig = this.rdbmsUrl == null ?
-                    ConnectionConfig.forDatabaseFromHostAndPort(databaseType)
-                            .host(rdbmsHost)
-                            .port( rdbmsPort != null ? rdbmsPort : databaseType.defaultPort() )
-                            .database(rdbmsDatabase)
-                            .username(rdbmsUser)
-                            .password(rdbmsPassword)
-                            .build()
-                    :
-                    ConnectionConfig.forDatabaseFromUrl(databaseType)
-                            .url(rdbmsUrl)
-                            .username(rdbmsUser)
-                            .password(rdbmsPassword)
-                            .build();
+    public void run() {
+        try {
+            ConnectionConfig rdbmsConnectionConfig = ConnectionConfig.forDatabaseFromUrl(rdbmsUrl)
+                    .username(rdbmsUser)
+                    .password(rdbmsPassword)
+                    .build();
 
             Neo4jConnectionConfig neo4jConnectionConfig =
                     new Neo4jConnectionConfig(
-                            new URI( neo4jUrl ), neo4jUser, neo4jPassword );
+                            new URI(neo4jUrl), neo4jUser, neo4jPassword);
 
             Environment environment = new Environment(
-                    new ImportToolDirectorySupplier( Paths.get( importToolDirectory ) ).supply(),
-                    new DestinationDirectorySupplier( Paths.get( destinationDirectory ), force ).supply(),
-                    new CsvDirectorySupplier( Paths.get( csvRootDirectory ) ).supply(),
-                    ImportToolOptions.initialiseFromFile( Paths.get( importToolOptionsFile ) ) );
+                    new ImportToolDirectorySupplier(Paths.get(importToolDirectory)).supply(),
+                    new DestinationDirectorySupplier(Paths.get(destinationDirectory), force).supply(),
+                    new CsvDirectorySupplier(Paths.get(csvRootDirectory)).supply(),
+                    ImportToolOptions.initialiseFromFile(Paths.get(importToolOptionsFile)));
 
             ImportToolOptions importToolOptions = environment.importToolOptions();
 
-            ImportFromRdbms exporter = Using.fromString( using ).importer();
+            ImportFromRdbms exporter = Using.fromString(using).importer();
 
             Formatting formatting = Formatting.builder()
-                    .delimiter( importToolOptions.getDelimiter( delimiter ) )
-                    .quote( importToolOptions.getQuoteCharacter( exporter.quote( quote ) ) )
+                    .delimiter(importToolOptions.getDelimiter(delimiter))
+                    .quote(importToolOptions.getQuoteCharacter(exporter.quote(quote)))
                     .build();
 
-            TinyIntResolver tinyIntResolver = new TinyIntResolver( TinyIntAs.parse( tinyIntAs ) );
+            TinyIntResolver tinyIntResolver = new TinyIntResolver(TinyIntAs.parse(tinyIntAs));
 
             MetadataMappings metadataMappings = createMetadataMappings(
-                    rdbmsConnectionConfig, formatting, tinyIntResolver );
+                    rdbmsConnectionConfig, formatting, tinyIntResolver);
 
             exporter.extractAndLoad(
                     rdbmsConnectionConfig,
@@ -276,28 +243,22 @@ public class ImportFromRdbmsCli implements Runnable
                     formatting,
                     tinyIntResolver,
                     metadataMappings,
-                    new ImportFromRdbmsEventHandler() );
-        }
-        catch ( Exception e )
-        {
-            CliRunner.handleException( e, debug );
+                    new ImportFromRdbmsEventHandler());
+        } catch (Exception e) {
+            CliRunner.handleException(e, debug);
         }
     }
 
 
-    private MetadataMappings createMetadataMappings( ConnectionConfig connectionConfig,
-                                                     Formatting formatting,
-                                                     TinyIntResolver tinyIntResolver ) throws Exception
-    {
+    private MetadataMappings createMetadataMappings(ConnectionConfig connectionConfig,
+                                                    Formatting formatting,
+                                                    TinyIntResolver tinyIntResolver) throws Exception {
         Callable<MetadataMappings> generateMetadataMappings;
 
-        if ( StringUtils.isNotEmpty( mappingFile ) )
-        {
-            generateMetadataMappings = GenerateMetadataMappingCli.metadataMappingsFromFile( mappingFile, formatting );
-        }
-        else
-        {
-            final FilterOptions filterOptions = new FilterOptions( tinyIntAs, relationshipNameFrom, exclusionMode, tables, false );
+        if (StringUtils.isNotEmpty(mappingFile)) {
+            generateMetadataMappings = GenerateMetadataMappingCli.metadataMappingsFromFile(mappingFile, formatting);
+        } else {
+            final FilterOptions filterOptions = new FilterOptions(tinyIntAs, relationshipNameFrom, exclusionMode, tables, false);
 
             generateMetadataMappings = new GenerateMetadataMapping(
                     new GenerateMetadataMappingEventHandler(),
@@ -306,23 +267,20 @@ public class ImportFromRdbmsCli implements Runnable
                     formatting,
                     new DefaultExportSqlSupplier(),
                     filterOptions,
-                    tinyIntResolver );
+                    tinyIntResolver);
 
-            Schema rdbmsSchema = this.rdbmsSchema != null ? new Schema( this.rdbmsSchema ) : Schema.UNDEFINED;
+            Schema rdbmsSchema = this.rdbmsSchema != null ? new Schema(this.rdbmsSchema) : Schema.UNDEFINED;
 
-            ((GenerateMetadataMapping) generateMetadataMappings).forSchema( rdbmsSchema );
+            ((GenerateMetadataMapping) generateMetadataMappings).forSchema(rdbmsSchema);
         }
 
         return generateMetadataMappings.call();
     }
 
-    private OutputStream emptyOutputStream()
-    {
-        return new OutputStream()
-        {
+    private OutputStream emptyOutputStream() {
+        return new OutputStream() {
             @Override
-            public void write( int b ) throws IOException
-            {
+            public void write(int b) throws IOException {
                 // Do nothing
             }
         };

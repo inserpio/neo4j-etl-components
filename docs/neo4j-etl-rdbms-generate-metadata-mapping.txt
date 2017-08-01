@@ -1,11 +1,11 @@
 NAME
 
-        neo4j-etl { mysql | postgresql | oracle } generate-metadata-mapping
+        neo4j-etl generate-metadata-mapping
 
             - Create MySQL to Neo4j metadata mapping Json.
 
 SYNOPSIS
-        neo4j-etl { mysql | postgresql | oracle } generate-metadata-mapping
+        neo4j-etl generate-metadata-mapping
 
             --rdbms:url <rdbms url>
             --rdbms:user <rdbms user>

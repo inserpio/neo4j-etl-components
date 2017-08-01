@@ -1,12 +1,12 @@
 NAME
 
-        neo4j-etl { mysql | postgresql | oracle } export
+        neo4j-etl export
 
-            - Export from MySQL, PostgreSQL, Oracle RDBMS.
+            - Export from MySQL, PostgreSQL, Oracle and Microsoft SQL RDBMS.
 
 SYNOPSIS
 
-        neo4j-etl { mysql | postgresql | oracle } export
+        neo4j-etl export
 
             --rdbms:url <rdbms url>
             --rdbms:user <rdbms user>

@@ -8,11 +8,6 @@ import schemacrawler.utility.JavaSqlTypes;
 import static java.lang.String.format;
 
 public class SqlDataType {
-    /*BLOB(null),
-    TINYBLOB(null),
-    MEDIUMBLOB(null),
-    LONGBLOB(null),
-    BYTEA(null),*/
 
     public static final SqlDataType TEXT = SqlDataType.parse("VARCHAR");
 
@@ -86,18 +81,6 @@ public class SqlDataType {
     /*You need to handle the tinyInt scenario always transform from TinyIntResolver*/
     public Neo4jDataType toNeo4jDataType() {
         return neo4jDataType;
-    }
-
-    /**
-     * Check if SqlTypeData is a binary data, for example a BLOB
-     *
-     * @return a boolean, true if it's a byte data
-     */
-    public boolean isBinaryObject() {
-        JavaSqlType.JavaSqlTypeGroup javaSqlTypeGroup = this.javaSqlType.getJavaSqlTypeGroup();
-
-        return javaSqlTypeGroup.equals(JavaSqlType.JavaSqlTypeGroup.object) ||
-                javaSqlTypeGroup.equals(JavaSqlType.JavaSqlTypeGroup.large_object);
     }
 
     @Override

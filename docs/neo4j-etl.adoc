@@ -4,7 +4,7 @@
 This is the command line tool you use to retrieve and map the metadata from your relational database.
 And also to drive the export from the relational and import into Neo4j database.
 
-It supports *MySQL*, *PostgreSQL* and *Oracle* relational databases.
+It supports all relational databases with a JDBC driver, for example *MySQL*, *PostgreSQL*, *Oracle* and *Microsoft SQL*.
 
 You can get the http://github.com/neo4j-contrib/neo4j-etl-components/releases/latest[latest version of the import tool from GitHub].
 
@@ -23,6 +23,8 @@ You can follow the proper link in the below table in order to download the prope
 
 |https://www.oracle.com/[Oracle]
 |http://www.oracle.com/technetwork/database/features/jdbc/default-2280470.html
+|https://www.microsoft.com/en-us/sql-server/[Microsoft SQL Server]
+|https://www.microsoft.com/en-us/download/details.aspx?id=55539
 |===
 
 NOTE: For very large databases make sure to have enough disk-space for the CSV export and the Neo4j datastore and enough RAM and CPUs to finish the import quickly.
@@ -60,7 +62,7 @@ include::neo4j-etl-rdbms-export.txt[]
 
 ~: mkdir -p /tmp/northwind
 
-~: $NEO4J_HOME/bin/neo4j-etl oracle generate-metadata-mapping \
+~: $NEO4J_HOME/bin/neo4j-etl generate-metadata-mapping \
   --rdbms:url jdbc:oracle:thin:@localhost:49161:XE \
   --rdbms:user northwind --rdbms:password northwind \
   --rdbms:schema northwind > /tmp/northwind/mapping.json
@@ -71,7 +73,7 @@ include::neo4j-etl-rdbms-export.txt[]
 ----
 ~: echo '{ "multiline-fields" : "true" }' > /tmp/northwind/options.json
 
-~: $NEO4J_HOME/bin/neo4j-etl oracle export  \
+~: $NEO4J_HOME/bin/neo4j-etl export  \
   --rdbms:url jdbc:oracle:thin:@localhost:49161:XE \
   --rdbms:user northwind --rdbms:password northwind \
   --rdbms:schema northwind
@@ -108,7 +110,7 @@ include::neo4j-etl-rdbms-export.txt[]
 ----
 ~: echo '{ "multiline-fields" : "true" }' > /tmp/northwind/options.json
 
-~: $NEO4J_HOME/bin/neo4j-etl oracle export  \
+~: $NEO4J_HOME/bin/neo4j-etl export  \
   --rdbms:url jdbc:oracle:thin:@localhost:49161:XE \
   --rdbms:user northwind --rdbms:password northwind \
   --rdbms:schema northwind
@@ -194,7 +196,7 @@ https://raw.githubusercontent.com/neo4j-contrib/neo4j-etl-components/master/neo4
 
 ~: echo '{ "multiline-fields" : "true" }' > /tmp/northwind/options.json
 
-~: ./bin/neo4j-etl mysql export \
+~: ./bin/neo4j-etl export \
   --rdbms:url jdbc:mysql://localhost:5433/northwind?autoReconnect=true&useSSL=false \
   --rdbms:user neo4j --rdbms:password neo4j \
   --import-tool $NEO4J_HOME/bin \
@@ -233,7 +235,7 @@ https://raw.githubusercontent.com/neo4j-contrib/neo4j-etl-components/master/neo4
 
 ~: echo '{"multiline-fields":"true"}' > /tmp/northwind/options.json
 
-~: ./bin/neo4j-etl postgresql export \
+~: ./bin/neo4j-etl export \
   --rdbms:url jdbc:postgresql://localhost:5433/northwind?ssl=false \
   --rdbms:user neo4j --rdbms:password neo4j \
   --import-tool $NEO4J_HOME/bin \
@@ -281,7 +283,7 @@ root@692c446a274b:~# exit
 
 ~: echo '{"multiline-fields":"true"}' > /tmp/northwind/options.json
 
-~: ./bin/neo4j-etl oracle export \
+~: ./bin/neo4j-etl export \
   --rdbms:url jdbc:oracle:thin:@localhost:49161:XE \
   --rdbms:user northwind --rdbms:password northwind \
   --rdbms:schema northwind \

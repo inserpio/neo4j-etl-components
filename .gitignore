@@ -21,3 +21,4 @@ import-bundle/
 Vagrantfile
 git.properties
 temp
+node_modules

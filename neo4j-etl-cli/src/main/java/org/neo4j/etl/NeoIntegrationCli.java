@@ -5,6 +5,7 @@ import com.github.rvesse.airline.builder.CliBuilder;
 import com.github.rvesse.airline.help.Help;
 import org.neo4j.etl.cli.rdbms.GenerateMetadataMappingCli;
 import org.neo4j.etl.cli.rdbms.ImportFromRdbmsCli;
+import org.neo4j.etl.cli.ui.UserInterfaceCli;
 import org.neo4j.etl.util.CliRunner;
 
 import java.io.ByteArrayOutputStream;
@@ -54,13 +55,10 @@ public class NeoIntegrationCli {
         CliBuilder<Runnable> builder = Cli.<Runnable>builder("neo4j-etl")
                 .withDescription("Neo4j etl importers.")
                 .withDefaultCommand(Help.class)
-                .withCommand(Help.class);
-
-
-        builder.withDefaultCommand(Help.class)
+                .withCommand(Help.class)
                 .withCommand(ImportFromRdbmsCli.class)
                 .withCommand(GenerateMetadataMappingCli.class)
-                .withCommand(Help.class);
+                .withCommand(UserInterfaceCli.class);
 
         return builder.build();
     }

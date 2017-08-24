@@ -1,0 +1,16 @@
+NAME
+
+        neo4j-etl generate-metadata-mapping
+
+            - Web application for editing RDBMS to Neo4j metadata mapping Json.
+
+SYNOPSIS
+        neo4j-etl ui { start | stop }
+
+OPTIONS
+
+        start:
+            Run the `neo4j-etl-ui` web server locally to make the UI available at http://localhost:3000.
+
+        stop:
+            Shutdown the `neo4j-etl-ui` web server.

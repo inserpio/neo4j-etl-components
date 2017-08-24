@@ -8,7 +8,7 @@ It applies some simple rules for transforming the relational model.
 The process as outlined below:
 
 . Read database metadata and generate mapping.json
-. Optionally edit mapping.json
+. Optionally edit mapping.json with the `neo4j-etl-ui`
 . Export relational data to CSV
 . Generate Mapping Headers
 . Import into Neo4j using
@@ -38,12 +38,11 @@ image::neo4j-etl-architecture.png[]
 * Support on Unix-like and Microsoft Operating Systems
 * Support for most popular relational databases like MySQL, PostgreSQL, Oracle and Microsoft SQL
 * Support user specified JDBC drivers
+* UI tool to modify mappings
 
 === Plans for the Future
 
-* UI tool to modify mappings - currently manual editing
-* Custom Mapping Rules +
- Transformations for names, data, links
+* Custom Mapping Rules + Transformations for names, data, links
 * Exemplary integration into a 3rd party ETL pipeline
 
 === Who is it for
@@ -96,6 +95,15 @@ include::neo4j-etl.adoc[]
 ** With this flag, the node would keep that value as a property. 
 ** Ex: A loan has the SSN of the loan applicant which would normally be used to connect the `Loan` and `Person` nodes. 
 ** With this flag the `Loan` node will also keep the `SSN` as a property.
+
+=== Edit Mapping Rules via UI
+
+The `neo4j-etl-ui` parses your RDBMS to GRAPH mapping file and guide you through the process of consolidating
+the property graph data model.
+
+The UI allows you to change and set you preferred *label* names, *property* names and types, *relationship* types, with a preview of the resulting graph.
+
+That way, you will be able to import the data in your favourite data model.
 
 === Exporting Data (export)
 

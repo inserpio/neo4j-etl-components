@@ -1,0 +1,1970 @@
+<style type="text/css">
+    #networkViz {
+        width: 500px;
+        height: 500px;
+        border: 1px solid lightgray;
+    }
+    .popover{
+        max-width: 1000%;
+        max-height: 75%;
+        overflow-y: auto;
+    }
+</style>
+
+<div class="container">
+    <div class="starter-template">
+
+        <div id="helperAlertNodes" class="alert alert-info alert-dismissible text-left" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="row">
+                <div class="col-xs-8">
+                    <p><h4
+                        data-intro="Now that we've selected which mappings we are interested in we need to configure the data model."
+                        data-step="1">Configure Nodes and Relationships</h4></p>
+                    <p>For each node:</p>
+                    <ol>
+                        <li>Declare Label names for each Node.</li>
+                        <li>See which column defines the primary key for each Node.</li>
+                        <li>Optionally, rename or skip any columns.</li>
+                        <!--<li>Create additional Nodes with the "New Node" button.</li>-->
+                    </ol>
+                    <p>For each relationship:</p>
+                    <ol>
+                        <li>Declare Type names for each Relationship.</li>
+                        <li>See the From / To Labels and keys</li>
+                        <li>Optionally, rename or skip any columns.</li>
+                        <!--<li>Create additional Relationships with the "New Relationship" button</li>-->
+                    </ol>
+                </div>
+                <div class="col-xs-4">
+                    <button id="guidebutton" class="btn btn-success guideButton">Guide me!</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="helperAlertRels" class="alert alert-info alert-dismissible text-left hidden" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="row">
+                <div class="col-xs-8">
+                    <p><h4 data-intro="The next step is to configure any relationships in our data model."
+                           data-step="14">Configure Relationships</h4></p>
+                    <ol>
+                        <li>Choose the From/To Labels and keys</li>
+                        <li>Enter the relationship name</li>
+                        <li>Click "Add Relationship"</li>
+                        <li>Create additional Relationships with the "New Relationship" button</li>
+                    </ol>
+                </div>
+                <div class="col-xs-4">
+                    <button id="guidebutton" class="btn btn-success guideButton">Guide me!</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="helperAll" class="alert alert-info alert-dismissible text-left hidden" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <p class="lead">Now we're ready to configure the property graph data model.</p>
+            <div class="row">
+                <div class="col-xs-9 col-md-6">
+                    <p><h4>Nodes tab</h4></p>
+                    <ol>
+                        <li>Declare Label names for each Node.</li>
+                        <li>Select which column defines the primary key for each Node. Optionally, rename or skip any columns.</li>
+                        <li>Create additional Nodes with the "New Node" button.</li>
+                    </ol>
+                </div>
+
+                <div class="col-xs-9 col-md-6">
+                    <p></p><h4>Relationships tab</h4></p>
+                    <ol>
+                        <li>Choose the From/To Labels and keys</li>
+                        <li>Enter the relationship name</li>
+                        <li>Click "Add Relationship"</li>
+                        <li>Create additional Relationships with the "New Relationship" button</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-9">
+                    <p>Once your datamodel is fully defined click the "Finish: Save Mapping File " button to save the defined mapping file.</p>
+                </div>
+                <div class="col-xs-3">
+                    <button id="guidebutton" class="btn btn-success">Guide me!</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <h3>Relationships</h3>
+                <table class="table" data-step="24"
+                       data-intro="As relationships are added to the data model they will appear in this table.">
+                    <tbody id="relTableBody">
+                    <tr>
+                        <th>From</th>
+                        <th></th>
+                        <th>Name</th>
+                        <th></th>
+                        <th>To</th>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <!--<td><button class="btn btn-primary btn-sm" id="modalToggleButton">Create New</button></td> -->
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="col-xs-6" id="networkViz"
+                 data-intro="As the data model is defined this visual is updated to show the property graph data model."
+                 data-step="11">
+            </div>
+        </div>
+
+        <div>
+            <div>
+                <!-- Nav tabs -->
+                <div class="row" style="padding:20px;">
+                    <div class="col-sm-8">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active">
+                                <a id="nodesTabNav" href="#nodesTab" role="tab"
+                                   data-toggle="tab" data-intro="We will start configuring the data model for Node entities."
+                                   data-step="2" class="hidePopover">Nodes</a>
+                            </li>
+                            <li role="presentation">
+                                <a id="relationshipTabNav" href="#relsTab" role="tab"
+                                   data-toggle="tab" class="hidePopover">Relationships</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="btn-toolbar" role="toolbar" aria-label="fileActionButtons">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button id="submit" type="submit" class="btn btn-success"
+                                            data-step="25" data-intro="Once you've configured the relationships for your data model save the update mapping file by clicking this button.">
+                                        Finish: Save Mapping File</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content">
+
+                        <!-- ********************************* -->
+                        <!-- *                               * -->
+                        <!-- *  NODES                        * -->
+                        <!-- *                               * -->
+                        <!-- ********************************* -->
+
+                        <div role="tabpanel active" class="tab-pane active" id="nodesTab">
+                            <div class="row">
+                                <div class="col-sm-10">
+                                    <ul class="nav nav-tabs" role="tablist" id="nodeTabList"
+                                        data-intro="You can select and drill down into the configuration for each node in these tabs."
+                                        data-step="3">
+                                        {{# each config.nodes}}
+                                            <li role="presentation" class="nodeTabListItem"><a href="#{{guid}}"
+                                                                                               class="hidePopover"
+                                                                                               aria-controls="{{guid}}"
+                                                                                               role="tab"
+                                                                                               data-toggle="tab"
+                                                                                               id="{{guid}}-tabAnchor">{{table}}</a>
+                                            </li>
+                                        {{/each}}
+                                    </ul>
+                                </div>
+                                <!--
+                                <div class="col-sm-2">
+                                    <button id="newNodeButton" class="btn btn-default btn-xs"
+                                            data-toggle="modal" data-target="#newNodeModal"
+                                            data-intro="To add nodes not already specified click this button."
+                                            data-step="12">New Node</button>
+                                </div>
+                                -->
+                            </div>
+
+                            <div class="tab-content" id="tab-content-nodes">
+                                {{# each config.nodes}}
+                                    <div role="tabpanel" class="tab-pane node-tab-pane" id="{{guid}}">
+                                        <div class="{{guid}}-nodePaneDiv">
+                                            <div id="{{guid}}-datamodelPane">
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group" style="padding:20px;">
+                                                            <label for="{{guid}}-labelInput"
+                                                                   class="col-sm-4 control-label">Label <span
+                                                                    class="glyphicon glyphicon-info-sign"
+                                                                    aria-hidden="true" data-toggle="popover"
+                                                                    title="Node Label"
+                                                                    data-content="Node types are identified by a Node Label that describes the Node type. For example, Person or Business. Each Node must have a Label in this data model. Default labels are populated using the file names."></span></label>
+                                                            <div class="col-sm-8">
+                                                                <input type="text" class="form-control labelInput"
+                                                                       name="{{guid}}-labelInput" data-id="{{guid}}"
+                                                                       id="{{guid}}-labelInput" placeholder="Node"
+                                                                       data-intro="Node types are identified by a Node Label that describes the Node type. For example, Person or Business. Each Node must have a Label in this data model."
+                                                                       data-step="4" value="{{labels}}" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group" style="padding:20px;">
+                                                            <label class="col-sm-4 control-label">File</label>
+                                                            <div class="col-sm-8">
+                                                                <p class="form-control-static">{{filename}}
+                                                                    <a href="#" data-toggle="popover" data-content="<pre>{{mapping}}</pre>">Preview</a>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- ********************************* -->
+                                                <!-- *                               * -->
+                                                <!-- *  NODES PROPERTIES             * -->
+                                                <!-- *                               * -->
+                                                <!-- ********************************* -->
+
+                                                <table class="table">
+                                                    <tbody>
+                                                    <tr>
+                                                        <th data-intro="Column names as they appear in the mapping file rules. These will be used as property keys in the data model."
+                                                            data-step="5">Column <span
+                                                                class="glyphicon glyphicon-info-sign" aria-hidden="true"
+                                                                data-toggle="popover" title="Column"
+                                                                data-content="Column name as it appears in the mapping file rules."></span>
+                                                        </th>
+                                                        <th data-intro="The column can be (optionally) renamed. The value specified here will be used as the property key."
+                                                            data-step="6">Rename <span
+                                                                class="glyphicon glyphicon-info-sign" aria-hidden="true"
+                                                                data-toggle="popover" title="Rename"
+                                                                data-content="You can (optionally) rename any columns as they are are to be inserted into Neo4j properties."></span>
+                                                        </th>
+                                                        <th>Skip <span class="glyphicon glyphicon-info-sign"
+                                                                       aria-hidden="true" data-toggle="popover"
+                                                                       title="Skip"
+                                                                       data-content="Toggle to not include this field in the data model."></span>
+                                                            <button type="button"
+                                                                    class="btn btn-default btn-xs toggleSkipButton"
+                                                                    data-guid="{{guid}}">Toggle All</button>
+                                                        </th>
+                                                        <th data-intro="Each Node must have a single primary key. This is a unique value that identifies the node. Mapping rule already defined which column represents the primary key for this Node."
+                                                            data-step="7">Primary (Unique) Key <span
+                                                                class="glyphicon glyphicon-info-sign" aria-hidden="true"
+                                                                data-toggle="popover" title="Primary Key"
+                                                                data-content="Each Node must have a primary key. This is a unique property that identifies the Node."></span>
+                                                        </th>
+                                                        <th data-intro="Choose the datatype for this property."
+                                                            data-step="8">Datatype <span
+                                                                class="glyphicon glyphicon-info-sign" aria-hidden="true"
+                                                                data-toggle="popover" title="Datatype"
+                                                                data-content="Select the datatype for this property."></span>
+                                                        </th>
+                                                        <th data-intro="Select if this property is an array."
+                                                            data-step="8">Is Array <span
+                                                                class="glyphicon glyphicon-info-sign" aria-hidden="true"
+                                                                data-toggle="popover" title="Is Array"
+                                                                data-content="Select if this property is an array."></span>
+                                                        </th>
+                                                        <th data-intro="Toggle to create an index on this property. You should create an index if you plan to write queries that will look up Nodes by this value."
+                                                            data-step="9">Create Index <span
+                                                                class="glyphicon glyphicon-info-sign" aria-hidden="true"
+                                                                data-toggle="popover" title="Create index"
+                                                                data-content="Toggle to create an index on this property. You should create an index if you plan to write queries that will look up Nodes by this value."></span>
+                                                        </th>
+                                                    </tr>
+                                                    {{# each properties}}
+                                                        <tr style="text-align: left;">
+                                                            <td>{{neoKey}}</td>
+                                                            <td><label><input id="{{../guid}}-{{headerKey}}-rename"
+                                                                              class="renameLabel"
+                                                                              data-guid="{{../guid}}"
+                                                                              data-field="{{headerKey}}" type="text"
+                                                                              name="{{../guid}}-{{headerKey}}-rename"></label>
+                                                            </td>
+                                                            <td><label><input id="{{../guid}}-{{headerKey}}-skip"
+                                                                              class="skipCheckBox"
+                                                                              data-guid="{{../guid}}"
+                                                                              data-field="{{headerKey}}" type="checkbox"
+                                                                              name="{{../guid}}-{{headerKey}}-skip"></label>
+                                                            </td>
+                                                            <td><label><input id="{{../guid}}-{{headerKey}}-pk"
+                                                                              type="checkbox"
+                                                                              class="pkcheckbox"
+                                                                              data-guid="{{../guid}}"
+                                                                              data-field="{{headerKey}}"
+                                                                              name="{{../guid}}-{{headerKey}}-pk" {{primaryKey}} disabled></label>
+                                                            </td>
+                                                            <td><label><select id="{{../guid}}-{{headerKey}}-datatype"
+                                                                               class="datatypeselect"
+                                                                               data-guid="{{../guid}}"
+                                                                               data-field="{{headerKey}}"
+                                                                               data-filename="{{../filename}}">
+                                                                    <option value="String">String</option>
+                                                                    <option value="Long">Long</option>
+                                                                    <option value="Double">Double</option>
+                                                                </select></label>
+                                                            </td>
+                                                            <td><label><input id="{{../guid}}-{{headerKey}}-isarray"
+                                                                              type="checkbox"
+                                                                              class="isArrayCheckBox"
+                                                                              data-guid="{{../guid}}"
+                                                                              data-field="{{headerKey}}"
+                                                                              name="{{../guid}}-{{headerKey}}-isarray" {{isArray}}></label>
+                                                            </td>
+                                                            <td><label><input id="{{../guid}}-{{headerKey}}-index"
+                                                                              type="checkbox"
+                                                                              class="indexCheckbox"
+                                                                              data-guid="{{../guid}}"
+                                                                              data-field="{{headerKey}}"
+                                                                              name="{{../guid}}-{{headerKey}}-index" {{primaryKey}} disabled></label>
+                                                            </td>
+                                                            <!-- <td><button type="button" class="btn btn-sm">---</button></td> -->
+                                                        </tr>
+                                                        <script>
+                                                            if ('{{primaryKey}}' != '') {
+                                                                $('#{{../guid}}-{{headerKey}}-rename').attr('disabled', true);
+                                                                $('#{{../guid}}-{{headerKey}}-skip').attr('disabled', true);
+                                                            }
+
+                                                            if ('{{isArray}}' == 'true')
+                                                                $('#{{../guid}}-{{headerKey}}-isarray').attr('checked', true);
+
+                                                            if ('{{skip}}' == 'true')
+                                                                $('#{{../guid}}-{{headerKey}}-skip').attr('checked', true);
+
+                                                            $('#{{../guid}}-{{headerKey}}-datatype').val('{{dataType}}');
+                                                        </script>
+                                                    {{/each}}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {{/each}}
+                            </div>
+                        </div>
+
+                        <!-- ********************************* -->
+                        <!-- *                               * -->
+                        <!-- *  RELATIONSHIPS                * -->
+                        <!-- *                               * -->
+                        <!-- ********************************* -->
+
+                        <div role="tabpanel active" class="tab-pane" id="relsTab">
+                            <div class="row">
+                                <div class="col-sm-10" data-step="15"
+                                     data-intro="Relationships can be accessed using these tabs. Select the relationship you would like to configure here.">
+                                    <ul class="nav nav-tabs" role="tablist" id="relTablist">
+                                        {{# each config.relationships}}
+                                            <li role="presentation" class="relTabListItem">
+                                                <a href="#{{guid}}" aria-controls="{{guid}}" role="tab"
+                                                   data-toggle="tab" id="{{guid}}-tabAnchor">{{startNode.table}} &minus;&gt; {{endNode.table}}</a>
+                                            </li>
+                                        {{/each}}
+                                    </ul>
+                                </div>
+                                <!--
+                                <div class="col-sm-2">
+                                    <button id="newRelationshipButton" class="btn btn-default btn-xs"
+                                            data-toggle="modal" data-target="#newRelModalFileSelect">New Relationship</button>
+                                </div>
+                                -->
+                            </div>
+
+                            <div class="tab-content tab-content-rels">
+                                {{# each config.relationships}}
+                                    <div role="tabpanel" class="tab-pane rel-tab-pane" id="{{guid}}">
+                                        <div class="row">
+                                            <div class="col-xs-4">
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">File</label>
+                                                    <div class="col-sm-10">
+                                                        <p class="form-control-static">{{filename}}
+                                                            <a href="#" data-toggle="popover" data-content="<pre>{{mapping}}</pre>">Preview</a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <form>
+                                            <div class="row">
+                                                <h4 class="text-center">Create Relationship</h4>
+                                                <div class="col-xs-4" data-step="16"
+                                                     data-intro="Each relationship has a direction. See the Node that will have this relationship as outgoing.">
+                                                    <div class="form-group">
+                                                        <label for="{{guid}}-fromLabelSelect">From</label>
+                                                        <select class="form-control labelSelect fromLabelSelect"
+                                                                id="{{guid}}-fromLabelSelect" data-guid="{{guid}}" data-direction="from">
+                                                            <option value=""></option>
+                                                        </select>
+                                                    </div>
+                                                    <div style="visibility:hidden; height:0px;" >
+                                                        <label for="{{guid}}-fromNeoKeySelect">From Label property <span
+                                                                class="glyphicon glyphicon-info-sign" aria-hidden="true"
+                                                                data-toggle="popover"
+                                                                title="Create relationship on property"
+                                                                data-content="Only select a value here if the field you want to map this relationship to is different from the primary key."></span></label>
+                                                        <select class="form-control neoKeySelect" data-guid="{{guid}}"
+                                                                data-filename="{{filename}}"
+                                                                id="{{guid}}-fromNeoKeySelect" data-direction="from">
+                                                            <option value=""></option>
+                                                        </select>
+                                                        <!--p class="help-block">Optional</p-->
+                                                    </div>
+                                                    <div style="visibility:hidden; height:0px;" >
+                                                        <label for="{{guid}}-fromHeaderKeySelect">Field name in file
+                                                            <span class="glyphicon glyphicon-info-sign"
+                                                                  aria-hidden="true" data-toggle="popover"
+                                                                  title="Field name in file"
+                                                                  data-content="Only select a value here if the field you want to map this relationship to is different from the primary key."></span></label>
+                                                        <select class="form-control headerKeySelect"
+                                                                data-guid="{{guid}}" data-filename="{{filename}}"
+                                                                id="{{guid}}-fromHeaderKeySelect">
+                                                            <option value=""></option>
+                                                        </select>
+                                                        <!--p class="help-block">Optional</p-->
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-4">
+                                                    <div class="form-group" data-step="20"
+                                                         data-intro="Each relationship must have a name.">
+                                                        <label for="{{guid}}-nameInput">Relationship name</label>
+                                                        <input type="text" class="form-control relNameInput"
+                                                               id="{{guid}}-nameInput" data-id="{{guid}}" data-guid="{{guid}}"
+                                                               value="{{type}}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-4" data-step="21"
+                                                     data-intro="Now choose the Node for the incoming side of the relationship.">
+                                                    <div class="form-group">
+                                                        <label for="{{guid}}-toLabelSelect">To</label>
+                                                        <select class="form-control labelSelect toLabelSelect"
+                                                                id="{{guid}}-toLabelSelect" data-guid="{{guid}}"
+                                                                data-direction="to">
+                                                            <option>Employee</option>
+                                                        </select>
+                                                    </div>
+                                                    <div style="visibility:hidden; height:0px;" >
+                                                        <label for="{{guid}}-toNeoKeySelect">To Label property <span
+                                                                class="glyphicon glyphicon-info-sign" aria-hidden="true"
+                                                                data-toggle="popover"
+                                                                title="Create relationship on property"
+                                                                data-content="Only select a value here if the field you want to map this relationship to is different from the primary key."></span></label>
+                                                        <select class="form-control neoKeySelect" data-guid="{{guid}}"
+                                                                data-filename="{{filename}}" data-direction="to"
+                                                                id="{{guid}}-toNeoKeySelect">
+                                                            <option value=""></option>
+                                                        </select>
+                                                        <!--p class="help-block">Optional</p-->
+                                                    </div>
+                                                    <div style="visibility:hidden; height:0px;" >
+                                                        <label for="{{guid}}-toHeaderKeySelect">Field name in file <span
+                                                                class="glyphicon glyphicon-info-sign" aria-hidden="true"
+                                                                data-toggle="popover" title="Field name in file"
+                                                                data-content="Only select a value here if the field you want to map this relationship to is different from the primary key."></span></label>
+                                                        <select class="form-control headerKeySelect"
+                                                                id="{{guid}}-toHeaderKeySelect"
+                                                                data-filename="{{filename}}" data-guid="{{guid}}">
+                                                            <option value=""></option>
+                                                            <option>EmployeeID</option>
+                                                        </select>
+                                                        <!--p class="help-block">Optional</p-->
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" id="{{guid}}-filenameInput" data-guid="{{guid}}"
+                                                       value="{{filename}}">
+                                            </div>
+                                        </form>
+
+                                        <br/><br/>
+
+                                        <!-- ********************************* -->
+                                        <!-- *                               * -->
+                                        <!-- *  RELATIONSHIP PROPERTIES      * -->
+                                        <!-- *                               * -->
+                                        <!-- ********************************* -->
+
+                                        <table class="table" data-step="22"
+                                               data-intro="Similarly to the Node configuration in the previous view we can configure the properties for this relationship.">
+                                            <tbody>
+                                            <tr>
+                                                <th>Column</th>
+                                                <th>Rename</th>
+                                                <th>Skip
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs toggleSkipButton"
+                                                            data-guid="{{guid}}">Toggle All
+                                                    </button>
+                                                </th>
+                                                <th>Datatype</th>
+                                                <th>Is Array</th>
+                                            </tr>
+                                            {{# each properties}}
+                                                <tr style="text-align: left;">
+                                                    <td>{{neoKey}}</td>
+                                                    <td><label><input id="{{../guid}}-{{headerKey}}-rename"
+                                                                      type="text"
+                                                                      class="renameLabel"
+                                                                      data-guid="{{../guid}}"
+                                                                      data-field="{{headerKey}}"
+                                                                      name="{{../guid}}-{{headerKey}}-rename"></label>
+                                                    </td>
+                                                    <td><label><input id="{{../guid}}-{{headerKey}}-skip"
+                                                                      type="checkbox"
+                                                                      class="skipCheckBox"
+                                                                      data-guid="{{../guid}}"
+                                                                      data-field="{{headerKey}}"
+                                                                      name="{{../guid}}-{{headerKey}}-skip"></label>
+                                                    </td>
+                                                    <td><label><select id="{{../guid}}-{{headerKey}}-datatype"
+                                                                       class="datatypeselect"
+                                                                       data-guid="{{../guid}}"
+                                                                       data-field="{{headerKey}}">
+                                                            <option value="String">String</option>
+                                                            <option value="Long">Long</option>
+                                                            <option value="Double">Double</option>
+                                                        </select></label>
+                                                    </td>
+                                                    <td><label><input id="{{../guid}}-{{isArray}}-isarray"
+                                                                      type="checkbox"
+                                                                      class="isArrayCheckBox"
+                                                                      data-guid="{{../guid}}"
+                                                                      data-field="{{headerKey}}"
+                                                                      name="{{../guid}}-{{isArray}}-isarray"></label>
+                                                    </td>
+                                                </tr>
+                                                <script>
+                                                    if ('{{skip}}' == 'true')
+                                                        $('#{{../guid}}-{{headerKey}}-skip').attr('checked', true);
+                                                    if ('{{isArray}}' == 'true')
+                                                        $('#{{../guid}}-{{headerKey}}-isarray').attr('checked', true);
+                                                    $('#{{../guid}}-{{headerKey}}-datatype').val('{{dataType}}');
+                                                </script>
+                                            {{/each}}
+                                            </tbody>
+                                        </table>
+                                        <!--
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-10">
+                                                <button type="submit" class="btn btn-default config-rel-button"
+                                                        data-guid="{{guid}}" data-step="23"
+                                                        data-intro="Once the relationship has been configured click this button to add it to the data model.">
+                                                    Add Relationship
+                                                </button>
+                                            </div>
+                                        </div>
+                                        -->
+                                    </div>
+                                {{/each}}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- New Relationship Modal -->
+            <div class="modal fade" id="newRelModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <button type="button" class="close"
+                                    data-dismiss="modal">
+                                <span aria-hidden="true">&times;</span>
+                                <span class="sr-only">Close</span>
+                            </button>
+                            <h4 class="modal-title" id="myModalLabel">
+                                Create Relationship
+                            </h4>
+                        </div>
+
+                        <!-- Modal Body -->
+                        <div class="modal-body">
+
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <!-- FROM -->
+                                    <label for="fromLabelSelect" class="col-sm-4 control-label">From - Label</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="fromLabelSelect">
+                                            <option value="---">Label</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="fromNeoKeySelect" class="col-sm-4 control-label">From - neoKey</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="fromNeoKeySelect" disabled>
+                                            <option value="---">Label</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="fromHeaderKeySelect" class="col-sm-4 control-label">From -
+                                        headerKey</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="fromHeaderKeySelect" disabled>
+                                            <option value="---">Label</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- TO -->
+                                <div class="form-group">
+                                    <label for="toLabelSelect" class="col-sm-4 control-label">To - label</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="toLabelSelect">
+                                            <option value="---">Label</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="toNeoKeySelect" class="col-sm-4 control-label">To - neoKey</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="toNeoKeySelect" disabled>
+                                            <option value="---">Label</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="toHeaderKeySelect" class="col-sm-4 control-label">To - headerKey</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="toHeaderKeySelect" disabled>
+                                            <option value="---">Label</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="nameInput" class="col-sm-2 control-label">Relationship name</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="nameInput" placeholder="SERVES_ON">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="filenameInput" class="col-sm-2 control-label">Filename</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" id="filenameInput" placeholder="legislators.csv">
+                                            {{# each files}}
+                                                <option value="{{this}}">{{this}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default"
+                                    data-dismiss="modal">
+                                Close
+                            </button>
+                            <button type="button" id="createRelButton" class="btn btn-primary" data-dismiss="modal">
+                                Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Node modal -->
+            <div class="modal fade" id="newNodeModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">&times;</span>
+                                <span class="sr-only">Close</span>
+                            </button>
+                            <h4 class="modal-title">
+                                Create New Node
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="newNodeFileSelect">Choose file</label>
+                                    <select id="newNodeFileSelect">
+                                        {{# each files }}
+                                            <option value="{{this}}">{{this}}</option>
+                                        {{/each}}
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" id="fileForNewNodeSelectedButton" class="btn btn-primary"
+                                    data-dismiss="modal">Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New relationship modal -->
+            <div class="modal fade" id="newRelModalFileSelect" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class=modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">&times;</span>
+                                <span class="sr-only">Close</span>
+                            </button>
+                            <h4 class="modal-title">
+                                Create New Relationship
+                            </h4>
+                        </div>
+
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="newRelFileSelect">Choose file</label>
+                                    <select id="newRelFileSelect">
+                                        {{# each files}}
+                                            <option value="{{this}}">{{this}}</option>
+                                        {{/each}}
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" id="fileForNewRelSelectedButton" class="btn btn-primary" data-dismiss="modal">Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var files = JSON.parse('{{{stringify this.files}}}');
+    var filesContents = JSON.parse(decodeURI('{{this.filesContents}}').replace(/&#x27;/g, '\''));
+    var configData = JSON.parse('{{{stringify this.config}}}'.replace(/\n/g, ''));
+    var fileFields = JSON.parse('{{{stringify this.fileFields}}}');
+    var fieldDatatypes = JSON.parse('{{{stringify this.fieldDatatypes}}}');
+
+    $(function() {
+
+        $('.nodeTabListItem').first().addClass("active");
+        $('.relTabListItem').first().addClass("active");
+        $('.node-tab-pane').first().addClass("active");
+        $('.rel-tab-pane').first().addClass("active");
+
+        updateAllLabelSelects();
+        updateUIListeners();
+        populateLabelSelects();
+        drawRelationshipTable();
+
+        DatamodelViz.init();
+
+        $('.labelInput').trigger("change");
+
+        // *********************************
+        // *
+        // * updateAllLabelSelects()
+        // *
+        // *********************************
+
+        function updateAllLabelSelects() {
+            updateFromLabelSelects($('.fromLabelSelect'));
+            updateFromLabelSelects($('.toLabelSelect'));
+        }
+
+        // *********************************
+        // *
+        // * populateLabelSelects()
+        // *
+        // *********************************
+
+        function populateLabelSelects() {
+            var labels = getAllLabels();
+            $('.labelSelect').empty();
+            $.each(labels, function(i, label){
+                $('.labelSelect')
+                        .append($("<option></option>")
+                        .attr("value", label)
+                        .text(label));
+            });
+            populateHeaderKeySelects();
+            updateAllLabelSelects();
+            setDefaultLabelSelects();
+        }
+
+        // *********************************
+        // *
+        // * getAllLabels()
+        // *
+        // *********************************
+
+        function getAllLabels() {
+            var labels = [];
+            _.forEach(configData.nodes, function(node) {
+                _.forEach(node.labels, function(label) {
+                    if (!_.includes(labels, label)) {
+                        labels.push(label);
+                    }
+
+                })
+            });
+            return labels;
+        }
+
+        // *********************************
+        // *
+        // * setDefaultLabelSelects()
+        // *
+        // *********************************
+
+        function setDefaultLabelSelects() {
+            $.each(configData.relationships, function(r, relationship) {
+                $.each(configData.nodes, function(n, node) {
+                    if (node.table == relationship.startNode.table) {
+                        $('#' + relationship.guid + '-fromLabelSelect').val(node.labels);
+                    }
+                    if (node.table == relationship.endNode.table) {
+                        $('#' + relationship.guid + '-toLabelSelect').val(node.labels);
+                    }
+                });
+            });
+        }
+
+        // *********************************
+        // *
+        // * updateFromLabelSelects(el)
+        // *
+        // *********************************
+
+        // fromLabelSelect / toLabelSelect handler
+        // - on select make fromNeoKeySelect / toNeoKeySelect and fromHeaderKeySelect / toHeaderKeySelect enabled
+        // - populate fromNeoKeySelect / toNeoKeySelect and fromHeaderKeySelect / toHeaderKeySelect with valid options
+
+        function updateFromLabelSelects(el) {
+
+            el = $(el);
+
+            var neoKeys = neoKeysForLabel(el.val());
+            var allKeys = allKeysForLabel(el.val());
+            var guid = el.data("guid");
+            var selectInputs;
+
+            if (el.data("direction") === 'from') {
+                selectInputs = $('#' + guid + '-fromNeoKeySelect');
+            } else {
+                selectInputs = $('#' + guid + '-toNeoKeySelect');
+            }
+
+            selectInputs.prop("disabled", false).empty();
+            selectInputs.append($("<option></option>")
+                    .attr("value", "")
+                    .text(""));
+
+            $.each(neoKeys, function(i, key) {
+                selectInputs.append($("<option></option>")
+                        .attr("value", key)
+                        .text(key));
+            });
+        }
+
+        // *********************************
+        // *
+        // * neoKeysForLabel(label)
+        // *
+        // *********************************
+
+        function neoKeysForLabel(label) {
+            var keys = [];
+            //console.log(label);
+
+            var filteredNodes = _.filter(configData.nodes, function(node) {
+                return _.includes(node.labels, label);
+            });
+
+            //console.log(filteredNodes);
+
+            _.forEach(filteredNodes, function(node){
+                _.forEach(node.properties, function(property){
+                    keys.push(property.neoKey);
+                });
+
+            });
+
+            return keys;
+        }
+
+        // *********************************
+        // *
+        // * allKeysForLabel(label)
+        // *
+        // *********************************
+
+        // TODO: get all neoKeys + headerKeys (for a given label)
+
+        function allKeysForLabel(label) {
+            var keys = [];
+
+            var filteredNodes = _.filter(configData.nodes, function(node) {
+                return _.includes(node.labels, label);
+            });
+
+            //console.log(filteredNodes);
+
+            _.forEach(filteredNodes, function(node){
+                _.forEach(node.properties, function(property) {
+                    keys.push(property.neoKey);
+                    if (!_.includes(keys, property.headerKey)) {
+                        keys.push(property.headerKey);
+                    }
+                })
+
+            });
+
+            //console.log(keys);
+            return keys;
+        }
+
+        // *********************************
+        // *
+        // * handleUpdateLabel(e)
+        // *
+        // *********************************
+
+        function handleUpdateLabel(e) {
+            var guid = $(e.target).data("id");
+            var node = _.find(configData.nodes, {guid: guid});
+            _.each(configData.relationships, function(rel) {
+                if (rel.startNode.label == node['labels'][0])
+                    rel.startNode.label = $(e.target).val();
+                if (rel.endNode.label == node['labels'][0])
+                    rel.endNode.label = $(e.target).val();
+            });
+            node['labels'] = [$(e.target).val()];
+            populateLabelSelects();
+            drawRelationshipTable();
+            DatamodelViz.updateNetworkViz();
+        }
+
+        // *********************************
+        // *
+        // * handleUpdateRelationship(e)
+        // *
+        // *********************************
+
+        function handleUpdateRelationship(e) {
+            var guid = $(e.target).data("id");
+            var relationship = _.find(configData.relationships, {guid: guid});
+            relationship['type'] = [$(e.target).val()];
+            drawRelationshipTable();
+            DatamodelViz.updateNetworkViz();
+        }
+
+        // *********************************
+        // *
+        // * updateDatatypeValues()
+        // *
+        // *********************************
+
+        function updateDatatypeValues() {
+            $('.datatypeselect').each(function() {
+                var el = $(this);
+                var filename = el.data("filename");
+                var field = el.data("field");
+
+                var value = fieldDatatypes[filename][field];
+                if (value) {
+                    el.val(value);
+                }
+            })
+        }
+
+        // *********************************
+        // *
+        // * drawRelationshipTable()
+        // *
+        // *********************************
+
+        function drawRelationshipTable() {
+            var relTableBody = $('#relTableBody').children().not(':first').remove();
+            _.forEach(configData.relationships, function(rel, i) {
+                if (rel.startNode && rel.endNode) {
+                    var row = "<tr align='left'>";
+                    row += "<td nowrap>(:" + rel.startNode.label + ")</td>";
+                    row += "<td nowrap>&minus;[</td>";
+                    row += "<td nowrap>:" + rel.type + "</td>";
+                    row += "<td nowrap>]&minus;&gt;</td>";
+                    row += "<td nowrap>(:" + rel.endNode.label + ")</td>";
+                    $('#relTableBody').append(row);
+                }
+            })
+        }
+
+        // *********************************
+        // *
+        // * getPKForLabel(label)
+        // *
+        // *********************************
+
+        function getPKForLabel(label) {
+
+            // FIXME: this only works for a single element label array
+            var node = _.find(configData.nodes, {labels: [label]});
+            var key = _.find(node.properties, {primaryKey: true});
+
+            return key.neoKey;
+        }
+
+        // *********************************
+        // *
+        // * getGuidForLabel(label)
+        // *
+        // *********************************
+
+        function getGuidForLabel(label) {
+            var node = _.find(configData.nodes, {labels: [label]});
+            return node['guid'];
+        }
+
+        // *********************************
+        // *
+        // * fieldsForRelationshipFile(file)
+        // *
+        // *********************************
+
+        function fieldsForRelationshipFile(file) {
+            var fields = [];
+
+            //console.log("Fetching fields for file: " + file);
+            //_.each(_.find(configData.relationships, {filename: file})['properties'], function(field) {
+            //    fields.push(field);
+            //});
+
+            fields = fileFields[file];
+
+            if (fields == undefined)
+                fields = [];
+
+            return fields;
+        }
+
+        // *********************************
+        // *
+        // * populateHeaderKeySelects()
+        // *
+        // *********************************
+
+        function populateHeaderKeySelects() {
+            // for every headerKeySelect, get the fields for the file (add file as a data attribute)
+            $('.headerKeySelect').each(function(i) {
+                var el = $(this);
+                var filename = $(this).data("filename");
+                var fields = fieldsForRelationshipFile(filename);
+
+                //console.log("populating headerKeySelects for file " + filename + " with fields: ");
+                //console.log(fields);
+
+                el.empty();
+                el.append($("<option></option>")
+                        .attr("value", "")
+                        .text(""));
+
+                $.each(fields, function(i, key) {
+                    el.append($("<option></option>")
+                            .attr("value", key)
+                            .text(key));
+
+                });
+            });
+        }
+
+        // *********************************
+        // *
+        // * updateToLabelSelects(el)
+        // *
+        // *********************************
+
+        function updateToLabelSelects(el) {
+            var neoKeys = neoKeysForLabel(el.val());
+            var allKeys = allKeysForLabel(el.val());
+            var guid = el.data("guid");
+            var selectInputs = $('#' + guid + '-toNeoKeySelect, #' + guid + '-toHeaderKeySelect');
+
+            selectInputs.prop("disabled", false).empty();
+            selectInputs.append($("<option></option>")
+                    .attr("value", "")
+                    .text(""));
+
+            $.each(neoKeys, function(i, key) {
+                selectInputs.append($("<option></option>")
+                        .attr("value", key)
+                        .text(key));
+
+            });
+
+
+            // FIXME: this doesn't do anything now - should these fields really be actual fields for the selected file??
+
+            $.each(allKeys, function (i, key) {
+                $('#toHeaderKeySelect').append($("<option></option>")
+                        .attr("value", key)
+                        .text(key));
+            })
+        }
+
+        // *********************************
+        // *
+        // * isModelValid()
+        // *
+        // *********************************
+
+        function isModelValid() {
+
+            // check for PK
+            var numNodes = configData.nodes.length;
+            var numRels = configData.relationships.length;
+
+            var numPKs = $('.pkcheckbox:checked').length;
+            var numLabels = $(".labelInput").filter(function(){ return this.value != "";}).length;
+            var numRelNames = $(".relNameInput").filter(function(){ return this.value != "";}).length;
+
+            var relFlag = false;
+
+            _.each(configData.relationships, function(rel){
+                // missing relationship name
+                if (!rel.hasOwnProperty("type")) {
+                    relFlag = true;
+                }
+            });
+
+            if (numNodes != numPKs) {
+                alert("Please select a Primary Key for each Node.");
+                return false;
+            } else if (numNodes != numLabels) {
+                alert("Please enter a Label for each Node.");
+                return false;
+            } else if (numRels != numRelNames || relFlag){
+                alert("Missing relationship name. Please make sure all relationships have defined names");
+                return false;
+            }
+
+            return true;
+        }
+
+        // *********************************
+        // *
+        // * replaceFirstOrSecond()
+        // *
+        // *********************************
+
+        function replaceFirstOrSecond(origin, match, replace) {
+            var i = 0;
+            var n = 1;
+            origin.replace(match, function() { i++; });
+            return origin.replace(match, function( x ) {
+                if (n == i) {
+                    return replace;
+                } else  {
+                    n++;
+                    return x;
+                }
+            });
+        }
+
+        // *********************************
+        // *
+        // * updateUIListeners()
+        // *
+        // *********************************
+
+        function updateUIListeners() {
+
+            $('.guideButton').unbind().click(function(e){
+                e.preventDefault();
+                var intro = introJs();
+
+                intro.onbeforechange(function(target) {
+                    // Properly handle cases where the element is in a bootstrap tab
+                    if($(target).data("toggle") == "tab") {
+                        $(target).trigger("click");
+                    }
+
+                    var tab = $(target).closest('.tab-pane');
+                    var id = tab.prop("id");
+                    if(id) {
+                        $('a[href="#' + id + '"]').trigger("click");
+                    }
+                });
+
+                intro.onafterchange(function(target) {
+                    // Exit the demo if on Nodes only
+                    if ($('#relationshipTabNav').hasClass('hidden') && $(target).data("step") == '14') {
+                        //console.log("EXITING INTRO");
+                        intro.exit();
+                    }
+                });
+
+                if ($('#nodesTabNav').hasClass('hidden')) {
+                    intro.goToStep(13).start(); // start on relationship intro if editing relationships
+                } else {
+                    intro.start();
+                }
+            });
+
+            $('.labelInput').unbind().change(function(e) { handleUpdateLabel(e) });
+            $('.relNameInput').unbind().change(function(e) { handleUpdateRelationship(e) });
+
+            //$('.labelSelect').unbind().change(function(e) { updateFromLabelSelects(e.target) });
+
+            $('.renameLabel').unbind().change(function(e){
+
+                var guid = $(e.target).data("guid");
+                var field = $(e.target).data("field");
+
+                var node = _.find(_.union(configData.nodes, configData.relationships), {guid: guid});
+                var property = _.find(node.properties, {headerKey: field});
+                property['neoKey'] = $(e.target).val();
+
+                DatamodelViz.updateNetworkViz();
+            });
+
+            $('.skipCheckBox').unbind().change(function(e) { manageCheckbox('skip', e) });
+            $('.isArrayCheckBox').unbind().change(function(e) { manageCheckbox('isArray', e) });
+
+            function manageCheckbox(attribute, e) {
+                var guid = $(e.target).data("guid");
+                var field = $(e.target).data("field");
+                var node = _.find(_.union(configData.nodes, configData.relationships), {guid: guid});
+                var property = _.find(node.properties, {headerKey: field});
+
+                if ($(e.target).is(':checked')) {
+                    property[attribute] = true;
+                } else {
+                    property[attribute] = false;
+                }
+
+                DatamodelViz.updateNetworkViz();
+            }
+
+            $('.pkcheckbox').unbind().change(function(e){
+                var guid = $(e.target).data("guid");
+                //console.log(guid);
+                var field = $(e.target).data("field");
+
+                var node = _.find(configData.nodes, {guid: guid});
+                var property = _.find(node.properties, {headerKey: field});
+
+                if ($(e.target).is(':checked')) {
+                    property['primaryKey'] = true;
+                    $('#' + guid + '-' + field + '-index').prop('checked', $(e.target).is(':checked'));
+                    $('.pkcheckbox[data-guid="' + guid + '"]').prop("disabled", true);
+                    $(e.target).prop("disabled", false);
+
+                } else {
+                    property['primaryKey'] = false;
+                    $('.pkcheckbox[data-guid="' + guid + '"]').prop("disabled", false);
+                }
+
+                DatamodelViz.updateNetworkViz();
+            });
+
+            $('.datatypeselect').unbind().change(function(e){
+                var guid = $(e.target).data("guid");
+                var field = $(e.target).data("field");
+
+                var node = _.find(_.union(configData.nodes, configData.relationships), {guid: guid});
+                var property = _.find(node.properties, {headerKey: field});
+
+                property['dataType'] = $(e.target).val();
+                //console.log(configData);
+            });
+
+            $('.indexCheckbox').unbind().change(function(e){
+                var guid = $(e.target).data("guid");
+                var field = $(e.target).data("field");
+
+                var node = _.find(configData.nodes, {guid: guid});
+                var property = _.find(node.properties, {headerKey: field});
+
+                if ($(e.target).is(':checked') && !$('#' + guid + '-' + field + 'pk').is(":checked")) {
+                    property['index'] = true;
+                } else {
+                    property['index'] = false;
+                }
+
+                //console.log(configData);
+            });
+
+            $('#createRelButton').unbind().click(function() {
+
+                // TODO: This logic should be moved into relationship pane
+                var relName = $('#nameInput').val();
+                var filename = $('#filenameInput').val();
+
+                var fromLabel = $('#fromLabelSelect').val();
+                var fromKey = $('#fromNeoKeySelect').val();
+                var fromFileKey = $('#fromHeaderKeySelect').val();
+
+                //var toArr = to.split(":");
+
+                var toLabel = $('#toLabelSelect').val();
+                var toKey = $('#toNeoKeySelect').val();
+                var toFileKey = $('#toHeaderKeySelect').val();
+
+
+                var createdNewRelationship = false;
+                // FIXME: need to find on a guid here not a filename
+                var newRel = _.find(configData.relationships, {filename: filename});
+
+                if (!newRel) {
+                    newRel = {};
+                    createdNewRelationship = true;
+                }
+
+                newRel['name'] = relName;
+                newRel['filename'] = filename;
+                var fromObj = {};
+                fromObj['label'] = fromLabel;
+                fromObj['neoKey'] = fromKey;
+                fromObj['fileKey'] = fromFileKey;
+                var toObj = {};
+                toObj['label'] = toLabel;
+                toObj['neoKey'] = toKey;
+                toObj['fileKey'] = toFileKey;
+
+                newRel['from'] = fromObj;
+                newRel['to'] = toObj;
+
+                if (createdNewRelationship) {
+                    configData.relationships.push(newRel);
+                }
+
+                DatamodelViz.updateNetworkViz();
+                drawRelationshipTable();
+            });
+
+            $('#relConfigButton').unbind().click(function(e){
+                e.preventDefault();
+
+                var numNodes = configData.nodes.length;
+                var numPKs = $('.pkcheckbox:checked').length;
+                var numLabels = $(".labelInput").filter(function(){ return this.value != "";}).length;
+                //console.log("numLabels " + numLabels);
+
+                if (numNodes != numPKs) {
+                    alert("Please select a Primary Key for each Node.");
+                } else if (numNodes != numLabels) {
+                    alert("Please enter a Label for each Node.");
+                } else {
+                    $('#submit').removeClass('hidden');
+                    $(this).addClass('hidden');
+                    $('#nodesTabNav').addClass('hidden');
+                    $('#relationshipTabNav').removeClass('hidden');
+                    $('#relationshipTabNav').trigger('click');
+
+                    $('#helperAlertNodes').addClass("hidden");
+                    $('#helperAlertRels').removeClass("hidden");
+
+                    $("#nodeConfigButton").removeClass("hidden");
+                    updateUIListeners();
+                }
+            });
+
+            $('#nodeConfigButton').unbind().click(function(e){
+                e.preventDefault();
+
+                $('#nodesTabNav').trigger('click');
+                $(this).addClass('hidden');
+                $('#relConfigButton').removeClass("hidden");
+
+                $('#helperAlertNodes').removeClass("hidden");
+                $("#helperAlertRels").addClass("hidden");
+                $('#submit').addClass('hidden');
+            });
+
+            $('#submit').unbind().click(function(e){
+                e.preventDefault();
+
+                if (isModelValid()) {
+
+                    var fileContentsUpdated = [];
+
+                    _.each(filesContents, function(table) {
+                        if (table['graph-object-type'] == 'Node') {
+                            _.each(configData.nodes, function (updatedNode) {
+                                if (table.name == updatedNode.table) {
+                                    var tableUpdated = table;
+                                    var tableMappingsUpdated = [];
+                                    _.each(tableUpdated.mappings, function(tableMapping) {
+                                        if (tableMapping['field']['type'] == 'Label') {
+                                            var newLabel = '\'' + updatedNode.labels[0] + '\' AS "_NODE_LABEL_"';
+                                            tableUpdated.sql = table.sql.replace(/\'\w+\' AS "_NODE_LABEL_"/, newLabel);
+                                            tableMapping['column']['name'] = '\'' + updatedNode.labels[0] + '\'';
+                                            tableMappingsUpdated.push(tableMapping);
+                                        } else {
+                                          if (tableMapping['field']['type'] == 'Id') {
+                                            tableMappingsUpdated.push(tableMapping);
+                                          } else if (tableMapping['field']['type'] == 'Data') {
+                                            _.each(updatedNode.properties, function(updatedNodeProperty) {
+                                                if (updatedNodeProperty.headerKey == tableMapping['column']['name']) {
+                                                    tableMapping['column']['alias'] = updatedNodeProperty.neoKey;
+                                                    tableMapping['field']['name'] = updatedNodeProperty.neoKey;
+                                                    tableMapping['field']['is-array'] = updatedNodeProperty.isArray;
+                                                    tableMapping['field']['neo4j-data-type'] = updatedNodeProperty.dataType;
+                                                    var oldAlias = 'AS \"' + tableMapping['column']['name'] + '\"';
+                                                    var oldAliasRegexp = new RegExp(oldAlias, "g");
+                                                    var newAlias = 'AS \"' + updatedNodeProperty.neoKey + '\"';
+                                                    tableUpdated.sql = replaceFirstOrSecond(table.sql, oldAliasRegexp, newAlias);
+                                                    if (!updatedNodeProperty.skip) {
+                                                        tableMappingsUpdated.push(tableMapping);
+                                                    }
+                                                }
+                                            });
+                                          }
+                                        }
+                                    });
+                                    tableUpdated['mappings'] = tableMappingsUpdated;
+                                    fileContentsUpdated.push(tableUpdated);
+                                    //console.log("WILL CHANGE NODE:");
+                                    //console.log(table);
+                                    //console.log("WITH:");
+                                    //console.log(updatedNode);
+                                }
+                            });
+                        } else if (table['graph-object-type'] == 'Relationship') {
+                            _.each(configData.relationships, function (updateRelationship) {
+                                if (table.name == updateRelationship.table) {
+                                    var tableUpdated = table;
+                                    var tableMappingsUpdated = [];
+                                    _.forEach(tableUpdated.mappings, function(tableMapping) {
+                                        if (tableMapping['field']['type'] == 'RelationshipType') {
+                                            var newLabel = '\'' + updateRelationship.type + '\' AS "_RELATIONSHIP_TYPE_"';
+                                            tableUpdated.sql = table.sql.replace(/\'\w+\' AS "_RELATIONSHIP_TYPE_"/, newLabel);
+                                            tableMapping['column']['name'] = '\'' + updateRelationship.type + '\'';
+                                            tableMappingsUpdated.push(tableMapping);
+                                        } else {
+                                            if (tableMapping['field']['type'] == 'StartId') {
+                                                tableMappingsUpdated.push(tableMapping);
+                                            } else if (tableMapping['field']['type'] == 'EndId') {
+                                                tableMappingsUpdated.push(tableMapping);
+                                            } else if (tableMapping['field']['type'] == 'Data') {
+                                            _.each(updateRelationship.properties, function(updatedRelationshipProperty) {
+                                                if (updatedRelationshipProperty.headerKey == tableMapping['column']['name']) {
+                                                    tableMapping['column']['alias'] = updatedRelationshipProperty.neoKey;
+                                                    tableMapping['field']['name'] = updatedRelationshipProperty.neoKey;
+                                                    tableMapping['field']['is-array'] = updatedRelationshipProperty.isArray;
+                                                    tableMapping['field']['neo4j-data-type'] = updatedRelationshipProperty.dataType;
+                                                    //TODO skip is missing
+                                                    var oldAlias = 'AS \"' + tableMapping['column']['name'] + '\"';
+                                                    var oldAliasRegexp = new RegExp(oldAlias, "g");
+                                                    var newAlias = 'AS \"' + updatedRelationshipProperty.neoKey + '\"';
+                                                    tableUpdated.sql = replaceFirstOrSecond(table.sql, oldAliasRegexp, newAlias);
+                                                    if (!updatedRelationshipProperty.skip) {
+                                                        tableMappingsUpdated.push(tableMapping);
+                                                    }
+                                                }
+                                            });
+                                            }
+                                        }
+                                    });
+                                    tableUpdated.mappings = tableMappingsUpdated;
+                                    fileContentsUpdated.push(tableUpdated);
+                                    //console.log("WILL CHANGE REL:");
+                                    //console.log(table);
+                                    //console.log("WITH:");
+                                    //console.log(updateRelationship);
+                                }
+                            });
+                        }
+                    });
+
+                    var downloadFileName = files[0].replace(".", "-ui.");
+
+                    saveAs(new Blob([JSON.stringify(fileContentsUpdated, null , 2)], { type:"text/plain;charset=utf-8" }), downloadFileName);
+                }
+            });
+
+            $('#modalToggleButton, #relationshipTabNav').unbind().click(function(e) {
+                //console.log("dont' show the modal");
+                // data-toggle="modal" data-target="#newRelModal"
+
+                var inputs = $('.labelInput');
+                var numNodes = configData.nodes.length;
+                var numPKs = $('.pkcheckbox:checked').length;
+
+                for (var i=0;i<inputs.length;i++) {
+                    if ($(inputs[i]).val() === '') {
+                        alert("Please select labels for all Nodes before adding relationships.");
+                        return false;
+                    }
+                }
+
+                if (numPKs != numNodes) {
+                    alert("Please select a Primary Key for all Nodes before adding relationships.");
+                    return false;
+                }
+
+                if ($(this).is('#modalToggleButton')) {
+                    $('#newRelModal').modal('toggle');
+                }
+            });
+
+            $('.toggleSkipButton').unbind().click(function(e){
+                var guid = $(e.target).data("guid");
+                //console.log("Toggle clicked: " + guid);
+
+                $(".skipCheckBox").filter(function() {
+                    return $(this).data("guid") == guid && !$(this).attr('disabled');
+                }).prop("checked", function( i, val ) {
+                    return !val;
+                }).change();
+                DatamodelViz.updateNetworkViz();
+            });
+
+            $('.config-rel-button').unbind().click(function(e){
+
+                // FIXME: fromKey / toKey should be the primary key (renamed?) for each node
+
+                var target = $(this);
+                var guid = $(this).data("guid");
+                e.preventDefault();
+
+                var relName = $('#'+ guid + '-nameInput').val();
+
+                if (relName === "") {
+                    alert("Please enter a name for this relationship.");
+                    return false;
+                }
+                var fileName= $('#' + guid + '-filenameInput').val();
+                var fromLabel = $('#' + guid +'-fromLabelSelect').val();
+                var fromKey = $('#' + guid + '-fromNeoKeySelect').val();
+                var toKey = $('#' + guid + '-toNeoKeySelect').val();
+                var fromPK = getPKForLabel(fromLabel);
+                var fromGuid = getGuidForLabel(fromLabel);
+
+                // TODO: fromKey will always be primaryKey (neoKey where primaryKey: true in nodeConfig)
+                // TODO: fromFileKey will be primaryKey (headerKey(?) where primaryKey: true in nodeConfig), unless overridden by key specified in fromHeaderKeySelect field
+
+                // Dropping assumption that fromKey will be primary key
+                if (!fromKey || fromKey === "") {
+                    fromKey = fromPK;
+                }
+
+                var specifiedFromFileKey = $('#' + guid + '-fromHeaderKeySelect').val();
+                var fromFileKey;
+                if (specifiedFromFileKey === '') {
+                    fromFileKey = fromPK;
+                } else {
+                    fromFileKey = specifiedFromFileKey;
+                }
+
+                var toLabel = $('#' + guid + '-toLabelSelect').val();
+                var toPK = getPKForLabel(toLabel);
+                var toGuid = getGuidForLabel(toLabel);
+                // TODO: fromKey will always be primaryKey (neoKey where primaryKey: true in nodeConfig)
+                // TODO: fromFileKey will be primaryKey (headerKey(?) where primaryKey: true in nodeConfig), unless overridden by key specified in fromHeaderKeySelect field
+
+                // Dropping assumption that toKey will be primary key
+                if (!toKey || toKey === "") {
+                    toKey = toPK;
+                }
+
+                var toFileKey;
+                var specifiedToFileKey = $('#' + guid + '-toHeaderKeySelect').val();
+
+                if (specifiedToFileKey === '') {
+                    toFileKey = toPK;
+                } else {
+                    toFileKey = specifiedToFileKey;
+                }
+
+                var createdNewRelationship = false;
+
+                var newRel = _.find(configData.relationships, {guid: guid});
+
+                if (!newRel) {
+                    newRel = {};
+                    createdNewRelationship = true;
+                }
+
+                newRel['name'] = relName;
+                newRel['filename'] = fileName;
+
+                var fromObj = {};
+                fromObj['label'] = fromLabel;
+                fromObj['neoKey'] = fromKey;
+                fromObj['fileKey'] = fromFileKey;
+                fromObj['guid'] = fromGuid;
+
+                var toObj = {};
+                toObj['label'] = toLabel;
+                toObj['neoKey'] = toKey;
+                toObj['fileKey'] = toFileKey;
+                toObj['guid'] = toGuid;
+
+                newRel['from'] = fromObj;
+                newRel['to'] = toObj;
+
+                if (createdNewRelationship) {
+                    configData.relationships.push(newRel);
+                }
+
+                $('#' + guid + '-tabAnchor').html(relName);
+
+                //console.log(configData);
+
+                drawRelationshipTable();
+                DatamodelViz.updateNetworkViz();
+
+                alert("Relationship " + newRel['name'] + " created.");
+            });
+
+            $('#fileForNewNodeSelectedButton').unbind().click(function(e) {
+                var filename = $('#newNodeFileSelect').val();
+                //console.log("adding a new node for file: " + filename);
+                var newNode = {};
+                newNode['guid'] = guidShort();
+                var guid = newNode['guid'];
+                newNode['labels'] = [];
+                newNode['filename'] = filename;
+                newNode['properties'] = [];
+                var propertiesArr = _.first(_.filter(configData.nodes, {filename: filename}))['properties'];
+                //console.log(propertiesArr);
+                var properties = _.pluck(propertiesArr, 'headerKey');
+                //console.log(properties);
+
+                _.each(properties, function(prop){
+                    var obj = {};
+                    obj['headerKey'] = prop;
+                    obj['neoKey'] = prop;
+                    obj['dataType'] = 'string';
+                    obj['primaryKey'] = false;
+                    obj['skip'] = false;
+                    newNode.properties.push(obj);
+                });
+
+                configData.nodes.push(newNode);
+                //console.log(configData);
+
+                DatamodelViz.updateNetworkViz();
+
+                // FIXME: use some MVC framework that supports data binding!!!!
+                // update Nodes nav tabs with new filename
+
+                $('#nodeTabList').append($('<li></li>')
+                        .attr("role", "presentation")
+                        .attr("class", "nodeTabListItem")
+                        .append($('<a></a>')
+                                .attr("href", '#' + guid)
+                                .attr("aria-controls", guid)
+                                .attr("role", "tab")
+                                .attr("data-toggle", "tab")
+                                .attr("id", guid+'-tabAnchor')
+                                .text(filename)));
+
+                // update nodes config table
+
+                var newNodePanel = '<div role="tabpanel" class="tab-pane node-tab-pane" id="' + guid + '">';
+                newNodePanel +=     '<div class="' +  guid + '-nodePaneDiv">';
+                newNodePanel +=         '<div id="' + guid + '-datamodelPane">';
+                newNodePanel +=             '<div class="row">';
+                newNodePanel +=                 '<div class="col-sm-6">';
+                newNodePanel +=                     '<div class="form-group">';
+                newNodePanel +=                         '<label for="' + guid + '-labelInput" class="col-sm-2 control-label">Label</label>';
+                newNodePanel +=                         '<div class="col-sm-10" style="padding:20px;">';
+                newNodePanel +=                             '<input type="text" class="form-control labelInput" name="' + guid + '-labelInput" data-id="' + guid + '" id="' + guid + '-labelInput" placeholder="Node" required>';
+
+                newNodePanel +=                             '</div> <!-- /div.col-sm-10';
+                newNodePanel +=                         '</div> <!-- /form-group -->';
+
+                newNodePanel +=                         '<div class="form-group" style="padding:20px;">';
+                newNodePanel +=                             '<label class="col-sm-2 control-label">File</label>';
+                newNodePanel +=                         '<div class="col-sm-10">';
+                newNodePanel +=                             '<p class="form-control-static">' + filename + '<a href="#" data-toggle="popover" data-poload="/preview/' +  filename + '"> Preview</a></p>';
+                newNodePanel +=                         '</div>';
+                newNodePanel +=                         '</div>';
+
+                newNodePanel +=                     '</div> <!-- /col-sm-6 -->';
+                newNodePanel +=                 '</div> <!-- /row -->';
+
+                newNodePanel +=             '<table class="table">';
+                newNodePanel +=                 '<tbody>';
+                newNodePanel +=                     '<tr><th>Column</th><th>Rename</th><th>Skip <button type="button" class="btn btn-default btn-xs toggleSkipButton" data-guid="' + guid + '">Toggle All</button></th><th>PK</th><th>Datatype</th><th>Create Index</th></tr>'; // Remove FK row
+
+                _.forEach(properties, function(field) {
+                    var row = '<tr>';
+                    row += '<td>' + field + '</td>';
+                    row += '<td>' + '<label><input class="renameLabel" data-guid="' + guid + '" data-field="' + field + '" type="text" name="' + guid + '-' + field + '-rename"></label> </td>';
+                    row += '<td>' + '<label><input class="skipCheckBox" data-guid="' + guid + '" data-field="' + field + '" type="checkbox" name="' + guid + '-' + field + '-skip"></label> </td>';
+                    row += '<td>' + '<label><input class="pkcheckbox" data-guid="' + guid + '" data-field="' + field + '" type="checkbox" name="' + guid + '-' + field + '-pk"></label> </td>';
+                    row += '<td><label><select data-guid="' + guid + '" data-field="' + field + '" data-filename="' + filename + '" class="datatypeselect"><option value="string">string</option><option value="integer">integer</option><option value="float">float</option></select> </label></td>';
+
+                    row += '<td>' + '<label><input class="indexCheckbox" data-guid="' + guid + '" data-field="' + field + '" type="checkbox" id="' + guid + '-' + field + '-index" name="' + guid + '-' + field + '-index"></label> </td>';
+                    //row += '<td><button type="button" class="btn btn-sm">---</button>';
+
+                    row += '</tr>';
+                    newNodePanel += row;
+
+                });
+
+                newNodePanel +=                 '</tbody>';
+                newNodePanel +=             '</table>';
+                newNodePanel +=             '</div> <!-- /datamodelPane -->';
+                newNodePanel +=         '</div> <!-- /nodePaneDiv --> ';
+                newNodePanel +=     '</div> <!-- /tabpanel -->';
+
+                $('#tab-content-nodes').append($(newNodePanel));
+
+                updateUIListeners();
+
+
+
+            });
+
+            $('#fileForNewRelSelectedButton').unbind().click(function(e) {
+
+                //TODO: add markup for relationships and add properties for each field in filename
+
+                var filename = $('#newRelFileSelect').val();
+                var fields = fieldsForRelationshipFile(filename);
+                //console.log("adding a new rel for file: " + filename);
+                var newRel = {};
+                newRel['guid'] = guidShort();
+                var guid = newRel['guid'];
+                newRel['filename'] = filename;
+                newRel['properties'] = [];
+                _.forEach(fields, function(f) {
+                    var prop = {};
+                    prop['skip'] = true;
+                    prop['dataType'] = 'string';
+                    prop['neoKey'] = f;
+                    prop['headerKey'] = f;
+                    newRel['properties'].push(prop);
+                });
+
+                configData.relationships.push(newRel);
+                //console.log(configData);
+
+                DatamodelViz.updateNetworkViz();
+
+                $('#relTablist').append($('<li></li>')
+                        .attr("role", "presentation")
+                        .attr("class", "relTabListItem")
+                        .append($('<a></a>')
+                            .attr("href", "#"+guid)
+                            .attr("aria-controls", guid)
+                            .attr("role", "tab")
+                            .attr("data-toggle", "tab")
+                            .attr("id", guid + "-tabAnchor")
+                            .text(filename)));
+
+                var newRelPanel =   '<div role="tabpanel" class="tab-pane rel-tab-pane" id="' + guid + '">';
+
+                newRelPanel +=      '<div class="row">';
+                newRelPanel +=          '<div class="col-xs-4">';
+                newRelPanel +=              '<div class="form-group">';
+                newRelPanel +=                  '<label class="col-sm-2 control-label">File</label>';
+                newRelPanel +=                  '<div class="col-sm-10">';
+                newRelPanel +=                      '<p class="form-control-static">' + filename + '<a href="#" data-toggle="popover" data-poload="/preview/' + filename + '"> Preview</a></p>';
+                newRelPanel +=                  '</div>';
+                newRelPanel +=              '</div>';
+                newRelPanel +=          '</div>';
+                newRelPanel +=      '</div>';
+
+                newRelPanel +=          '<form>';
+                newRelPanel +=              '<div class="row">';
+                newRelPanel +=                  '<h4 class="text-center">Create Relationship</h4>';
+                newRelPanel +=                  '<div class="col-xs-4">';
+                newRelPanel +=                      '<div class="form-group">';
+                newRelPanel +=                          '<label for="' + guid + '-fromLabelSelect">From</label>';
+                newRelPanel +=                          '<select class="form-control labelSelect fromLabelSelect" id="' + guid + '-fromLabelSelect" data-direction="from" data-guid="' + guid + '">';
+
+                var labels = getAllLabels();
+
+                _.forEach(labels, function(l) {
+                    newRelPanel +=                          '<option>' + l + '</option>';
+                });
+
+                newRelPanel +=                          '</select>';
+                newRelPanel +=                      '</div>';
+
+                // From Label Property
+
+                newRelPanel +=                      '<div class="form-group">';
+                newRelPanel +=                          '<label for="' + filename + '-fromNeoKeySelect">From Label property <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" title="Create relationship on property" data-content="Only select a value here if the field you want to map this relationship to is different from the primary key."></span></label>';
+                newRelPanel +=                          '<select class="form-control neoKeySelect" data-guid="' + guid + '" data-filename="' + filename + '" id="' + guid + '-fromNeoKeySelect" data-direction="from">';
+
+                newRelPanel +=                      '<option></option>';
+
+                var fromKeys = neoKeysForLabel(labels[0]);
+                _.forEach(fromKeys, function(l) {
+                    newRelPanel +=                      '<option>' + l + '</option>';
+                });
+
+
+                newRelPanel +=                      '</select><p class="help-block">Optional</p>';
+                newRelPanel +=                      '</div>';
+
+
+
+                newRelPanel +=                      '<div class="form-group">';
+                newRelPanel +=                          '<label for="' + guid + '-fromHeaderKeySelect">Field name in file <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" title="Field name in file" data-content="Only select a value here if the field you want to map this relationship to is different from the primary key."></span></label>';
+                newRelPanel +=                          '<select class="form-control headerKeySelect" data-guid="' + guid +'" data-filename="' + filename + '" id="' + guid + '-fromHeaderKeySelect">';
+
+                // FIXME: POPULATE fileKeys here <option value=""></option><option>EmployeeID</option>
+
+                newRelPanel +=                          '<option value=""></option>';
+                var keys = fieldsForRelationshipFile(filename);
+                _.forEach(keys, function(k) {
+                    newRelPanel +=                      '<option value="' + k + '">' + k + '</option>';
+                });
+
+
+                newRelPanel +=                          '</select>';
+                newRelPanel +=                          '<p class="help-block">Optional</p>';
+                newRelPanel +=                      '</div>';
+                newRelPanel +=                  '</div>';
+                newRelPanel +=                  '<div class="col-xs-4">';
+                newRelPanel +=                      '<div class="form-group">';
+                newRelPanel +=                          '<label for="' + guid +'-nameInput">Relationship name</label>';
+                newRelPanel +=                          '<input type="text" class="form-control relNameInput" id="' + guid +'-nameInput" data-guid="' + guid +'" placeholder="ACTED_IN">';
+                newRelPanel +=                      '</div>';
+                newRelPanel +=                  '</div>';
+                newRelPanel +=                  '<div class="col-xs-4">';
+                newRelPanel +=                      '<div class="form-group">';
+                newRelPanel +=                          '<label for="' + guid + '-toLabelSelect">To</label>';
+                newRelPanel +=                          '<select class="form-control labelSelect toLabelSelect" id="' + guid + '-toLabelSelect" data-direction="to" data-guid="' + guid + '">';
+                _.forEach(labels, function(l) {
+                    newRelPanel +=                          '<option value="' + l + '">' + l + '</option>';
+                });
+                newRelPanel +=                          '</select>';
+                newRelPanel +=                      '</div>';
+
+
+
+                // To Label property
+
+                newRelPanel +=                  '<div class="form-group">';
+                newRelPanel +=                      '<label for="' + guid + '-toNeoKeySelect">To Label property <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" title="Create relationship on property" data-content="Only select a value here if the field you want to map this relationship to is different from the primary key."></span></label>';
+                newRelPanel +=                      '<select class="form-control neoKeySelect" data-guid="' + guid + '" data-filename="' + filename + '" data-direction="to" id="' + guid + '-toNeoKeySelect">';
+
+                newRelPanel +=                          '<option></option>';
+
+                toKeys = neoKeysForLabel(labels[0]);
+                _.forEach(toKeys, function(l) {
+                    newRelPanel +=                      '<option>' + l + '</option>';
+                });
+
+                newRelPanel +=                      '</select>';
+                newRelPanel +=                  '</div>';
+
+                newRelPanel +=                  '<div class="form-group">';
+                newRelPanel +=                      '<label for="' + guid + '-toHeaderKeySelect">Field name in file <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" title="Field name in file" data-content="Only select a value here if the field you want to map this relationship to is different from the primary key."></span></label>';
+                newRelPanel +=                      '<select class="form-control headerKeySelect" id="' + guid + '-toHeaderKeySelect" data-filename="' + filename + '" data-guid="' + guid + '">';
+                newRelPanel +=                          '<option value=""></option>';
+                _.forEach(keys, function(k) {
+                    newRelPanel +=                      '<option value="' + k + '">' + k + '</option>';
+                });
+                newRelPanel +=                      '</select>';
+                newRelPanel +=                      '<p class="help-block">Optional</p>';
+                newRelPanel +=                      '</div>';
+                newRelPanel +=                  '</div>';
+                newRelPanel +=                  '<input type="hidden" id="' + guid + '-filenameInput" data-guid="' + guid + '" value="' + filename + '">';
+                newRelPanel +=              '</div>';
+                newRelPanel +=          '</form>';
+
+
+                newRelPanel +=          '<table class="table">';
+                newRelPanel +=              '<tbody>';
+                newRelPanel +=                  '<tr>';
+                newRelPanel +=                      '<th>Column</th>';
+                newRelPanel +=                      '<th>Rename</th>';
+                newRelPanel +=                      '<th>Skip <button type="button" class="btn btn-default btn-xs toggleSkipButton" data-guid="' + guid + '">Toggle All</button></th>';
+                newRelPanel +=                      '<th>Datatype</th>';
+                newRelPanel +=                  '</tr>';
+
+
+                _.forEach(fields, function(f) {
+
+                    newRelPanel +=              '<tr>';
+                    newRelPanel +=                  '<td>' + f + '</td>';
+                    newRelPanel +=                  '<td><label><input class="renameLabel" data-guid="' + guid + '" data-field="' + f +'" type="text" name="' + guid + '-' + f + '-rename"</label></td>';
+                    newRelPanel +=                  '<td><label><input class="skipCheckBox" data-guid="' + guid + '" data-field="' + f + '" type="checkbox" name="' + guid + '-' + f + '-skip" checked></label></td>';
+                    newRelPanel +=                  '<td><label><select data-guid="' + guid + '" data-field="' + f + '" class="datatypeselect">'
+                    newRelPanel +=                      '<option value="string">string</option>';
+                    newRelPanel +=                      '<option value="integer">integer</option>';
+                    newRelPanel +=                      '<option value="float">float</option>';
+                    newRelPanel +=                      '</select></label></td>';
+                    newRelPanel +=              '</tr>';
+                });
+
+                newRelPanel +=              '</tbody>';
+                newRelPanel +=          '</table>';
+
+                newRelPanel +=          '<div class="form-group">';
+                newRelPanel +=              '<div class="col-sm-offset-2 col-sm-10">';
+                newRelPanel +=                  '<button type="submit" class="btn btn-default config-rel-button" data-guid="' + guid + '">Add Relationship</button>';
+                newRelPanel +=              '</div>';
+                newRelPanel +=          '</div>';
+                newRelPanel +=       '</div> <!-- ./tabpanel -->';
+
+                $('.tab-content-rels').append($(newRelPanel));
+
+
+                updateUIListeners();
+
+                $('#relTablist a:last').tab('show');
+
+
+
+
+            });
+
+            $('[data-content]').popover({container:'body', html: true, trigger: 'click'});
+
+            // when showing a new tab, all currently shown popovers must be hidden
+            $('.hidePopover').click(function(e){
+                $('[data-content]').popover('hide');
+                $('[data-poload]').popover('hide');
+            });
+
+            $('[data-poload]').each(function(i,e){
+                var el = $(e);
+                $.get(el.data("poload"), function(d) {
+                    el.popover({content: d, html: true, trigger: 'hover', container: 'body'});
+                })
+            });
+        }
+    });
+</script>
+
+<script src="/js/util.js"></script>
+<script src="/js/datamodelviz.js"></script>

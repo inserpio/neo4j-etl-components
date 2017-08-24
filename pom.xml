@@ -11,7 +11,9 @@
 
     <modules>
         <module>neo4j-etl</module>
+        <module>neo4j-etl-ui</module>
         <module>neo4j-etl-cli</module>
+        <module>neo4j-etl-release</module>
         <module>neo4j-etl-it</module>
     </modules>
 

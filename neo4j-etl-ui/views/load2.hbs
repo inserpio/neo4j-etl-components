@@ -1,0 +1,98 @@
+<style>
+    .popover{
+        max-width: 1000%;
+    }
+</style>
+
+<div class="container">
+    <div class="starter-template">
+
+<div class="alert alert-info alert-dismissible text-left" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <div class="row">
+        <div class="col-xs-9">
+            <p class="lead">Here we can view summary information for the selected mapping file.</p>
+            <p>For each table you can:</p>
+            <ul>
+                <li>Confirm you want to import it.</li>
+                <li>See if the table represents a Node or Relationship.</li>
+                <li>Preview the related mapping rule.</li>
+                <li>Preview the SQL statement that will be executed to extract data into a corresponding CSV file.</li>
+            </ul>
+        </div>
+        <div class="col-xs-3">
+            <button id="guidebutton" class="btn btn-success">Guide me!</button>
+        </div>
+    </div>
+
+
+</div>
+
+<h1>Files pending import</h1>
+<form action="/load2" method="post">
+<div class="row">
+
+<table class="table">
+    <tbody>
+        <tr>
+            <th data-intro="As a convenience you can preview the mapping of each table." data-step="4">Mapping <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" title="Mapping" data-content="As a convenience you can preview the mapping of each table."></span></th>
+            <th data-intro="As a convenience you can preview the sql of each table." data-step="5">Sql <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" title="Sql" data-content="As a convenience you can preview the sql of each table."></span></th>
+            <th>Mapping File</th>
+            <th>Table Name</th>
+            <th data-intro="If you uploaded a file that you don't want to include in the data model, toggle this checkbox to exclude the file." data-step="3">Import <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" title="Select files for import" data-content="Toggle to exclude files from being imported"></span></th>
+            <th data-intro="The first step of defining your property graph data model is to identify each file that contains 'Nodes'. A Node is an entity in the data model. Each node can have data associated with it, and usually represents some real world object. For example, a Person node, or a Business node or an Event node. Nodes are connected by relationships."  data-step="1" data-position="left">Node <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" title="Node" data-content="Each CSV file represents a Node, Relationship or both. Nodes are entities in the data model."></span></th>
+            <th data-intro="A relationship connects two nodes. For each file select this option if your CSV file references two Node entities. An example would be a join table exported from a relational database." data-step="2" data-position="left">Relationship <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="popover" title="Relationship" data-content="Relationships connect entities in the data model. Choose this if this file represents a 'join table'."></span></th>
+            <th>Size</th>
+            <th>Rows</th>
+
+        </tr>
+
+        {{#each files}}
+        <tr>
+            <th><a href="#" data-toggle="popover" data-content="<pre>{{mapping}}</pre>">View</a></th>
+            <th><a href="#" data-toggle="popover" data-content="{{sql}}">View</a></th>
+            <th>{{file}}</th>
+            <th>{{name}}</th>
+            <th><label><input type="checkbox" name="{{name}}importCheck" checked></label></th>
+            <th><label><input type="radio" name="{{name}}typeRadios" value="node" {{node}}></label></th>
+            <th><label><input type="radio" name="{{name}}typeRadios" value="relationship" {{relationship}}></label></th>
+            <th>-</th>
+            <th>-</th>
+
+        </tr>
+            <input type="hidden" name="__file__{{name}}" value="{{file}}">
+            <input type="hidden" name="__table__{{name}}" value="{{name}}">
+        {{/each}}
+    </tbody>
+</table>
+</div>
+<div class="row">
+    <div class="col-md-3 col-md-offset-9">
+<button type="submit" class="btn btn-success" data-intro="Once you've identified which files represent Nodes and Relationships and excluded any files you don't want to include in the data model click this button to move on to the next step!" data-step="6">Next</button>
+    </div>
+
+</div>
+
+    </form>
+
+<script>
+    $(function () {
+        $('[data-content]').popover({html: true, trigger: 'click'});
+
+        $('[data-poload]').each(function(i,e){
+            var el = $(e);
+            $.get(el.data("poload"), function(d) {
+                el.popover({content: d, html: true, trigger: 'click', placement: 'auto left'});
+            })
+        });
+
+        $("#guidebutton").click(function(e) {
+            e.preventDefault();
+            introJs().start();
+        });
+
+
+    })
+
+</script>
+        </div></div>

@@ -6,7 +6,7 @@ NAME
 
 SYNOPSIS
 
-        neo4j-etl { export | generate-metadata-mapping | help* }
+        neo4j-etl { ui | export | generate-metadata-mapping | help* }
 
             [--] [cmd-options] <cmd-args>
 
@@ -59,6 +59,7 @@ SYNOPSIS
 
         Where command-specific arguments <cmd-args> are:
 
+            ui: { start | stop }
             export: [ <table1 table2 ...>... ]
             generate-metadata-mapping: [ <table1 table2 ...>... ]
             help: [ <command>... ]

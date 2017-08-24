@@ -1,14 +1,16 @@
 [[neo4j-etl-cli]]
 == neo4j-etl Command Line Tool
 
-This is the command line tool you use to retrieve and map the metadata from your relational database.
-And also to drive the export from the relational and import into Neo4j database.
+This is the command line tool you use to retrieve and map the metadata from your relational database and drive the export from the relational and import into Neo4j database.
+
+Also, with the newly released user interface you can preview the resulting graph data model and eventually improve it by setting your favourite label and property names
+or relationships and property types.
 
 It supports all relational databases with a JDBC driver, for example *MySQL*, *PostgreSQL*, *Oracle* and *Microsoft SQL*.
 
 You can get the http://github.com/neo4j-contrib/neo4j-etl-components/releases/latest[latest version of the import tool from GitHub].
 
-Once downloaded and uncompressed the zip, you also need download the proper JDBC Driver and add it to the `lib` folder.
+Once downloaded and uncompressed the operating system specific `zip` / `tar.gz`, you also need download the proper JDBC Driver and add it to the `lib` folder.
 
 You can follow the proper link in the below table in order to download the proper driver jar
 
@@ -47,6 +49,12 @@ include::neo4j-etl-help.txt[]
 include::neo4j-etl-rdbms-generate-metadata-mapping.txt[]
 ----
 
+=== 'ui' command
+
+----
+include::neo4j-etl-rdbms-ui.txt[]
+----
+
 === 'export' command
 
 ----
@@ -58,7 +66,7 @@ include::neo4j-etl-rdbms-export.txt[]
 === Generate Metadata Mapping
 
 ----
-~: export NEO4J_HOME=/path/to/neo4j-enterprise-3.1.3
+~: export NEO4J_HOME=/path/to/neo4j-enterprise-3.2.3
 
 ~: mkdir -p /tmp/northwind
 
@@ -68,6 +76,31 @@ include::neo4j-etl-rdbms-export.txt[]
   --rdbms:schema northwind > /tmp/northwind/mapping.json
 ----
 
+=== Edit Metadata Mapping via User Interface
+
+----
+STEP 1: Generate Metadata Mapping File (via command line)
+
+Just follow the above instructions.
+
+STEP 2: Inspect and adjust the graph data model (via user interface)
+
+~: $NEO4J_HOME/bin/neo4j-etl ui start
+
+~: open http://localhost:3000
+
+Once satisfied, save the consolidated mapping file (i.e. /tmp/northwind/edited-mapping.json) and stop the ui
+
+~: $NEO4J_HOME/bin/neo4j-etl ui stop
+
+STEP 3: Import your data into Neo4j using the just exported Metadata Mapping (again via command line)
+
+You can use any of the below alternatives, but don't forget to add the following command option:
+
+  --mapping-file /tmp/northwind/edited-mapping.json
+
+----
+
 === Offline Bulk Import via `neo4j-import` tool for initial load (neo4j must be empty)
 
 ----
@@ -75,9 +108,9 @@ include::neo4j-etl-rdbms-export.txt[]
 
 ~: $NEO4J_HOME/bin/neo4j-etl export  \
   --rdbms:url jdbc:oracle:thin:@localhost:49161:XE \
-  --rdbms:user northwind --rdbms:password northwind \
-  --rdbms:schema northwind
-  --using bulk:neo4j-import
+  --rdbms:user northwind --rdbms :password northwind \
+  --rdbms:schema northwind \
+  --using bulk:neo4j-import \
   --import-tool $NEO4J_HOME/bin  \
   --csv-directory /tmp/northwind \
   --options-file /tmp/northwind/options.json \
@@ -113,8 +146,8 @@ include::neo4j-etl-rdbms-export.txt[]
 ~: $NEO4J_HOME/bin/neo4j-etl export  \
   --rdbms:url jdbc:oracle:thin:@localhost:49161:XE \
   --rdbms:user northwind --rdbms:password northwind \
-  --rdbms:schema northwind
-  --using cypher:direct
+  --rdbms:schema northwind \
+  --using cypher:direct \
   --neo4j:url bolt://localhost:7687 \
   --neo4j:user neo4j --neo4j:password neo4j \
   --import-tool $NEO4J_HOME/bin  \
@@ -190,7 +223,7 @@ exit
 Load the database via the following sql script:
 https://raw.githubusercontent.com/neo4j-contrib/neo4j-etl-components/master/neo4j-etl-it/src/main/resources/scripts/mysql/northwind.sql
 
-~: export NEO4J_HOME=/path/to/neo4j-enterprise-3.1.3
+~: export NEO4J_HOME=/path/to/neo4j-enterprise-3.2.3
 
 ~: mkdir -p /tmp/northwind
 
@@ -226,10 +259,10 @@ neo4j=# \q
 ----
 
 Load the database via the following sql script:
-https://raw.githubusercontent.com/neo4j-contrib/neo4j-etl-components/master/neo4j-etl-it/src/main/resources/scripts/postgresql/northwind.sql
+https://raw.githubusercontent.com/neo4j-contrib/neo4j-etl-components/master/neo4j-etl-it/src/main/resources/scripts/postgresql/northwind.sql[northwind.sql]
 
 ----
-~: export NEO4J_HOME=/path/to/neo4j-enterprise-3.1.3
+~: export NEO4J_HOME=/path/to/neo4j-enterprise-3.2.3
 
 ~: mkdir -p /tmp/northwind
 
@@ -277,7 +310,7 @@ SQL> quit;
 
 root@692c446a274b:~# exit
 
-~: export NEO4J_HOME=/path/to/neo4j-enterprise-3.1.3
+~: export NEO4J_HOME=/path/to/neo4j-enterprise-3.2.3
 
 ~: mkdir -p /tmp/northwind
 

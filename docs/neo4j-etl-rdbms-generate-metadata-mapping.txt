@@ -2,7 +2,7 @@ NAME
 
         neo4j-etl generate-metadata-mapping
 
-            - Create MySQL to Neo4j metadata mapping Json.
+            - Create RDBMS to Neo4j metadata mapping Json.
 
 SYNOPSIS
         neo4j-etl generate-metadata-mapping

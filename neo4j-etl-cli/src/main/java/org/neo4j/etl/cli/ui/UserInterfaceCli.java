@@ -12,9 +12,15 @@ import java.util.List;
 @Command(name = "ui", description = "Starting Neo4j ETL UI Node.JS server.")
 public class UserInterfaceCli implements Runnable
 {
-    @Arguments(description = "start / stop the neo4j-etl ui server",
+    @Arguments(description = "Start / Stop the neo4j-etl ui server.",
             title = "start / stop server")
     protected List<String> arguments;
+
+    @Option(type = OptionType.COMMAND,
+            name = {"--port"},
+            description = "Port number to use for connection to the ui.",
+            title = "ui port")
+    protected long port = 3000;
 
     @Option(type = OptionType.COMMAND,
             name = {"--debug"},
@@ -26,14 +32,9 @@ public class UserInterfaceCli implements Runnable
     {
         try
         {
-            if ( arguments == null || arguments.size() != 1)
-            {
-                wrongArguments();
-            }
+            String command = ( arguments != null && arguments.size() > 0 ) ? arguments.get(0) : "start";
 
-            String command = arguments.get(0);
-
-            UserInterfaceProcessHandler uiProcess = new UserInterfaceProcessHandler();
+            UserInterfaceProcessHandler uiProcess = new UserInterfaceProcessHandler( this.port );
 
             if ( command.equalsIgnoreCase( "start" ) )
             {
@@ -45,17 +46,12 @@ public class UserInterfaceCli implements Runnable
             }
             else
             {
-                wrongArguments();
+                throw new IllegalArgumentException( "Wrong arguments. Usage: ./bin/neo4j-etl ui { start | stop }" );
             }
         }
         catch ( Exception e )
         {
             CliRunner.handleException( e, debug );
         }
-    }
-
-    private void wrongArguments()
-    {
-        throw new IllegalArgumentException("Wrong arguments. Usage: ./bin/neo4j-etl ui { start | stop }");
     }
 }

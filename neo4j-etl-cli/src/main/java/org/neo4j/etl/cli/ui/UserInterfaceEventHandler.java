@@ -9,9 +9,9 @@ import static java.lang.String.format;
 public class UserInterfaceEventHandler implements UserInterfaceEvents
 {
     @Override
-    public void onStartingServer( Path webappDirectory )
+    public void onStartingServer( Path webappDirectory, String port )
     {
-        CliRunner.print( "Starting Node.JS server..." );
+        CliRunner.print( format( "Starting Node.JS server on port %s...", port ) );
         CliRunner.print( format( "Webapp directory: %s", webappDirectory ) );
     }
 

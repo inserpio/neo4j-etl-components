@@ -1005,6 +1005,10 @@ SYNOPSIS
 
         Where command-specific options [cmd-options] are:
 
+            ui:
+
+                --port &lt;port&gt;
+
             export:
 
                 --rdbms:url &lt;rdbms url&gt;
@@ -1052,7 +1056,7 @@ SYNOPSIS
 
         Where command-specific arguments &lt;cmd-args&gt; are:
 
-            ui: { start | stop }
+            ui: { start* | stop }
             export: [ &lt;table1 table2 ...&gt;... ]
             generate-metadata-mapping: [ &lt;table1 table2 ...&gt;... ]
             help: [ &lt;command&gt;... ]
@@ -1204,15 +1208,24 @@ DEPRECATED OPTIONS
             - Web application for editing RDBMS to Neo4j metadata mapping Json.
 
 SYNOPSIS
-        neo4j-etl ui { start | stop }
+        neo4j-etl ui { start* | stop }
+
+            --port &lt;port&gt;
 
 OPTIONS
 
         start:
-            Run the `neo4j-etl-ui` web server locally to make the UI available at http://localhost:3000.
+            Run the `neo4j-etl-ui` web server locally to make the UI available.
 
         stop:
-            Shutdown the `neo4j-etl-ui` web server.</code></pre>
+            Shutdown the `neo4j-etl-ui` web server.
+
+        --port &lt;port&gt;
+            UI connection port.
+
+        Note:
+
+            Passing no argument is equivalent to passing "start" (the default).</code></pre>
 </div></div>
 </div>
 <div class="sect2">
@@ -1842,7 +1855,7 @@ TODO: Create indexes and constraints related to not-primary key columns
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-08-22 19:05:11 CEST
+Last updated 2017-08-23 14:35:01 CEST
 </div>
 </div>
 </body>

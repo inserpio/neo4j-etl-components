@@ -5,12 +5,21 @@ NAME
             - Web application for editing RDBMS to Neo4j metadata mapping Json.
 
 SYNOPSIS
-        neo4j-etl ui { start | stop }
+        neo4j-etl ui { start* | stop }
+
+            --port <port>
 
 OPTIONS
 
         start:
-            Run the `neo4j-etl-ui` web server locally to make the UI available at http://localhost:3000.
+            Run the `neo4j-etl-ui` web server locally to make the UI available.
 
         stop:
             Shutdown the `neo4j-etl-ui` web server.
+
+        --port <port>
+            UI connection port.
+
+        Note:
+
+            Passing no argument is equivalent to passing "start" (the default).

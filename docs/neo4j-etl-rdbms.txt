@@ -12,6 +12,10 @@ SYNOPSIS
 
         Where command-specific options [cmd-options] are:
 
+            ui:
+
+                --port <port>
+
             export:
 
                 --rdbms:url <rdbms url>
@@ -59,7 +63,7 @@ SYNOPSIS
 
         Where command-specific arguments <cmd-args> are:
 
-            ui: { start | stop }
+            ui: { start* | stop }
             export: [ <table1 table2 ...>... ]
             generate-metadata-mapping: [ <table1 table2 ...>... ]
             help: [ <command>... ]

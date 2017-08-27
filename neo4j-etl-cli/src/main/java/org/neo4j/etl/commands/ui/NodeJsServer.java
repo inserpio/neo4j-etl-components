@@ -39,7 +39,7 @@ public class NodeJsServer extends Thread
 
             Path nodeScript = Paths.get( rootDir, "ui", "bin/www");
 
-            events.onStartingServer( nodeScript );
+            events.onStartingServer( nodeScript, System.getenv( "NEO4J_ETL_UI_PORT" ) );
 
             nodeJS = NodeJS.createNodeJS();
 

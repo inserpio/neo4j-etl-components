@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public interface UserInterfaceEvents
 {
-    void onStartingServer( Path webappDirectory );
+    void onStartingServer( Path webappDirectory, String port );
 
     void onServerStarted( long pid );
 
